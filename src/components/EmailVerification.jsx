@@ -36,7 +36,7 @@ export default function EmailVerification({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const verifyAccount = async () => {
@@ -58,7 +58,7 @@ export default function EmailVerification({
         } catch (error) {
             console.error('⚠️ Verification Error:', error);
             setStatus('error');
-            const errorMsg = lang === 'es' ? 'Error de conexión' : 'Connection error';
+            const errorMsg = t.connectionError;
             setMessage(errorMsg);
             setLocalError(errorMsg);
             if (onError) onError(errorMsg);

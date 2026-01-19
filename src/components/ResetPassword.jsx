@@ -69,7 +69,7 @@ export default function ResetPassword({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const formatTime = (seconds) => {
@@ -90,7 +90,7 @@ export default function ResetPassword({
                 if (data.wait_seconds) setCountdown(data.wait_seconds);
                 setStatusMessage(data.message || t.resendSent);
             } else {
-                const errorMsg = data.message || data.error || (lang === 'es' ? 'Error al reenviar' : 'Error resending');
+                const errorMsg = data.message || data.error || (t.connectionError);
                 setLocalError(errorMsg);
                 if (data.wait_seconds) setCountdown(data.wait_seconds);
                 if (onError) onError(errorMsg);
@@ -126,7 +126,7 @@ export default function ResetPassword({
         }
 
         if (!formData.token) {
-            const errorMsg = lang === 'es' ? "Ingresa el código de recuperación" : "Please enter the recovery code";
+            const errorMsg = t.enterRecoveryCode;
             setLocalError(errorMsg);
             if (onError) onError(errorMsg);
             return;
@@ -151,7 +151,7 @@ export default function ResetPassword({
                 }
                 if (onSuccess) onSuccess(data);
             } else {
-                const errorMsg = data.message || data.error || (lang === 'es' ? 'Error al restablecer la contraseña' : 'Error resetting password');
+                const errorMsg = data.message || data.error || (t.unknownError);
                 setLocalError(errorMsg);
                 if (onError) onError(errorMsg);
                 setIsLoading(false);
@@ -176,7 +176,7 @@ export default function ResetPassword({
 
     const handleLogoutSessions = async (all = false, sessionIds = []) => {
         if (!currentAuthToken) {
-            const errorMsg = lang === 'es' ? 'No hay sesión activa' : 'No active session';
+            const errorMsg = t.noSessions;
             setLocalError(errorMsg);
             if (onError) onError(errorMsg);
             return;
@@ -188,10 +188,9 @@ export default function ResetPassword({
         try {
             const data = await post('/logout_sessions', {
                 email: userEmail || '',
-                token: currentAuthToken,
                 all_sessions: all,
                 session_ids: sessionIds
-            });
+            }, { token: currentAuthToken });
 
             if (data.success) {
                 if (all) {
@@ -335,7 +334,7 @@ export default function ResetPassword({
                         onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                         required
                         className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-                        placeholder={lang === 'es' ? "Mínimo 8 caracteres" : "At least 8 characters"}
+                        placeholder={t.min8Chars}
                     />
                 </div>
 
@@ -362,7 +361,7 @@ export default function ResetPassword({
                 <div className="pt-2 text-center space-y-3">
                     {countdown > 0 ? (
                         <div className="text-xs text-gray-500 font-mono">
-                            {lang === 'es' ? 'Reenviar código en: ' : 'Resend code in: '}
+                            {t.resendCodeIn}
                             <span className="font-bold">{formatTime(countdown)}</span>
                         </div>
                     ) : (
@@ -373,7 +372,7 @@ export default function ResetPassword({
                             className="text-sm font-medium hover:underline"
                             style={primaryTextStyle}
                         >
-                            {isResending ? t.loading : (lang === 'es' ? 'Reenviar código' : 'Resend code')}
+                            {isResending ? t.loading : t.resendCode}
                         </button>
                     )}
 

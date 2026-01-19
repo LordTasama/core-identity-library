@@ -4,14 +4,23 @@ export function useAuthApi(apiBaseUrl, apiToken) {
     const { isAuthorized } = useSecurity(apiToken);
 
     const fetcher = async (url, options = {}) => {
+        const { token, ...fetchOptions } = options;
         try {
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-API-KEY': apiToken,
+                'X-REQUEST-URL': typeof window !== 'undefined' ? window.location.origin.replace(/\/$/, '') : '',
+                ...options.headers,
+            };
+
+            // Professional Bearer Token implementation
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${apiBaseUrl}${url}`, {
-                ...options,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': apiToken,
-                    ...options.headers,
-                },
+                ...fetchOptions,
+                headers,
                 credentials: 'include',
             });
 
@@ -29,7 +38,6 @@ export function useAuthApi(apiBaseUrl, apiToken) {
             }
 
             if (!response.ok) {
-                // Attach status and full data to the error object so components can react to it (400 vs 500, expired status, etc.)
                 const error = new Error(data.message || data.error || `Error ${response.status}`);
                 error.status = response.status;
                 error.data = data;
@@ -47,34 +55,37 @@ export function useAuthApi(apiBaseUrl, apiToken) {
         }
     };
 
-    const post = async (url, body) => {
+    const post = async (url, body, options = {}) => {
         return fetcher(url, {
             method: 'POST',
             body: body ? JSON.stringify(body) : undefined,
+            ...options
         });
     };
 
-    const get = async (url) => {
+    const get = async (url, options = {}) => {
         return fetcher(url, {
             method: 'GET',
+            ...options
         });
     };
 
     // Standard Identity Methods
     const verifySession = async (token, email) => {
-        return post('/verify-session', { token, email });
+        return post('/verify-session', { email }, { token });
     };
 
     const getUserContext = async (token, email) => {
-        return post('/user-context', { token, email });
+        return post('/user-context', { email }, { token });
     };
 
     const logout = async (token, email) => {
-        return post('/logout', { token, email });
+        return post('/logout', { email }, { token });
     };
 
     const changePassword = async (body) => {
-        return post('/change-password', body);
+        const { token, ...rest } = body;
+        return post('/change-password', rest, { token });
     };
 
     const getAppColors = async () => {
@@ -82,7 +93,8 @@ export function useAuthApi(apiBaseUrl, apiToken) {
     };
 
     const getMe = async (email, token) => {
-        return get(`/me?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
+        // Now using POST for /me as requested, and token in header
+        return post('/me', { email }, { token });
     };
 
     return {

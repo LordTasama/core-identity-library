@@ -36,7 +36,7 @@ export default function SignUp({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const handleSignUp = async (e) => {

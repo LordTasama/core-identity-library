@@ -49,7 +49,7 @@ export default function UserProfile({
 
     // Helper to parse Device Name if it's a User Agent
     const getCleanDeviceName = (deviceName) => {
-        if (!deviceName) return t.deviceName || 'Device';
+        if (!deviceName) return t.deviceName;
         if (deviceName.includes('Mozilla/')) {
             if (deviceName.includes('iPhone')) return 'iPhone';
             if (deviceName.includes('Android')) return 'Android Device';
@@ -79,7 +79,7 @@ export default function UserProfile({
                         <Sparkles className="w-6 h-6 absolute top-0 right-0 animate-pulse" style={{ color: propPrimaryColor }} />
                     </div>
                     <p className="text-lg font-semibold text-gray-600 animate-pulse">
-                        {lang === 'es' ? 'Cargando perfil...' : 'Loading profile...'}
+                        {t.loadingProfile}
                     </p>
                 </div>
             </div>
@@ -93,7 +93,7 @@ export default function UserProfile({
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                     <AlertCircle className="w-16 h-16 text-red-500" />
                     <p className="text-lg font-semibold text-red-600">
-                        {profileError || (lang === 'es' ? 'Error al cargar el perfil' : 'Failed to load profile')}
+                        {profileError || t.failedLoadProfile}
                     </p>
                     {onClose && (
                         <button
@@ -101,7 +101,7 @@ export default function UserProfile({
                             className="mt-4 px-6 py-2 rounded-xl font-semibold text-white transition-all hover:brightness-110"
                             style={{ backgroundColor: propPrimaryColor }}
                         >
-                            {lang === 'es' ? 'Cerrar' : 'Close'}
+                            {t.close}
                         </button>
                     )}
                 </div>
@@ -123,7 +123,7 @@ export default function UserProfile({
 
     const handleLogoutSessions = async (all = false, sessionIds = []) => {
         if (!authToken) {
-            const errorMsg = lang === 'es' ? 'No hay sesión activa' : 'No active session';
+            const errorMsg = t.noSessions;
             setLocalError(errorMsg);
             return;
         }
@@ -134,10 +134,9 @@ export default function UserProfile({
         try {
             const data = await post('/logout_sessions', {
                 email: user.email || userEmail || '',
-                token: authToken,
                 all_sessions: all,
                 session_ids: sessionIds
-            });
+            }, { token: authToken });
 
             if (data.success) {
                 if (all) {
@@ -262,13 +261,13 @@ export default function UserProfile({
                                     <User className="w-6 h-6" style={{ color: primaryColor }} />
                                 </div>
                                 <h2 className="text-xl font-black text-gray-800 uppercase tracking-wide">
-                                    {t.personalInfo || 'Personal Information'}
+                                    {t.personalInfo}
                                 </h2>
                             </div>
                             <div className="space-y-4 pl-2">
                                 <div className="group">
                                     <p className="text-xs uppercase font-bold text-gray-400 tracking-widest mb-1.5">
-                                        {t.fullNameLabel || 'Full Name'}
+                                        {t.fullNameLabel}
                                     </p>
                                     <p className="text-base font-bold text-gray-800 group-hover:text-gray-900 transition-colors">
                                         {displayName}
@@ -276,7 +275,7 @@ export default function UserProfile({
                                 </div>
                                 <div className="group">
                                     <p className="text-xs uppercase font-bold text-gray-400 tracking-widest mb-1.5">
-                                        {t.email || 'Email'}
+                                        {t.email}
                                     </p>
                                     <p className="text-base font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
                                         {user.email || userEmail}
@@ -292,7 +291,7 @@ export default function UserProfile({
                                     <Key className="w-6 h-6" style={{ color: primaryColor }} />
                                 </div>
                                 <h2 className="text-xl font-black text-gray-800 uppercase tracking-wide">
-                                    {t.permissionsLabel || 'Permissions'}
+                                    {t.permissionsLabel}
                                 </h2>
                             </div>
                             <div className="grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -321,7 +320,7 @@ export default function UserProfile({
                                 )) : (
                                     <div className="py-8 text-center">
                                         <Key className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                                        <p className="text-sm text-gray-400 italic">{t.noPermissions || 'No permissions assigned'}</p>
+                                        <p className="text-sm text-gray-400 italic">{t.noPermissions}</p>
                                     </div>
                                 )}
                             </div>
@@ -335,7 +334,7 @@ export default function UserProfile({
                                 <Settings className="w-6 h-6" style={{ color: primaryColor }} />
                             </div>
                             <h2 className="text-xl font-black text-gray-800 uppercase tracking-wide">
-                                {t.activeSessions || 'Active Sessions'}
+                                {t.activeSessions}
                             </h2>
                         </div>
 
@@ -363,7 +362,7 @@ export default function UserProfile({
                                             </div>
                                             {session['Expiration Date'] && (
                                                 <div className="text-xs text-gray-500 italic">
-                                                    {t.expiry || 'Expires'}: {new Date(session['Expiration Date']).toLocaleDateString()}
+                                                    {t.expiry}: {new Date(session['Expiration Date']).toLocaleDateString()}
                                                 </div>
                                             )}
                                         </div>
@@ -372,7 +371,7 @@ export default function UserProfile({
                                         onClick={() => handleLogoutSessions(false, [session._id])}
                                         disabled={isLoggingOutSession}
                                         className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 hover:scale-110"
-                                        title={t.logoutThisSession || 'Logout this session'}
+                                        title={t.logoutThisSession}
                                     >
                                         <LogOut className="w-5 h-5" />
                                     </button>
@@ -381,7 +380,7 @@ export default function UserProfile({
                                 <div className="py-12 text-center">
                                     <Settings className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                                     <p className="text-sm text-gray-400 italic">
-                                        {lang === 'es' ? 'No hay sesiones activas' : 'No active sessions found'}
+                                        {t.noSessions}
                                     </p>
                                 </div>
                             )}
@@ -397,10 +396,10 @@ export default function UserProfile({
                                 {isLoggingOutSession ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <Loader2 className="w-4 h-4 animate-spin" />
-                                        {t.loggingOut || 'Logging out...'}
+                                        {t.loggingOut}
                                     </span>
                                 ) : (
-                                    t.logoutAllSessions || 'Logout All Sessions'
+                                    t.logoutAllSessions
                                 )}
                             </button>
                         )}
@@ -414,7 +413,7 @@ export default function UserProfile({
                             onClick={onClose}
                             className="px-10 py-4 rounded-2xl font-bold text-base transition-all border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:scale-95 shadow-md hover:shadow-lg"
                         >
-                            {t.closeProfile || 'Close'}
+                            {t.closeProfile}
                         </button>
                     )}
                     <button
@@ -422,7 +421,7 @@ export default function UserProfile({
                         className="px-10 py-4 rounded-2xl font-bold text-base text-white shadow-lg transition-all active:scale-95 hover:brightness-110 hover:shadow-xl"
                         style={{ backgroundColor: primaryColor }}
                     >
-                        {t.changePassword || 'Change Password'}
+                        {t.changePassword}
                     </button>
                 </div>
             </div>

@@ -19,12 +19,13 @@ export default function WaitingConfirmation({
     initialWaitSeconds = 0,
     onSuccess,
     onError,
+    apiToken, // Added apiToken
     texts: customTexts = {}
 }) {
     const t = { ...translations[lang], ...customTexts };
-    const { isAuthorized, apiToken } = useSecurity();
+    const { isAuthorized } = useSecurity(apiToken);
     const { primaryColor, backgroundColor, isLoading: isAppInfoLoading } = useAppInfo(apiBaseUrl, apiToken, user, propPrimaryColor, propBackgroundColor);
-    const { post } = useAuthApi(apiBaseUrl);
+    const { post } = useAuthApi(apiBaseUrl, apiToken);
     const [isLoading, setIsLoading] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
@@ -63,7 +64,7 @@ export default function WaitingConfirmation({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const formatTime = (seconds) => {
@@ -91,9 +92,9 @@ export default function WaitingConfirmation({
             }
         } catch (error) {
             console.error('⚠️ Manual Verification Error:', error);
-            const connError = lang === 'es' ? 'Error de conexión' : 'Connection error';
-            setLocalError(connError);
-            if (onError) onError(connError);
+            const errorMsg = t.connectionError;
+            setLocalError(errorMsg);
+            if (onError) onError(errorMsg);
         } finally {
             setIsVerifying(false);
         }
@@ -118,7 +119,7 @@ export default function WaitingConfirmation({
                     setCountdown(data.wait_seconds);
                 }
             } else {
-                const errorMsg = data.message || data.error || (lang === 'es' ? 'Error al reenviar' : 'Error resending');
+                const errorMsg = data.message || data.error || (t.connectionError);
                 setLocalError(errorMsg);
                 if (data.wait_seconds) {
                     setCountdown(data.wait_seconds);
@@ -127,7 +128,7 @@ export default function WaitingConfirmation({
             }
         } catch (error) {
             console.error('⚠️ Resend Error:', error);
-            const errorMsg = lang === 'es' ? 'Error de conexión' : 'Connection error';
+            const errorMsg = t.connectionError;
             setLocalError(errorMsg);
             if (onError) onError(errorMsg);
         } finally {
@@ -153,7 +154,7 @@ export default function WaitingConfirmation({
             <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center" style={cardStyle}>
                 <div className="space-y-1 mb-6">
                     <h2 className="text-2xl font-semibold">{t.verifySuccess}</h2>
-                    <p className="text-sm text-gray-500">{lang === 'es' ? 'Tu cuenta ha sido confirmada.' : 'Your account has been confirmed.'}</p>
+                    <p className="text-sm text-gray-500">{t.verifySuccess}</p>
                 </div>
                 <div className="py-6 flex justify-center">
                     <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center text-green-500">
@@ -225,7 +226,7 @@ export default function WaitingConfirmation({
             <div className="border-t pt-6 space-y-3">
                 {countdown > 0 ? (
                     <div className="p-2 rounded bg-gray-50 text-gray-700 text-xs font-mono border inline-block">
-                        {lang === 'es' ? 'Puedes reenviar en: ' : 'You can resend in: '}
+                        {t.resendCodeIn}
                         <span className="font-bold">{formatTime(countdown)}</span>
                     </div>
                 ) : (

@@ -600,9 +600,6 @@ Este objeto contiene el "Contexto Completo" del usuario. Se recibe al iniciar se
 }
 ```
 
-## 13.2 Respuesta de Verification (Session Check)
-Estructura ligera utilizada por el endpoint `/verify-session` para comprobaciones rápidas de validez de token.
-
 ```json
 {
   "success": true,
@@ -612,6 +609,48 @@ Estructura ligera utilizada por el endpoint `/verify-session` para comprobacione
   "token": "eyJhbGciOi...",
   "handshake_code": "eyJl..."
 }
+```
+
+## 13.3 Control de Flujo (redirect_url)
+La librería utiliza el campo `redirect_url` del backend para determinar si el usuario debe ser enviado a una pantalla de espera o verificación.
+
+### A. Registro / Espera de Confirmación
+Cuando un usuario se registra o intenta loguearse pero requiere validación manual o de email, el backend debe responder con:
+
+```json
+{
+  "success": true,
+  "message": "Hemos enviado un código a su correo",
+  "redirect_url": "/waiting-confirmation",
+  "wait_seconds": 300,
+  "user": {
+    "email": "usuario@ejemplo.com"
+  }
+}
+```
+
+### B. Campos Críticos en la Respuesta
+- **`redirect_url`**: Si es `/waiting-confirmation` o `/esperando-confirmacion`, la librería activará la vista de ingreso de código.
+- **`wait_seconds`**: Segundos que el usuario debe esperar antes de poder solicitar un reenvío de código.
+- **`user`**: Objeto mínimo con el `email` para que la pantalla de espera sepa a quién pertenece la sesión.
+
+---
+
+# 14. Troubleshooting: Errores Comunes de Integración
+
+### 14.1 TypeError: Cannot read properties of undefined (reading 'expired_at')
+**Causa:** El desarrollador intenta leer datos de sesión (JWT) en el callback `onSuccess` inmediatamente después de un registro.
+**Solución:** El registro exitoso NO devuelve una sesión activa. Siempre valide la existencia del objeto de sesión antes de procesarlo:
+
+```javascript
+const handleSuccess = (data) => {
+  if (data.user && data.token) {
+    // Procesar login normal
+  } else if (data.redirect_url) {
+    // Es un registro o espera, no hay token aún
+    console.log("Navegando a:", data.redirect_url);
+  }
+};
 ```
 
 ---

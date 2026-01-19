@@ -30,7 +30,7 @@ export default function ForgotPassword({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const handleSubmit = async (e) => {
@@ -106,7 +106,7 @@ export default function ForgotPassword({
                             className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors"
                             style={primaryButtonStyle}
                         >
-                            {lang === 'es' ? 'Ingresar código y contraseña' : 'Enter code and password'}
+                            {t.enterCodeAndPassword}
                         </button>
                         <button
                             onClick={() => onNavigate && onNavigate('login')}

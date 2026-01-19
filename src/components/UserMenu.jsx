@@ -15,6 +15,7 @@ export default function UserMenu({
     primaryColor: propPrimaryColor = '#3b82f6',
     onLogout,
     onChangePassword,
+    onProfileClick, // Added onProfileClick
     extraItems = [], // Array of { icon: ReactNode, label: string, onClick: function }
     lang = 'en',
     apiBaseUrl,
@@ -104,6 +105,13 @@ export default function UserMenu({
                             <p className="text-[10px] font-medium text-gray-400 truncate">{user.email}</p>
                         </div>
 
+                        {/* Default Item: Profile */}
+                        <MenuItem
+                            icon={User}
+                            label={t.profile}
+                            onClick={onProfileClick}
+                        />
+
                         {/* Default Item: Change Password */}
                         <MenuItem
                             icon={KeyRound}
@@ -127,7 +135,7 @@ export default function UserMenu({
                         {/* Default Item: Logout */}
                         <MenuItem
                             icon={LogOut}
-                            label={t.logoutThisSession || (lang === 'es' ? 'Cerrar Sesión' : 'Logout')}
+                            label={t.logoutThisSession}
                             onClick={onLogout}
                             color="text-red-500"
                             className="hover:bg-red-50"

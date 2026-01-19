@@ -68,7 +68,19 @@ export const translations = {
         closeProfile: "Close Profile",
         connectionError: "Server connection error. Please check your internet or try again later.",
         serverError: "Internal server error. Our team has been notified.",
-        unknownError: "An unexpected error occurred."
+        unknownError: "An unexpected error occurred.",
+        loadingProfile: "Loading profile...",
+        failedLoadProfile: "Failed to load profile",
+        noSessions: "No active sessions found",
+        noApps: "No apps assigned",
+        authErrorTitle: "Authorization Error",
+        authErrorMessage: "API Token not found in component props.",
+        enterRecoveryCode: "Enter recovery code",
+        enterCodeAndPassword: "Enter code and password",
+        min8Chars: "At least 8 characters",
+        resendCode: "Resend Code",
+        resendCodeIn: "Resend code in: ",
+        close: "Close"
     },
     es: {
         login: "Iniciar Sesión",
@@ -139,6 +151,18 @@ export const translations = {
         closeProfile: "Cerrar Perfil",
         connectionError: "Error de conexión con el servidor. Revisa tu internet o intenta más tarde.",
         serverError: "Error interno del servidor. Nuestro equipo ha sido notificado.",
-        unknownError: "Ocurrió un error inesperado."
+        unknownError: "Ocurrió un error inesperado.",
+        loadingProfile: "Cargando perfil...",
+        failedLoadProfile: "Error al cargar el perfil",
+        noSessions: "No hay sesiones activas",
+        noApps: "No hay aplicaciones asignadas",
+        authErrorTitle: "Error de Autorización",
+        authErrorMessage: "No se ha encontrado el token de autorización en las props del componente.",
+        enterRecoveryCode: "Ingresa el código de recuperación",
+        enterCodeAndPassword: "Ingresar código y contraseña",
+        min8Chars: "Mínimo 8 caracteres",
+        resendCode: "Reenviar Código",
+        resendCodeIn: "Reenviar código en: ",
+        close: "Cerrar"
     }
 };

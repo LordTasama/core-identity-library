@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { TbGridDots } from 'react-icons/tb';
 import { useAppInfo } from '../hooks/useAppInfo';
+import { translations } from '../translations';
 
 const COLORS = [
     '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
@@ -15,10 +16,13 @@ export default function AppGrid({
     primaryColor: propPrimaryColor = '#3b82f6',
     apiBaseUrl,
     apiToken,
-    onAppClick
+    onAppClick,
+    lang = 'en',
+    texts: customTexts = {}
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
+    const t = { ...translations[lang], ...customTexts };
     const { primaryColor, backgroundColor, isLoading: isAppInfoLoading } = useAppInfo(apiBaseUrl, apiToken, user, propPrimaryColor, propBackgroundColor);
 
     useEffect(() => {
@@ -117,7 +121,7 @@ export default function AppGrid({
 
                             {apps.length === 0 && (
                                 <div className="col-span-3 py-12 text-center text-gray-400 text-sm">
-                                    No apps
+                                    {t.noApps}
                                 </div>
                             )}
                         </div>

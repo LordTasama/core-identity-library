@@ -31,7 +31,7 @@ export default function Login({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const handleLogin = async (e) => {

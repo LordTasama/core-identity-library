@@ -39,7 +39,7 @@ export default function ChangePassword({
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
-        return <AuthError />;
+        return <AuthError lang={lang} />;
     }
 
     const handleSubmit = async (e) => {
