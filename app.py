@@ -74,4 +74,4 @@ if __name__ == '__main__':
     # No ejecutamos comandos cmd/ps, pero dejamos el entry point listo
     # Cargamos el estado de debug desde la configuración
     debug_mode = app.config.get('DEBUG', False)
-    app.run(host='0.0.0.0', port=5001, debug=debug_mode)
+    app.run(host='0.0.0.0', port=5009, debug=debug_mode)
