@@ -101,7 +101,7 @@ class IdentityService:
         logger.error(f"❌ No se encontró una aplicación para la URL: {current_url}")
         return None
 
-    def get_identity_permissions(self, identity_id, app_key, identity_row=None, user_email=None):
+    def get_identity_permissions(self, identity_id, app_key, identity_row=None, user_email=None, bypass_cache=False):
         """
         Obtiene los permisos atómicos y el modo de datos para una identidad y aplicación.
         Incluye cache TTL de 10 minutos y verificación de Status en tiempo real.
@@ -135,8 +135,8 @@ class IdentityService:
             print(f"ERROR: Identidad {identity_id} inactiva.")
             return {"permissions": [], "data_mode": "deny"}
 
-        # 2. CACHÉ TTL
-        if cache_key in self._permissions_cache:
+        # 2. CACHÉ TTL (Si no se solicita bypass)
+        if not bypass_cache and cache_key in self._permissions_cache:
             timestamp, data = self._permissions_cache[cache_key]
             if now - timestamp < self._cache_ttl:
                 return data

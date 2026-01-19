@@ -150,7 +150,7 @@ def _get_user_context(email, provider=None, bypass_cache=False):
     # 2. Verificar Permisos Básicos antes de seguir (Interceptación Temprana)
     auth_data = {"permissions": [], "data_mode": "deny"}
     if app_key:
-        auth_data = identity_service.get_identity_permissions(identity_id, app_key, user_email=email)
+        auth_data = identity_service.get_identity_permissions(identity_id, app_key, user_email=email, bypass_cache=bypass_cache)
         
     has_roles = len(auth_data.get("data_mode_info", {}).get("roles", [])) > 0
     has_perms = len(auth_data.get("permissions", [])) > 0
