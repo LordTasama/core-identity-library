@@ -10,7 +10,7 @@ coverage/
 # Nota: Si vas a publicar la librería en npm, dist se suele ignorar en Git.
 # Pero si vas a instalarla directamente desde GitHub, deja dist fuera de aquí.
 # Por seguridad y buenas prácticas, lo ideal es ignorarlo y construirlo en el CI/CD.
-dist/
+#dist/
 
 # Archivos de entorno (SECRETOS)
 .env
