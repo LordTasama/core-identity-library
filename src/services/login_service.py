@@ -63,7 +63,7 @@ def validate_password_strength(password):
     
     return True, "Contraseña válida"
 
-def _get_user_context(email):
+def _get_user_context(email, provider=None, bypass_cache=False):
     """
     Función interna para obtener el contexto completo del usuario necesario para la sesión.
     Retorna: { 'auth_method_id', 'identity_id', 'user_info', 'roles', 'assignments' }
@@ -73,21 +73,40 @@ def _get_user_context(email):
     # 1. Detectar App Key primero para usarlo en la llave del caché
     app_key = identity_service.get_app_key_by_url()
     
-    # 2. Verificar Caché
+    # 2. Verificar Caché (Si no se solicita bypass)
     now = time.time()
     cache_key = (email, app_key)
-    if cache_key in _USER_CONTEXT_CACHE:
+    if not bypass_cache and cache_key in _USER_CONTEXT_CACHE:
         timestamp, cached_data = _USER_CONTEXT_CACHE[cache_key]
         if now - timestamp < _CONTEXT_TTL:
-            logger.debug(f"USER CONTEXT CACHE HIT para {email} [{app_key}]")
+            logger.info(f"🚀 USER CONTEXT CACHE HIT for {email} [{app_key}]")
+            
+            # RE-VALIDAR acceso incluso en Cache (RBAC check rápido)
+            has_roles = len(cached_data.get("dataModeInfo", {}).get("roles", [])) > 0
+            has_perms = len(cached_data.get("permissions", [])) > 0
+            
+            if not (has_roles or has_perms):
+                allowed_apps = cached_data.get("apps", [])
+                allowed_apps_names = [a.get("appName") for a in allowed_apps if a.get("appName")]
+                return {
+                    "success": False,
+                    "message": f"No tienes permisos para acceder a esta aplicación. Apps autorizadas: {', '.join(allowed_apps_names) if allowed_apps_names else 'ninguna'}",
+                    "apps": allowed_apps
+                }
+
+            cached_data["success"] = True
             return cached_data
 
     logger.info(f"USER CONTEXT CACHE MISS para {email} [{app_key}] - Cargando de SeaTable...")
     
     escaped_email = email.replace("'", "''")
-    # Obtener Auth Method e Identity ID
+    # 0. Obtener Auth Method e Identity ID
+    where_provider = ""
+    if provider:
+        where_provider = f" AND `Auth Provider` = '{provider}'"
+    
     auth_rows = seatable.sql_query(
-        f"SELECT `Identity`, `Email`, `ID`, `_id`, `Profile Image URL` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", 
+        f"SELECT `Identity`, `Email`, `ID`, `_id`, `Profile Image URL` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'{where_provider} ORDER BY `Is Primary` DESC, `_id` DESC", 
         base_data="core_identity"
     )
     
@@ -96,20 +115,71 @@ def _get_user_context(email):
 
     row_auth = auth_rows[0]
     identity_links = row_auth.get("Identity", [])
-    
     if not identity_links:
         logger.warning(f"Usuario {email} no tiene Identity vinculado.")
         return None
         
     identity_id = identity_links[0].get("row_id")
-    auth_method_id = row_auth.get("_id")  # internal _id
-    auth_method_custom_id = row_auth.get("ID") # literal custom ID
+    
+    # 0.5 Verificar Status en la tabla Identity (Indicado por el usuario)
+    identity_row = seatable.sql_query_one(f"SELECT `Status` FROM `Identity` WHERE `_id` = '{identity_id}'", base_data="core_identity")
+    identity_status = "Active"
+    if identity_row:
+        if isinstance(identity_row, list) and len(identity_row) > 0:
+            identity_status = identity_row[0].get("Status", "Active")
+        else:
+            identity_status = identity_row.get("Status", "Active")
+    
+    # Interceptación por Estatus de la Identidad
+    if identity_status and identity_status != "Active":
+        print(f"🛑 IDENTITY BLOCKED: User {email} has status {identity_status}")
+        return {
+            "success": False,
+            "message": f"Tu cuenta está {identity_status.lower()}. Por favor contacta a soporte.",
+            "apps": []
+        }
+
+    auth_method_id = row_auth.get("_id")
+    auth_method_custom_id = row_auth.get("ID")
     profile_image_url = row_auth.get("Profile Image URL")
 
-    # 2.5 Cargar Sesiones Activas
+    # 1. Detectar App Key (Usando el nuevo X-REQUEST-URL si existe)
+    from src.services.identity_service import identity_service
+    app_key = identity_service.get_app_key_by_url()
+
+    # 2. Verificar Permisos Básicos antes de seguir (Interceptación Temprana)
+    auth_data = {"permissions": [], "data_mode": "deny"}
+    if app_key:
+        auth_data = identity_service.get_identity_permissions(identity_id, app_key, user_email=email)
+        
+    has_roles = len(auth_data.get("data_mode_info", {}).get("roles", [])) > 0
+    has_perms = len(auth_data.get("permissions", [])) > 0
+    
+    # 3. Bloqueo TOTAL si no tiene acceso o está bloqueado en Identity
+    if not (has_roles or has_perms):
+        print(f"🛑 ACCESS DENIED: User {email} unauthorized for App {app_key or 'None'}")
+        
+        # Cargar solo las apps autorizadas para informar al usuario
+        temp_identity = identity_service.get_identity_with_assignments(identity_id, user_email=email, app_key="___forbidden___")
+        allowed_apps = temp_identity.get("apps", [])
+        allowed_apps_names = [a.get("appName") for a in allowed_apps if a.get("appName")]
+        
+        return {
+            "success": False,
+            "message": f"No tienes permisos para acceder a esta aplicación. Apps autorizadas: {', '.join(allowed_apps_names) if allowed_apps_names else 'ninguna'}",
+            "apps": allowed_apps
+        }
+
+    # 4. Si tiene acceso, procedemos con la carga PESADA completa
+    print(f"✅ ACCESS GRANTED: User {email} authorized for App {app_key}")
+    identity_data = identity_service.get_identity_with_assignments(identity_id, user_email=email, app_key=app_key)
+    
+    if not identity_data:
+        return None
+
+    # 4.5 Cargar Sesiones Activas (Solo si tiene acceso)
     active_sessions = []
     try:
-        # Buscamos sesiones activas vinculadas a este Auth Method por su ID literal
         query_sessions = f"SELECT `_id`, `IP`, `Device Name`, `Expiration Date`, `Status` FROM `Sessions` WHERE `Auth Method` = '{auth_method_custom_id}' AND `Status` = 'Active' ORDER BY `_id` DESC"
         sessions_res = seatable.sql_query(query_sessions, base_data="core_identity")
         if sessions_res and isinstance(sessions_res, list):
@@ -117,48 +187,30 @@ def _get_user_context(email):
     except Exception as e_sess:
         logger.error(f"Error cargando sesiones para {email}: {e_sess}")
 
-    # 2. Cargar Identity filtrando Assignments y Roles por la App Key detectada (ya obtenida arriba)
-    identity_data = identity_service.get_identity_with_assignments(identity_id, user_email=email, app_key=app_key)
+    # Enriquecer con los permisos ya calculados
+    identity_data["permissions"] = auth_data.get("permissions", [])
+    identity_data["dataMode"] = auth_data.get("data_mode", "deny")
+    identity_data["dataModeInfo"] = auth_data.get("data_mode_info", {})
+    identity_data["appKey"] = app_key
     
-    if not identity_data:
-        return None
+    # Obtener info visual de la app actual (Colores)
+    all_apps = identity_service._get_all_apps_cached()
+    current_app_meta = next((a for a in all_apps if a.get("App Key") == app_key), {})
+    identity_data["app_info"] = {
+        "primaryColor": current_app_meta.get("Primary Color"),
+        "backgroundColor": current_app_meta.get("Background Color"),
+        "appName": current_app_meta.get("App Name")
+    }
 
-    # 3. Enriquecer con permisos y dataMode del app_key detectado
-    if app_key:
-        auth_data = identity_service.get_identity_permissions(identity_id, app_key, identity_row=identity_data, user_email=email)
-        identity_data["permissions"] = auth_data.get("permissions", [])
-        identity_data["dataMode"] = auth_data.get("data_mode", "deny")
-        identity_data["dataModeInfo"] = auth_data.get("data_mode_info", {})
-        identity_data["appKey"] = app_key
-        
-        # Obtener info visual de la app actual (Colores)
-        all_apps = identity_service._get_all_apps_cached()
-        current_app_meta = next((a for a in all_apps if a.get("App Key") == app_key), {})
-        identity_data["app_info"] = {
-            "primaryColor": current_app_meta.get("Primary Color"),
-            "backgroundColor": current_app_meta.get("Background Color"),
-            "appName": current_app_meta.get("App Name")
-        }
-    else:
-        # Si no hay app_key detectado para esta URL, el acceso es denegado por defecto
-        identity_data["permissions"] = []
-        identity_data["dataMode"] = "deny"
-        identity_data["dataModeInfo"] = {}
-        identity_data["appKey"] = None
-        identity_data["app_info"] = {
-            "primaryColor": None,
-            "backgroundColor": None,
-            "appName": "Unknown"
-        }
-
-    # Enriquecer con datos únicos que no vienen de la tabla Identity
+    # Enriquecer con metadatos de sesión
     identity_data["email"] = email
     identity_data["auth_method_id"] = auth_method_id
     identity_data["auth_method_custom_id"] = auth_method_custom_id
     identity_data["profileImageURL"] = profile_image_url
     identity_data["active_sessions"] = active_sessions
+    identity_data["success"] = True
     
-    # 4. Guardar en Caché antes de retornar
+    # Guardar en Caché antes de retornar
     _USER_CONTEXT_CACHE[cache_key] = (now, identity_data)
     
     return identity_data
@@ -188,13 +240,15 @@ def create_session(user_context, temp_device=False):
         # Antes de crear, buscamos si ya hay una sesión ACTIVA para este ID + IP + UI
         escaped_ip = ip_address.replace("'", "''")
         escaped_ua = user_agent.replace("'", "''")
-        auth_method_id = user_context.get("auth_method_id")
+        auth_method_id = str(user_context.get("auth_method_id", ""))
 
         # Usamos IN para filtrar por el _id del link, ya que SeaTable SQL no soporta alias ni JOINs estándar
+        logger.debug(f"🔍 Buscando sesión activa existente: IP='{escaped_ip}', UA='{escaped_ua}', AuthMethod='{auth_method_custom_id}'")
+
         check_query = f"""
             SELECT Token, _id, `Expiration Date` 
             FROM `Sessions` 
-            WHERE `Auth Method` IN ('{auth_method_id}') 
+            WHERE `Auth Method` IN ('{auth_method_custom_id}') 
               AND `IP` = '{escaped_ip}' 
               AND `Device Name` = '{escaped_ua}' 
               AND `Status` = 'Active'
@@ -467,50 +521,75 @@ def insert_user_in_database(userinfo,auth_provider):
 
 def _assign_default_role_to_identity(identity_row_id):
     """
-    Asigna el rol por defecto vinculando la identidad a un Assignment ya existente.
-    El App Key se determina dinámicamente según la URL.
+    Asigna dinámicamente el rol con menor privilegio de acceso a datos para la App actual.
+    Orden de prioridad (restringido): own > assigned.
+    Ignora: all, team (no se asigna nada automáticamente si solo existen estos).
     """
     from src.services.identity_service import identity_service
     try:
-        # 1. Obtener app_key dinámicamente según la URL (ya implementado en identity_service)
+        # 1. Obtener app_key dinámicamente según la URL
         app_key = identity_service.get_app_key_by_url()
         if not app_key:
-            print("⚠️ No se pudo determinar el app_key por URL, fallback a 'vendor_portal'.")
-            app_key = "vendor_portal"
+            logger.warning("No se pudo determinar app_key para auto-asignación de rol. Abortando.")
+            return
 
-        # 2. Definir el identificador del rol por defecto (ej: vendor_portal.vendor)
-        role_id_key = f"{app_key}.vendor"
+        # 2. Obtener todos los roles para filtrar localmente (evitar problemas de nombres de columnas)
+        roles = seatable.sql_query("SELECT * FROM `Roles`", base_data="core_identity")
         
-        # 3. Buscar en la tabla Assignments la fila que ya tiene ese rol asignado para esa App.
-        # El display_value de la tabla Roles es el 'Role ID'.
-        query = f"SELECT `_id` FROM `Assignments` WHERE `Role` = '{role_id_key}' AND `App Key` LIKE '%{app_key}%'"
-        assignment_rows = seatable.sql_query(query, base_data="core_identity")
+        # 3. Clasificar roles de la App por su Data Mode
+        # Prioridad buscada: own (menos acceso) > assigned
+        app_roles_by_mode = {"own": [], "assigned": []}
         
-        # Si no se encuentra con el nombre dinámico, intentamos con el de vendor_portal por defecto
-        if not assignment_rows and app_key != "vendor_portal":
-             print(f"ℹ️ Buscando fallback 'vendor_portal.vendor'...")
-             query = f"SELECT `_id` FROM `Assignments` WHERE `Role` = 'vendor_portal.vendor' AND `App Key` LIKE '%vendor_portal%'"
-             assignment_rows = seatable.sql_query(query, base_data="core_identity")
+        for r in roles:
+            # Verificar si el rol pertenece a la App detectada
+            role_apps = r.get("App Key", [])
+            is_match = False
+            
+            if isinstance(role_apps, list):
+                for ra in role_apps:
+                    val = ra.get("display_value") if isinstance(ra, dict) else str(ra)
+                    if val == app_key:
+                        is_match = True
+                        break
+            elif app_key == str(role_apps):
+                is_match = True
+            
+            if not is_match:
+                continue
 
+            # Extraer modo usando la lógica central de IdentityService
+            mode = identity_service._extract_data_mode(r.get("Data"))
+            
+            # Solo nos interesan 'own' y 'assigned' para auto-asignación
+            if mode in app_roles_by_mode:
+                app_roles_by_mode[mode].append(r)
+
+        # 4. Seleccionar el rol ganador (el más restringido disponible)
+        winner_role = None
+        if app_roles_by_mode["own"]:
+            winner_role = app_roles_by_mode["own"][0]
+        elif app_roles_by_mode["assigned"]:
+            winner_role = app_roles_by_mode["assigned"][0]
+
+        if not winner_role:
+            logger.info(f"ℹ️ No se encontró un rol adecuado (own/assigned) para la App {app_key}. No se asignará rol automático.")
+            return
+
+        role_id_key = winner_role.get("Role ID")
+        logger.info(f"🎯 Rol seleccionado para auto-asignación: {role_id_key} (Modo: {identity_service._extract_data_mode(winner_role.get('Data'))})")
+
+        # 5. Buscar en la tabla Assignments la fila global para ese rol en esa App
+        query_assig = f"SELECT `_id` FROM `Assignments` WHERE `Role` = '{role_id_key}' AND `App Key` LIKE '%{app_key}%'"
+        assignment_rows = seatable.sql_query(query_assig, base_data="core_identity")
+        
         if not assignment_rows:
-            print(f"⚠️ No se encontró un Assignment pre-existente para el rol '{role_id_key}' ni fallback.")
+            logger.warning(f"⚠️ Se identificó el rol {role_id_key} pero no existe un registro en 'Assignments' para esta App.")
             return
             
         assignment_row_id = assignment_rows[0].get('_id')
         
-        # El display_value de la tabla Roles es el 'Role ID'
-        query_role = f"SELECT `_id` FROM `Roles` WHERE `Role ID` = '{role_id_key}'"
-        role_rows = seatable.sql_query(query_role, base_data="core_identity")
-        
-        if not role_rows and app_key != "vendor_portal":
-             # Fallback al rol de vendor_portal
-             query_role = f"SELECT `_id` FROM `Roles` WHERE `Role ID` = 'vendor_portal.vendor'"
-             role_rows = seatable.sql_query(query_role, base_data="core_identity")
-        
-        # 5. Realizar el vínculo entre Identity y el Assignment encontrado.
+        # 6. Realizar el vínculo entre Identity y el Assignment
         link_assig_id = seatable.get_column_link_id("Identity", "Assignments", base_data="core_identity")
-        
-        print(f"📝 Vinculando Identity {identity_row_id} al Assignment global {assignment_row_id} (App: {app_key})")
         seatable.perform_link_operation(
             link_id=link_assig_id,
             row_id=identity_row_id,
@@ -520,10 +599,10 @@ def _assign_default_role_to_identity(identity_row_id):
             base_data="core_identity"
         )
 
-        print(f"✅ Identity vinculada exitosamente al assignment por defecto de {app_key}.")
+        logger.info(f"✅ Identity {identity_row_id} vinculada exitosamente al rol {role_id_key} de la App {app_key}.")
         
     except Exception as e:
-        print(f"⚠️ Error asignando rol por defecto: {e}")
+        logger.error(f"❌ Error en auto-asignación de rol: {e}")
         import traceback
         traceback.print_exc()
 
@@ -579,9 +658,8 @@ def process_mock_social_login(provider, email=None):
 
     print(f"🔍 Buscando Auth Methods para vincular sesión...")
     
-    # --- NUEVA LÓGICA JWT/SESIÓN ---
-    # 1. Obtener contexto
-    user_context = _get_user_context(mock_userinfo['email'])
+    # 1. Obtener contexto (Bypass caché para login y forzar provider)
+    user_context = _get_user_context(mock_userinfo['email'], provider=provider, bypass_cache=True)
     
     if not user_context:
         print("❌ Error al obtener contexto para usuario mock")
@@ -912,8 +990,8 @@ def login_with_password_and_email(email, password, login_type="manual"):
             print(f"✅ BYPASS EXITOSO para {email}")
 
         # --- ÉXITO LOGIN ---
-        # 1. Obtener contexto del usuario
-        user_context = _get_user_context(email)
+        # 1. Obtener contexto del usuario (En login siempre tiempo real y especificando provider)
+        user_context = _get_user_context(email, provider="Email", bypass_cache=True)
         if not user_context:
              return {"status": False, "message": "Error retrieving user context", "user": None}
 
@@ -1379,9 +1457,9 @@ def process_google_callback(code, state, expected_state):
                 session['row_identity'] = row_identity_id
                 session['vendor_email'] = userinfo['email']
                 
-                return {'success': True, 'user': user}
+                return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True)}
         
-        return {'success': True, 'user': user}
+        return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True)}
         
     except Exception as e:
         print(f"OAuth callback error: {e}")
@@ -1454,7 +1532,7 @@ def process_microsoft_callback(code, state, expected_state):
         else:
             u = user
         
-        return {'success': True, 'user': u}
+        return {'success': True, 'user': _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True)}
         
     except Exception as e:
         print(f"[MICROSOFT CALLBACK ERROR] {e}")
@@ -1732,7 +1810,17 @@ def get_debug_user_info(email, current_url=None):
 # SESSION VERIFICATION AND FALLBACK LOGIC
 # ============================================================================
 
-def verify_session(email, token):
+def verify_session(email=None, token=None):
+    # Soporte para Bearer puro: Si no viene email, intentamos sacarlo del token
+    if not email and token:
+        try:
+            # Decodificación ligera solo para sacar el email antes de la validación completa
+            decoded_temp = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"], options={"verify_exp": False})
+            email = decoded_temp.get("email")
+            if not email:
+                return {"success": False, "message": "Token malformado: no contiene email"}
+        except Exception:
+            return {"success": False, "message": "Token inválido o corrupto"}
     """
     Centro de validación de sesión (Lightweight).
     - Usa caché de 15 minutos para evitar redundancia.
@@ -1752,8 +1840,8 @@ def verify_session(email, token):
                 return cached_res
 
         # 1. Buscar token en Sessions (Paso de seguridad real-time pero con 1 consulta menos)
-        # Traemos 'Identity Status' para obtener el Status de la cuenta sin hacer otra query
-        query = f"SELECT `_id`, `Status`, `Token`, `Identity Status` FROM `Sessions` WHERE `Token` = '{token}'"
+        # Traemos 'Auth Method' para poder verificar el status real de la cuenta después
+        query = f"SELECT `_id`, `Status`, `Token`, `Auth Method` FROM `Sessions` WHERE `Token` = '{token}'"
         session_rows = seatable.sql_query(query, base_data="core_identity")
         
         if not session_rows:
@@ -1783,38 +1871,39 @@ def verify_session(email, token):
         except Exception as e:
             return {"success": False, "message": f"Token inválido: {str(e)}"}
 
-        # 3. Verificar Status de la Identidad vía el link 'Identity Status' en Sessions (Optimizado)
-        # El display_value de este link ahora es el Status (configurado en SeaTable)
-        identity_links = sess.get("Identity Status", [])
-        identity_status = "Active" # Default
-        if identity_links:
-            if isinstance(identity_links, list) and len(identity_links) > 0:
-                # Si el primer elemento es un dict (link), extraemos display_value
-                # Si es un string (lookup), lo usamos directamente
-                first_item = identity_links[0]
-                if isinstance(first_item, dict):
-                    identity_status = first_item.get("display_value", "Active")
-                else:
-                    identity_status = str(first_item)
-            else:
-                identity_status = str(identity_links)
-
-        if identity_status and identity_status != "Active":
-            logger.warning(f"Intento de acceso con cuenta {identity_status.lower()}: {email}")
-            return {"success": False, "message": f"Account is {identity_status.lower()}"}
-
-        result = {
-            "success": True, 
-            "identity_id": identity_id,
-            "email": email,
-            "token": token,
-            "message": "Sesión válida"
-        }
-
-        # Guardar en Caché
-        _SESSION_VALIDATION_CACHE[cache_key] = (now, result)
+        # 3. Verificar Status REAL del usuario (Fresco de Auth Methods)
+        # Auth Method link display value in Sessions is usually the ID literal
+        auth_method_custom_id = sess.get("Auth Method")
+        if isinstance(auth_method_custom_id, list) and len(auth_method_custom_id) > 0:
+            auth_method_custom_id = auth_method_custom_id[0].get("display_value")
         
-        return result
+        user_status = "Active"
+        if auth_method_custom_id:
+             # El usuario indica que el Status está en la tabla Identity.
+             # Primero necesitamos el link a Identity desde Auth Methods
+             auth_info = seatable.sql_query_one(f"SELECT `Identity` FROM `Auth Methods` WHERE `ID` = '{auth_method_custom_id}'", base_data="core_identity")
+             if auth_info:
+                 if isinstance(auth_info, list) and len(auth_info) > 0:
+                     auth_info = auth_info[0]
+                 
+                 identity_link = auth_info.get("Identity", [])
+                 if identity_link:
+                     identity_row_id = identity_link[0].get("row_id")
+                     identity_row = seatable.sql_query_one(f"SELECT `Status` FROM `Identity` WHERE `_id` = '{identity_row_id}'", base_data="core_identity")
+                     if identity_row:
+                         if isinstance(identity_row, list) and len(identity_row) > 0:
+                             user_status = identity_row[0].get("Status", "Active")
+                         else:
+                             user_status = identity_row.get("Status", "Active")
+        
+        if user_status and user_status != "Active":
+            logger.warning(f"🚫 SESSION REJECTED: User {email} is {user_status}")
+            return {"success": False, "message": f"Tu cuenta está {user_status.lower()}.", "blocked": True}
+
+        # 4. Guardar en Caché antes de retornar
+        result_success = {"success": True, "identity_id": identity_id, "email": email}
+        _SESSION_VALIDATION_CACHE[cache_key] = (now, result_success)
+        return result_success
 
     except Exception as e:
         logger.error(f"Error en verify_session para {email}: {e}", exc_info=True)

@@ -26,11 +26,7 @@ def login_required(f):
         if request.method == 'OPTIONS':
             return '', 200
 
-        # 1. Obtener Email y Token
-        email = request.headers.get('X-User-Email') or request.args.get('email')
-        if not email and request.is_json:
-            email = request.json.get('email')
-
+        # 1. Obtener Token (Prioridad: Authorization Header)
         auth_header = request.headers.get('Authorization', '')
         token = None
         if auth_header.startswith('Bearer '):
@@ -41,21 +37,28 @@ def login_required(f):
             if not token and request.is_json:
                 token = request.json.get('token')
 
-        if not email or not token:
+        if not token:
             return jsonify({
                 'success': False, 
-                'message': 'Authentication required (Email and Token)'
+                'message': 'Authentication token is required (Bearer Token)'
             }), 401
 
-        # 2. Verificar sesión
+        # 2. Obtener Email (Opcional, se puede extraer del token si falta)
+        email = request.headers.get('X-User-Email') or request.args.get('email')
+        if not email and request.is_json:
+            email = request.json.get('email')
+
+        # 2. Verificar sesión (El email es opcional si el token es válido)
         v_res = verify_session(email, token)
         if not v_res.get("success"):
             return jsonify(v_res), 401
 
-        # 3. Guardar el usuario en g para acceso rápido en la ruta
+        # 3. Guardar en g para uso en la ruta
+        # Si verify_session extrajo el email del token, lo usamos
+        final_email = email or v_res.get("email")
         g.current_user = v_res.get("user")
-        g.current_token = v_res.get("token")
-        g.current_email = email
+        g.current_token = token
+        g.current_email = final_email
 
         return f(*args, **kwargs)
     

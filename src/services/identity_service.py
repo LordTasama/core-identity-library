@@ -30,7 +30,7 @@ class IdentityService:
         else:
             logger.debug("Bypassing Apps cache per CACHED_APPS=False configuration")
 
-        apps = self.seatable.sql_query("SELECT `App Key`, `App Name`, `Public URL`, `Primary Color`, `Background Color` FROM `Applications`", base_data="core_identity")
+        apps = self.seatable.sql_query("SELECT * FROM `Applications`", base_data="core_identity")
         
         if Config.CACHED_APPS:
             self._apps_cache = apps
@@ -45,9 +45,43 @@ class IdentityService:
         Usa match por prefijo y busca el más específico (más largo).
         """
         if not current_url:
-            current_url = request.host_url.rstrip('/')
-        
-        logger.debug(f"SEARCHING app_key for URL: {current_url}")
+            source = "backend_host"
+            
+            # 1. Prioridad Máxima: Encabezado X-REQUEST-URL (Enviado por el Frontend)
+            x_request_url = request.headers.get('X-REQUEST-URL')
+            if x_request_url:
+                current_url = x_request_url.rstrip('/')
+                source = "x_request_url_header"
+            
+            # 2. Intentar obtener URL del cuerpo de la petición o parámetros (POST/GET)
+            if not current_url:
+                try:
+                    if request.is_json:
+                        current_url = request.json.get('current_url') or request.json.get('url')
+                        if current_url: source = "request_body"
+                    if not current_url:
+                        current_url = request.args.get('current_url') or request.args.get('url')
+                        if current_url: source = "request_args"
+                except Exception:
+                    pass
+            
+            # 3. Intentar encabezados estándar Referer u Origin
+            if not current_url:
+                referer = request.headers.get('Referer')
+                origin = request.headers.get('Origin')
+                
+                if referer:
+                    current_url = referer.rstrip('/')
+                    source = "referer_header"
+                elif origin:
+                    current_url = origin.rstrip('/')
+                    source = "origin_header"
+                else:
+                    # 4. Fallback al host del backend
+                    current_url = request.host_url.rstrip('/')
+                    source = "backend_host"
+            
+            logger.info(f"🔍 APPLICATION DETECTION - Source: {source}, URL: {current_url}")
         
         # Usar el caché de aplicaciones en lugar de consultar cada vez
         apps = self._get_all_apps_cached()
@@ -55,17 +89,16 @@ class IdentityService:
         app_key = find_best_app_match(current_url, apps)
         
         if app_key:
-            logger.debug(f"APP FOUND: {app_key}")
+            logger.info(f"✅ APP DETECTED: {app_key}")
             return app_key
         
-        # Fallback si no encuentra nada o si estamos en localhost
-        if "localhost" in current_url or "127.0.0.1" in current_url:
-            # En desarrollo local usamos el dominio de Insights por defecto
+        # Fallback histórico para desarrollo local (solicitado por el usuario)
+        if current_url and ("localhost" in current_url or "127.0.0.1" in current_url):
             override_url = "https://insights.prismgrp.com"
-            logger.info(f"Localhost detectado, re-intentando con: {override_url}")
+            logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
-            
-        logger.error(f"No se encontró una aplicación para la URL: {current_url}")
+
+        logger.error(f"❌ No se encontró una aplicación para la URL: {current_url}")
         return None
 
     def get_identity_permissions(self, identity_id, app_key, identity_row=None, user_email=None):

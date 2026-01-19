@@ -60,6 +60,15 @@ def login():
         if fallback:
             print(f"✅ Reutilizando sesión existente para {email or 'IP/Device'}")
             user_data = fallback.get('user')
+            
+            # Validación de permisos/roles para la App detectada o bloqueo de cuenta
+            if user_data and not user_data.get("success"):
+                return jsonify({
+                    'success': False,
+                    'message': user_data.get("message"),
+                    'apps': user_data.get("apps", [])
+                }), 403
+
             handshake = generate_handshake_code(user_data.get('email') or email)
             return jsonify({
                 'success': True, 
@@ -77,6 +86,14 @@ def login():
             result = process_mock_social_login('Google', email)
             if result.get('success'):
                 user_ctx = result.get('user')
+                
+                if user_ctx and not user_ctx.get("success"):
+                    return jsonify({
+                        'success': False,
+                        'message': user_ctx.get("message"),
+                        'apps': user_ctx.get("apps", [])
+                    }), 403
+
                 # Creamos la sesión real con la expiración correspondiente
                 final_token = create_session(user_ctx, temp_device=temp_device)
                 handshake = generate_handshake_code(user_ctx.get('email'))
@@ -94,7 +111,6 @@ def login():
         response = jsonify({'auth_url': oauth_data['auth_url']})
         response.set_cookie('oauth_state', oauth_data['state'], max_age=600, secure=False, httponly=True, samesite='Lax')
         return response
-
     elif provider == 'Email':
         email = request.json.get('email')
         password = request.json.get('password')
@@ -116,6 +132,13 @@ def login():
                     "wait_seconds": result.get("wait_seconds", 0)
                 }), 200
 
+            if user_ctx and not user_ctx.get("success"):
+                return jsonify({
+                    'success': False,
+                    'message': user_ctx.get("message"),
+                    'apps': user_ctx.get("apps", [])
+                }), 403
+
             # Generar token con la nueva lógica de expiración
             final_token = create_session(user_ctx, temp_device=temp_device)
             handshake = generate_handshake_code(user_ctx.get('email'))
@@ -136,6 +159,14 @@ def login():
             result = process_mock_social_login('Microsoft', email)
             if result.get('success'):
                 user_ctx = result.get('user')
+                
+                if user_ctx and not user_ctx.get("success"):
+                    return jsonify({
+                        'success': False,
+                        'message': user_ctx.get("message"),
+                        'apps': user_ctx.get("apps", [])
+                    }), 403
+
                 final_token = create_session(user_ctx, temp_device=temp_device)
                 handshake = generate_handshake_code(user_ctx.get('email'))
                 return jsonify({
@@ -249,9 +280,15 @@ def verify_email():
     Recibe: { "token": "XXXXXX" }
     """
     try:
-        token = request.json.get('token')
+        # Soporte Bearer o JSON
+        auth_header = request.headers.get('Authorization', '')
+        token = request.json.get('token') if request.is_json else None
+        
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+
         if not token:
-            return jsonify({'success': False, 'message': 'Code is required'}), 400
+            return jsonify({'success': False, 'message': 'Token is required (Bearer Token)'}), 400
             
         if confirm_email_manual(token):
             return jsonify({
@@ -303,6 +340,14 @@ def login_with_password_and_email_route():
                     "redirect_url": result.get("redirect_url"),
                     "wait_seconds": result.get("wait_seconds", 0)
                 }), 200
+
+            # Validación de permisos/roles para la App detectada
+            if user_ctx and not user_ctx.get("success"):
+                return jsonify({
+                    'success': False,
+                    'message': user_ctx.get("message"),
+                    'apps': user_ctx.get("apps", [])
+                }), 403
 
             auth_row = result.get("auth_row")
             if not auth_row:
@@ -387,6 +432,32 @@ def callback():
         print(f"Aca user: {user}")
         user_ctx = user # result.get('user') ya es el contexto limpio
         
+        if user_ctx and not user_ctx.get("success"):
+            auth_data_json = {
+                "success": False,
+                "message": user_ctx.get("message"),
+                "apps": user_ctx.get("apps", []),
+                "code": 403
+            }
+            response_redirect = make_response(f"""
+            <html>
+                <body>
+                    <script>
+                        const authData = {auth_data_json};
+                        if (window.opener) {{
+                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: auth_data }}, window.location.origin);
+                            window.close();
+                        }} else {{
+                            // Si no hay opener, mostramos el error en pantalla o redirigimos
+                            document.body.innerHTML = "<h2>Acceso Denegado</h2><p>" + authData.message + "</p>";
+                        }}
+                    </script>
+                </body>
+            </html>
+            """)
+            response_redirect.set_cookie('oauth_state', '', expires=0)
+            return response_redirect
+
         # Generar Token JWT real
         final_token = create_session(user_ctx, temp_device=False)
         
@@ -457,6 +528,31 @@ def microsoft_callback():
 
         user_ctx = user 
         
+        if user_ctx and not user_ctx.get("success"):
+            auth_data_json = {
+                "success": False,
+                "message": user_ctx.get("message"),
+                "apps": user_ctx.get("apps", []),
+                "code": 403
+            }
+            response_redirect = make_response(f"""
+            <html>
+                <body>
+                    <script>
+                        const authData = {auth_data_json};
+                        if (window.opener) {{
+                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: auth_data }}, window.location.origin);
+                            window.close();
+                        }} else {{
+                            document.body.innerHTML = "<h2>Acceso Denegado</h2><p>" + authData.message + "</p>";
+                        }}
+                    </script>
+                </body>
+            </html>
+            """)
+            response_redirect.set_cookie('oauth_state', '', expires=0)
+            return response_redirect
+
         # Generar Token JWT real
         final_token = create_session(user_ctx, temp_device=False)
         
@@ -502,10 +598,19 @@ def microsoft_callback():
 # ============================================================================
 
 @auth_bp.route('/logout', methods=['POST'])
-@login_required
 def logout():
     # 1. Invalida la sesión en la base de datos (SeaTable)
-    token = g.current_token
+    # Soporte Bearer Header
+    auth_header = request.headers.get('Authorization', '')
+    token = request.json.get('token') if request.is_json else None
+    
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+    
+    # Fallback a g si ya pasó por un middleware (aunque aquí quitamos login_required)
+    if not token:
+        token = g.get('current_token')
+    
     if token:
         logout_session(token)
 
@@ -546,16 +651,31 @@ def verify_session_route():
     Endpoint central para validar la sesión (LIGERO).
     Solo valida el token y status de cuenta. No trae roles ni permisos.
     """
-    data = request.json
-    email = data.get("email")
+    data = request.json or {}
+    email = data.get("email") or request.headers.get('X-User-Email')
     token = data.get("token")
     
-    if not email or not token:
-        return jsonify({"success": False, "message": "Email and token are required"}), 400
+    # Soporte Bearer Header
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+    
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is required (Bearer Token)"}), 400
         
     result = verify_session(email, token)
     
     if result.get("success"):
+        # Verificación extra: ¿Tiene permisos en esta App específica?
+        # verify_session es ligero, pero si queremos interceptar permisos aquí debemos cargar el contexto
+        user_ctx = _get_user_context(email)
+        if user_ctx and not user_ctx.get("success"):
+            return jsonify({
+                "success": False,
+                "message": user_ctx.get("message"),
+                "apps": user_ctx.get("apps", [])
+            }), 403
+
         result["handshake_code"] = generate_handshake_code(email)
         return jsonify(result), 200
     else:
@@ -577,6 +697,15 @@ def get_user_context_route():
         
         if not user_data:
             return jsonify({'success': False, 'message': 'User context not found'}), 404
+
+        # Validación de permisos/roles o bloqueo de cuenta
+        if user_data and not user_data.get("success"):
+            return jsonify({
+                'success': False,
+                'message': user_data.get("message"),
+                'apps': user_data.get("apps", [])
+            }), 403
+
         return jsonify({
             'success': True,
             'message': 'User context retrieved',
@@ -604,6 +733,16 @@ def validate_handshake_route():
         
         if is_valid:
             user_data = _get_user_context(email)
+            
+            # Validación de permisos/roles para la App detectada
+            if user_data and not user_data.get("success"):
+                return jsonify({
+                    'success': False,
+                    'valid': True,
+                    'message': user_data.get("message"),
+                    'apps': user_data.get("apps", [])
+                }), 403
+
             return jsonify({
                 'success': True,
                 'valid': True,

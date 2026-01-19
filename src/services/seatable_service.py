@@ -73,7 +73,7 @@ class Seatable:
     def sql_query_one(self, query, base_data=None):
         max_retries = 3
         wait_seconds = 20
-
+        print(query)
         for attempt in range(1, max_retries + 1):
             try:
                 print(f"â³ Ejecutando query (intento {attempt}/{max_retries})")
