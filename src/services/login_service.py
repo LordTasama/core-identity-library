@@ -1,11 +1,15 @@
 """
-Login Service
-=============
-This module contains all business logic related to user authentication and management:
-- User creation and updates
-- Email confirmation
-- Password authentication
-- Password reset functionality
+Motor Lógico de Autenticación y Gestión de Identidades (Core Service).
+
+Este módulo es el núcleo del sistema de identidad. Centraliza toda la lógica de negocio
+para la creación de usuarios, validación de credenciales, gestión de sesiones JWT
+y procesos de recuperación de cuenta.
+
+Objetivos clave:
+1. Orquestar el flujo de registro y login multiplataforma.
+2. Gestionar la persistencia de sesiones y el ciclo de vida de los tokens.
+3. Proveer una capa de abstracción entre las rutas de la API y la base de datos (SeaTable).
+4. Implementar políticas de seguridad (Password Strength, Rate Limiting, RBAC inicial).
 """
 
 from src.services.seatable_service import seatable
@@ -43,12 +47,12 @@ import re
 
 def validate_password_strength(password):
     """
-    Valida que la contraseña cumpla con criterios de seguridad:
-    - Mínimo 8 caracteres
-    - Al menos una mayúscula
-    - Al menos una minúscula
-    - Al menos un número
-    - Al menos un carácter especial
+    Evalúa si una contraseña cumple con los estándares mínimos de seguridad.
+    
+    Objetivo:
+    - Asegurar que las contraseñas tengan complejidad suficiente (8+ caracteres, 
+      mayúsculas, minúsculas, números y caracteres especiales).
+    - Mitigar ataques de fuerza bruta mediante el fomento de contraseñas robustas.
     """
     if len(password) < 8:
         return False, "La contraseña debe tener al menos 8 caracteres"
@@ -65,8 +69,12 @@ def validate_password_strength(password):
 
 def _get_user_context(email, provider=None, bypass_cache=False):
     """
-    Función interna para obtener el contexto completo del usuario necesario para la sesión.
-    Retorna: { 'auth_method_id', 'identity_id', 'user_info', 'roles', 'assignments' }
+    Recupera el perfil integral del usuario necesario para la sesión.
+    
+    Objetivo:
+    - Consultar el método de autenticación, la identidad (Profile) y el estado de la cuenta.
+    - Resolver dinámicamente el App Key por URL y calcular permisos RBAC para esa app.
+    - Implementar una capa de caché de 15 minutos para optimizar peticiones recurrentes.
     """
     from src.services.identity_service import identity_service
     
@@ -217,18 +225,26 @@ def _get_user_context(email, provider=None, bypass_cache=False):
 
 def create_session(user_context, temp_device=False):
     """
-    Genera un JWT y persiste la sesión en la tabla `Sessions`.
-    Expliración: 180 días por defecto. 30 días si provider=Email y temp_device=True.
+    Genera y persiste una nueva sesión de usuario.
+    
+    Objetivo:
+    - Crear un JSON Web Token (JWT) firmado para uso del cliente.
+    - Registrar la sesión en SeaTable con metadatos de IP, User-Agent y expiración.
+    - Manejar políticas de expiración variables (180 días vs 30 días para dispositivos temporales).
     """
     try:
         if not user_context:
             raise ValueError("Contexto de usuario vacío")
 
         # 1. Capturar metadata del dispositivo/conexión
-        ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
-        if ip_address and ',' in ip_address:
+        ip_address = request.headers.get('X-Forwarded-For', request.remote_addr) or '127.0.0.1'
+        if ',' in ip_address:
             ip_address = ip_address.split(',')[0].strip()
-            
+        
+        # Nueva limpieza: Eliminar puerto o identificadores extras (ej: 123.123.123.123:5000)
+        # Si tiene ':' y '.' es probablemente IPv4:port. Si tiene ':' pero no es IPv6 (múltiples ':'), lo limpiamos.
+        if ':' in ip_address and ('.' in ip_address or ip_address.count(':') == 1):
+             ip_address = ip_address.split(':')[0].strip()
         user_agent = request.headers.get('User-Agent', 'Unknown')
 
         # 2. Determinar expiración (180 días vs 30 días)
@@ -338,12 +354,13 @@ def create_session(user_context, temp_device=False):
 
 def insert_user_in_database(userinfo,auth_provider):
     """
-    Verifica si existe un usuario con el email en la tabla Portal Users de Seatable.
-    Si no existe, lo crea. Si existe, compara y actualiza los campos que hayan cambiado.
-
-    ⚠️ Cambio importante:
-    - First Name y Last Name ya no se actualizan en Portal Users, sino en la tabla Identity,
-      usando la relación (columna link) Identity ID.
+    Sincroniza y persiste la información del usuario en la base de datos SeaTable.
+    
+    Objetivo:
+    - Asegurar la existencia del registro en 'Auth Methods' y su vínculo con 'Identity'.
+    - Actualizar metadatos de perfil (Nombre, Foto) si han cambiado en el proveedor.
+    - Manejar el hasheo de contraseñas para registros manuales.
+    - Coordinar la creación en cascada: Identity -> Auth Methods -> Roles -> Vínculos.
     """
 
 
@@ -521,9 +538,12 @@ def insert_user_in_database(userinfo,auth_provider):
 
 def _assign_default_role_to_identity(identity_row_id):
     """
-    Asigna dinámicamente el rol con menor privilegio de acceso a datos para la App actual.
-    Orden de prioridad (restringido): own > assigned.
-    Ignora: all, team (no se asigna nada automáticamente si solo existen estos).
+    Asigna automáticamente el rol más restrictivo disponible para la App actual.
+    
+    Objetivo:
+    - Implementar el principio de menor privilegio al momento del registro.
+    - Identificar roles de tipo 'own' o 'assigned' específicos para la aplicación detectada.
+    - Realizar el vínculo en la tabla 'Assignments' para otorgar acceso inmediato.
     """
     from src.services.identity_service import identity_service
     try:
@@ -607,7 +627,13 @@ def _assign_default_role_to_identity(identity_row_id):
         traceback.print_exc()
 
 def _link_identity_to_auth(identity_row_id, auth_row_id):
-    """Auxiliar para vínculo inverso Identity -> Auth Methods."""
+    """
+    Establece el vínculo inverso en la base de datos entre Identity y Auth Methods.
+    
+    Objetivo:
+    - Asegurar que la relación sea bidireccional en SeaTable para facilitar consultas.
+    - Mantener la integridad referencial entre el perfil del usuario y su método de acceso.
+    """
     try:
         # Esperar un poco para que SeaTable propague las filas
 
@@ -620,9 +646,12 @@ def _link_identity_to_auth(identity_row_id, auth_row_id):
 
 def process_mock_social_login(provider, email=None):
     """
-    Simula un inicio de sesión social exitoso con datos de prueba (MOCK).
-    Ideal para desarrollo cuando no se puede configurar la consola de Google/Microsoft.
-    Permite probar con cualquier correo si se especifica.
+    Simula un flujo de autenticación exitoso para propósitos de desarrollo controlado.
+    
+    Objetivo:
+    - Facilitar pruebas locales sin dependencia de APIs externas (Google/Microsoft).
+    - Generar un contexto de usuario completo y funcional bajo demanda.
+    - Permitir el bypass de la validación real de credenciales cuando MOCK_AUTH es True.
     """
     from flask import session
     
@@ -674,7 +703,12 @@ def process_mock_social_login(provider, email=None):
 # funcion para calcular el display name de la tabla Vendors
 def calculate_display_name(vendor, banking):
     """
-    Calcula el Display Name siguiendo las reglas de QuickBooks.
+    Calcula el nombre a mostrar (Display Name) para entidades de negocio.
+    
+    Objetivo:
+    - Seguir las reglas de visualización de QuickBooks para proveedores y banca.
+    - Manejar la prioridad entre nombres de personas físicas y razones sociales.
+    - Facilitar la identificación visual clara en dashboards y reportes.
     """
 
     # Nombre completo de vendor
@@ -730,7 +764,12 @@ def calculate_display_name(vendor, banking):
 # Funcion para enviar el correo de confirmacion de la cuenta manual
 def enviar_email_confirm_manual(email, user_id):
     """
-    Genera token, guarda en la base de datos y envía el correo de confirmación.
+    Gestiona el envío físico del código de confirmación al usuario.
+    
+    Objetivo:
+    - Generar un código alfanumérico seguro de 6 caracteres.
+    - Persistir el token y la marca de tiempo en la base de datos de SeaTable.
+    - Construir y enviar un correo electrónico con formato HTML profesional.
     """
     try:
         # Generar código de 6 caracteres alfanumérico
@@ -794,8 +833,12 @@ def enviar_email_confirm_manual(email, user_id):
 
 def resend_confirmation_email_logic(email, user_id=None):
     """
-    Lógica compartida para reenviar el email de confirmación con rate limit de 5 min.
-    Retorna: (success, message, wait_time)
+    Orquesta el reenvío de códigos de verificación con políticas de protección.
+    
+    Objetivo:
+    - Implementar un rate limit de 5 minutos entre solicitudes para prevenir abusos.
+    - Asegurar que el usuario realmente requiera verificación antes de proceder.
+    - Manejar la búsqueda fresca de datos para garantizar la integridad del proceso.
     """
     try:
         email = (email or "").lower().strip()
@@ -853,7 +896,14 @@ def resend_confirmation_email_logic(email, user_id=None):
 
 
 def confirm_email_manual(token):
-    """Verifica el token recibido y confirma el correo del usuario."""
+    """
+    Valida y procesa la confirmación de una cuenta mediante token.
+    
+    Objetivo:
+    - Verificar la existencia, coincidencia y vigencia (24h) del token recibido.
+    - Activar el método de autenticación y la identidad del usuario en SeaTable.
+    - Limpiar el token usado para evitar su reutilización.
+    """
     try:
         print("📩 Iniciando confirm_email_manual() con token:", token)
         escaped_token = (token or "").replace("'", "''").strip()
@@ -895,6 +945,15 @@ def confirm_email_manual(token):
 # ============================================================================
 
 def login_with_password_and_email(email, password, login_type="manual"):
+    """
+    Ejecuta la validación de credenciales para el inicio de sesión.
+    
+    Objetivo:
+    - Autenticar al usuario comparando el hash de la contraseña (bcrypt).
+    - Gestionar el bypass para logins sociales simulados en desarrollo.
+    - Interceptar usuarios no verificados para forzar el reenvío del correo de activación.
+    - Retornar el contexto completo del usuario y su registro de autenticación tras el éxito.
+    """
     try:
         # Validar campo email
         if not email:
@@ -1015,13 +1074,13 @@ def login_with_password_and_email(email, password, login_type="manual"):
 
 def enviar_email_reset_password(email):
     """
-    Genera un token de reset de contraseña, lo guarda en la base de datos y envía el correo.
+    Inicia el flujo de recuperación de contraseña enviando un código al correo.
     
-    Args:
-        email (str): Email del usuario que solicita el reset
-    
-    Returns:
-        dict: {"status": bool, "message": str}
+    Objetivo:
+    - Validar la existencia y elegibilidad del usuario para el reset de password.
+    - Generar un código de seguridad (token) y registrar el intento en SeaTable.
+    - Aplicar un rate limit de 5 minutos para envíos de correos de recuperación.
+    - Asegurar que la comunicación sea segura y el token tenga vigencia limitada (15m).
     """
     try:
         email = email.lower().strip()
@@ -1124,6 +1183,14 @@ def enviar_email_reset_password(email):
 
 
 def reset_password_with_token(token, new_password):
+    """
+    Completa el cambio de contraseña utilizando el token de seguridad.
+    
+    Objetivo:
+    - Validar la fortaleza de la nueva contraseña y la validez del token de reset.
+    - Actualizar el hash de la contraseña en SeaTable y anular el token usado.
+    - Identificar sesiones activas vinculadas para que el frontend pueda informarlas.
+    """
     try:
         # 0. Validar fortaleza de la contraseña
         is_strong, msg = validate_password_strength(new_password)
@@ -1220,16 +1287,18 @@ def reset_password_with_token(token, new_password):
 
 def get_google_oauth_url():
     """
-    Genera la URL de autenticación de Google OAuth y el state.
+    Construye la URL de autorización para el inicio de sesión con Google.
     
-    Returns:
-        dict: {'auth_url': str, 'state': str}
+    Objetivo:
+    - Generar un estado (state) seguro para prevenir ataques CSRF.
+    - Configurar los scopes necesarios (openid, email, profile) para recuperar la identidad.
+    - Definir la redirect_uri basada en la configuración global del sistema.
     """
     state = secrets.token_urlsafe(32)
     print(f"Generated OAuth state: {state}")
     
     # Para OAuth usamos el dominio configurado en el .env porque debe coincidir con la whitelist de Google
-    domain = Config.URL_API_VENDOR.rstrip('/')
+    domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
     redirect_uri = f'{domain}/api/auth/callback'
     print(f"DEBUG: Google Redirect URI: {redirect_uri}")
     
@@ -1250,16 +1319,18 @@ def get_google_oauth_url():
 
 def get_microsoft_oauth_url():
     """
-    Genera la URL de autenticación de Microsoft OAuth y el state.
+    Construye la URL de autorización para el inicio de sesión con Microsoft.
     
-    Returns:
-        dict: {'auth_url': str, 'state': str}
+    Objetivo:
+    - Configurar el flujo OAuth2 de Microsoft Azure AD.
+    - Solicitar permisos de lectura de perfil (User.Read) y correo electrónico.
+    - Gestionar el estado de la sesión mediante un token aleatorio único.
     """
     state = secrets.token_urlsafe(32)
     print(f"[MICROSOFT] Generated OAuth state: {state}")
     
     # Para OAuth usamos el dominio configurado en el .env porque debe coincidir con la whitelist de Microsoft
-    domain = Config.URL_API_VENDOR.rstrip('/')
+    domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
     redirect_uri = f'{domain}/api/auth/microsoft/callback'
     print(f"DEBUG: Microsoft Redirect URI: {redirect_uri}")
     
@@ -1280,13 +1351,13 @@ def get_microsoft_oauth_url():
 
 def register_manual_user(userinfo):
     """
-    Registra un nuevo usuario. Soporta tanto flujo manual (Email) como OAuth.
+    Orquesta el registro de un nuevo usuario mediante el proveedor por correo.
     
-    Args:
-        userinfo: Diccionario con firstName/given_name, lastName/family_name, email, password, country
-        
-    Returns:
-        dict: {'success': bool, 'user': dict, 'error': str}
+    Objetivo:
+    - Validar obligatoriedad y fortaleza de credenciales antes de la persistencia.
+    - Detectar usuarios existentes para evitar duplicidad o sugerir reenvío de activación.
+    - Iniciar la creación física en base de datos y disparar el primer correo de confirmación.
+    - Retornar el punto de redirección adecuado según el estado del registro.
     """
     try:
         email = userinfo.get('email')
@@ -1388,15 +1459,13 @@ def register_manual_user(userinfo):
 
 def process_google_callback(code, state, expected_state):
     """
-    Procesa el callback de Google OAuth.
+    Procesa el retorno de Google tras la autorización exitosa del usuario.
     
-    Args:
-        code: Código de autorización
-        state: State recibido
-        expected_state: State esperado de la cookie
-        
-    Returns:
-        dict: {'success': bool, 'user': dict, 'error': str}
+    Objetivo:
+    - Validar la integridad del flujo mediante la comparación de estados (CSRF Protection).
+    - Intercambiar el código de autorización por un Access Token de Google.
+    - Recuperar y normalizar el perfil del usuario para su sincronización en SeaTable.
+    - Establecer la sesión inicial de Flask y retornar el contexto de identidad.
     """
     try:
         if state != expected_state:
@@ -1404,7 +1473,7 @@ def process_google_callback(code, state, expected_state):
             return {'success': False, 'error': 'state_mismatch'}
         
         # Exchange code for token
-        domain = Config.URL_API_VENDOR.rstrip('/')
+        domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
         redirect_uri = f'{domain}/api/auth/callback'
         
         token_url = 'https://oauth2.googleapis.com/token'
@@ -1470,15 +1539,12 @@ def process_google_callback(code, state, expected_state):
 
 def process_microsoft_callback(code, state, expected_state):
     """
-    Procesa el callback de Microsoft OAuth.
+    Procesa el retorno de Microsoft tras la autorización del usuario.
     
-    Args:
-        code: Código de autorización
-        state: State recibido
-        expected_state: State esperado de la cookie
-        
-    Returns:
-        dict: {'success': bool, 'user': dict, 'error': str}
+    Objetivo:
+    - Autenticar el flujo mediante el intercambio de códigos por tokens de Microsoft Graph.
+    - Sincronizar el perfil del usuario (Azure AD) con la base de datos de identidades.
+    - Gestionar la persistencia de la sesión y la transición de vuelta a la app.
     """
     try:
         if state != expected_state:
@@ -1487,7 +1553,7 @@ def process_microsoft_callback(code, state, expected_state):
         # Exchange code for token
         token_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
         
-        domain = Config.URL_API_VENDOR.rstrip('/')
+        domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
         redirect_uri = f'{domain}/api/auth/microsoft/callback'
         
         token_data = {
@@ -1582,6 +1648,14 @@ def prepare_session_data(user):
 
 
 def change_password_service(user_email, current_password, new_password, user):
+    """
+    Servicio encargado de la actualización segura de contraseñas.
+    
+    Objetivo:
+    - Validar que la contraseña actual sea correcta antes de permitir el cambio.
+    - Asegurar que la nueva contraseña cumpla con los requisitos de fortaleza.
+    - Actualizar de forma atómica el hash en SeaTable.
+    """
     """
     Cambia la contraseña del usuario autenticado.
     
@@ -1811,6 +1885,14 @@ def get_debug_user_info(email, current_url=None):
 # ============================================================================
 
 def verify_session(email=None, token=None):
+    """
+    Motor de validación de vigencia de sesiones.
+    
+    Objetivo:
+    - Comprobar la existencia y el estado 'Active' de una sesión en SeaTable.
+    - Utilizar una caché de validación para minimizar el impacto en la base de datos.
+    - Retornar el estado detallado de la sesión y metadatos básicos del usuario.
+    """
     # Soporte para Bearer puro: Si no viene email, intentamos sacarlo del token
     if not email and token:
         try:
@@ -1918,10 +2000,13 @@ def get_fallback_session(email=None):
     """
     try:
         # Capturamos IP y UA escapando comillas para evitar errores SQL
-        ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
-        if ip_address and ',' in ip_address:
+        ip_address = request.headers.get('X-Forwarded-For', request.remote_addr) or '127.0.0.1'
+        if ',' in ip_address:
             ip_address = ip_address.split(',')[0].strip()
-        
+            
+        # Nueva limpieza: Eliminar puerto o identificadores extras (ej: 123.123.123.123:5000)
+        if ':' in ip_address and ('.' in ip_address or ip_address.count(':') == 1):
+             ip_address = ip_address.split(':')[0].strip()
         user_agent = request.headers.get('User-Agent', 'Unknown')
         
         escaped_ip = ip_address.replace("'", "''") if ip_address else ""
@@ -2003,6 +2088,13 @@ def _clean_user_context_for_frontend(ctx):
 
 def logout_session(token):
     """
+    Invalida administrativamente una sesión específica.
+    
+    Objetivo:
+    - Cambiar el estado de la sesión a 'Expired' en la base de datos.
+    - Asegurar que el token JWT ya no sea aceptado en futuras peticiones.
+    """
+    """
     Marca una sesión específica como Expired en la base de datos.
     """
     try:
@@ -2028,6 +2120,14 @@ def logout_session(token):
         return False
 
 def close_sessions_logic(email, token=None, all_sessions=False, session_ids=None):
+    """
+    Lógica programática para el cierre masivo o selectivo de sesiones.
+    
+    Objetivo:
+    - Proveer una interfaz unificada para el cierre remoto de sesiones.
+    - Permitir al usuario cerrar todas sus sesiones excepto la actual, o seleccionar IDs específicos.
+    - Garantizar que solo se cierren sesiones que pertenezcan realmente al usuario solicitante.
+    """
     """
     Cierra sesiones de un usuario de forma segura.
     Retorna: (success, message, closed_count)

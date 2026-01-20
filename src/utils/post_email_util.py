@@ -1,8 +1,14 @@
 """
-Email Utility Module
-====================
-This module provides a generic email sending function that can be used
-throughout the application for sending emails.
+Utilidad de Envío de Mensajería Electrónica (Email Engine).
+
+Este módulo provee una interfaz unificada para el envío de correos electrónicos,
+soportando múltiples transportes como SMTP estándar y Microsoft Graph API.
+
+Objetivos clave:
+1. Abstraer el método de envío (SMTP vs API) mediante configuración dinámica.
+2. Facilitar el envío de comunicaciones transaccionales (confirmaciones, resets).
+3. Manejar plantillas HTML y metadatos de remitentes personalizados.
+4. Asegurar la entrega fiable de notificaciones críticas del sistema.
 """
 
 import smtplib
@@ -15,7 +21,11 @@ import requests
 def _send_email_microsoft_graph(receiver_email, subject, body_html, from_email=None):
     """
     Envía un correo utilizando la API de Microsoft Graph.
-    Requiere permisos de aplicación Mail.Send.
+    
+    Objetivo:
+    - Utilizar el protocolo seguro de Microsoft para envíos corporativos.
+    - Gestionar la autenticación basada en Tenant ID y Client Secret de Azure.
+    - Soportar la personalización del remitente (from_email) dentro del tenant.
     """
     try:
         tenant_id = Config.MAIL_MICROSOFT_TENANT_ID
@@ -89,6 +99,14 @@ def _send_email_microsoft_graph(receiver_email, subject, body_html, from_email=N
         return False
 
 def send_email(receiver_email, subject, body_html, from_email=None):
+    """
+    Punto de entrada universal para el envío de correos electrónicos.
+    
+    Objetivo:
+    - Decidir dinámicamente el método de envío (SMTP vs Graph) según la configuración.
+    - Proveer una interfaz simplificada para el resto de los servicios de la aplicación.
+    - Manejar la construcción del mensaje MIME y la negociación de seguridad (SSL/STARTTLS).
+    """
     # Determinar método de envío
     method = getattr(Config, "EMAIL_METHOD", "smtp")
     

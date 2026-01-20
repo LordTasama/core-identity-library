@@ -1,3 +1,16 @@
+"""
+Sistema de Logging Centralizado.
+
+Este módulo configura un logger robusto con múltiples manejadores (handlers) para salida
+por consola y persistencia en archivos rotativos, segmentando la información por 
+niveles de severidad (INFO, DEBUG, ERROR).
+
+Objetivos clave:
+1. Asegurar la trazabilidad de las operaciones en archivos de log organizados.
+2. Facilitar la depuración mediante logs de depuración detallados (debug.log).
+3. Centralizar el reporte de errores críticos en un archivo dedicado (error.log).
+4. Implementar rotación de archivos para optimizar el uso de espacio en disco.
+"""
 import logging
 import os
 import sys
@@ -22,6 +35,14 @@ class ExactLevelFilter(logging.Filter):
         return record.levelno == self.level
 
 def setup_logger():
+    """
+    Configura y retorna la instancia global del logger con múltiples destinos.
+    
+    Objetivo:
+    - Inicializar los manejadores para consola y archivos rotativos.
+    - Aplicar filtros de nivel exacto para segmentar logs de INFO y DEBUG.
+    - Establecer formatos consistentes para todas las entradas de bitácora.
+    """
     logger = logging.getLogger('core-identity')
     
     # El nivel base lo ponemos en DEBUG para capturar todo y filtrar en los handlers

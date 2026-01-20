@@ -1,7 +1,14 @@
 """
-Authentication and Email Utilities
-==================================
-This module contains authentication helpers and email notification functions.
+Utilidades de Autenticación y Seguridad.
+
+Este módulo provee los mecanismos de protección de rutas (decoradores) y los ayudantes
+para recuperar el contexto del usuario autenticado de forma eficiente durante el
+ciclo de vida de una petición HTTP.
+
+Objetivos clave:
+1. Implementar el decorador @login_required para la validación centralizada de JWT.
+2. Facilitar la recuperación del usuario actual ('g.current_user') con permisos RBAC.
+3. Abstraer la complejidad de la búsqueda combinada de identidades y métodos de acceso.
 """
 
 from flask import session
@@ -9,11 +16,13 @@ from src.services.seatable_service import Seatable
 
 def login_required(f):
     """
-    Decorator to require authentication via JWT Token.
-    Checks for token in:
-    1. Authorization Header (Bearer <token>)
-    2. Request JSON body
-    3. Request arguments (query params)
+    Decorador para requerir autenticación mandatoria mediante Token JWT.
+    
+    Objetivo:
+    - Interceptar peticiones para validar la presencia de un token Bearer.
+    - Comunicarse con el servicio de sesión para verificar la vigencia del token.
+    - Poblar el objeto global 'g' con los datos del usuario para uso en las rutas.
+    - Manejar automáticamente las respuestas 401 para peticiones no autorizadas.
     """
     from functools import wraps
     from flask import request, jsonify, g
@@ -66,9 +75,12 @@ def login_required(f):
 
 def get_current_user():
     """
-    Get the currently logged in user from session using Seatable.
-    Includes atomic permissions and data mode from Core Identity.
-    Optimized: Uses flask 'g' to cache user data during the same request.
+    Recupera la información completa del usuario autenticado en la sesión actual.
+    
+    Objetivo:
+    - Servir de puente entre la sesión de Flask y el contexto detallado de IdentityService.
+    - Cargar permisos y modos de datos atómicos para la aplicación activa.
+    - Implementar una caché interna por petición para evitar consultas redundantes a la DB.
     """
     from flask import g
     

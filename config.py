@@ -1,3 +1,14 @@
+"""
+Gestión de Configuración y Variables de Entorno.
+
+Este módulo centraliza todas las variables de entorno y constantes de configuración del sistema
+Core Identity, permitiendo una transición fluida entre entornos de desarrollo, staging y producción.
+
+Objetivos clave:
+1. Carga centralizada de secretos y credenciales (OAuth, SeaTable, JWT).
+2. Definición de URLs base para proveedores y callbacks.
+3. Control selectivo de características mediante flags (Caching, Mock Auth).
+"""
 import os
 from dotenv import load_dotenv
 
@@ -28,7 +39,7 @@ class Config:
     MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
     
     # API / Vendor configuration
-    URL_API_VENDOR = os.getenv('URL_API_VENDOR', 'http://localhost:5173')
+    URL_REDIRECT_CALLBACK = os.getenv('URL_REDIRECT_CALLBACK', 'http://localhost:5173')
     
     # Auth configuration
     MOCK_AUTH = os.getenv('MOCK_AUTH', 'False').lower() == 'true'

@@ -1,13 +1,24 @@
+"""
+Utilidades de Procesamiento y Matching de URLs.
+
+Este módulo provee funciones para la normalización de URLs y la identificación 
+automática de aplicaciones basadas en prefijos de URL, permitiendo la detección 
+dinámica del contexto de la App.
+
+Objetivos clave:
+1. Estandarizar URLs eliminando protocolos, subdominios (www) y slashes finales.
+2. Implementar un motor de matching de 'mejor coincidencia' (prefix match longest wins).
+3. Facilitar la resolución de configuraciones App-specific basadas en el origen de la petición.
+"""
 import re
 
 def normalize_url(url):
     """
-    Normalizes a URL by:
-    - Trimming whitespace
-    - Converting to lowercase
-    - Removing protocol (http://, https://)
-    - Removing 'www.'
-    - Removing trailing slash
+    Estandariza una URL para facilitar comparaciones consistentes.
+    
+    Objetivo:
+    - Eliminar ruido (http, https, www, slashes) que pueda afectar el matching.
+    - Convertir a minúsculas para comparaciones insensibles a mayúsculas.
     """
     if not url:
         return ""
@@ -27,15 +38,12 @@ def normalize_url(url):
 
 def find_best_app_match(input_url, applications):
     """
-    Finds the best matching application for a given URL.
-    The match is based on the prefix. If multiple matches, the longest one wins.
+    Identifica la aplicación que mejor coincide con la URL de entrada.
     
-    Args:
-        input_url (str): The raw URL to match.
-        applications (list): List of dicts with 'Public URL' and 'App Key'.
-        
-    Returns:
-        str or None: The App Key of the best match.
+    Objetivo:
+    - Comparar la URL de la petición contra las URLs públicas de las Apps registradas.
+    - Aplicar la regla de 'la coincidencia más específica gana' (prefijo más largo).
+    - Resolver el App Key necesario para aplicar el RBAC correspondiente.
     """
     normalized_input = normalize_url(input_url)
     if not normalized_input:

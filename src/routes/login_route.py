@@ -1,12 +1,15 @@
 """
-Authentication Routes
-=====================
-This module handles all authentication-related endpoints including:
-- OAuth login (Google, Microsoft)
-- Email/password login
-- Email confirmation
-- Password management (forgot, reset, change)
-- User session management
+Controlador de Rutas de Autenticación y Sesión.
+
+Este módulo define todos los puntos de entrada (endpoints) relacionados con el ciclo de vida 
+de la identidad del usuario, desde el registro y login (OAuth/Password) hasta la gestión 
+de sesiones y recuperación de contraseñas.
+
+Objetivos clave:
+1. Facilitar el flujo de autenticación multicanal (Google, Microsoft, Email).
+2. Gestionar la verificación de identidad mediante códigos de confirmación.
+3. Proveer mecanismos de validación de sesión ligeros y pesados para los clientes.
+4. Asegurar el cierre de sesión global y remoto.
 """
 
 from flask import Blueprint, request, session, jsonify, redirect, make_response, current_app, g
@@ -43,6 +46,14 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """
+    Inicia el flujo de autenticación basado en el proveedor especificado.
+    
+    Objetivo:
+    - Para proveedores sociales (Google/Microsoft): Genera la URL de autorización.
+    - Para Email: Intenta una recuperación de sesión por IP si no hay credenciales, 
+      o valida la existencia del usuario para proceder al paso de contraseña.
+    """
     provider = request.json.get('provider')
     temp_device = request.json.get('temp_device', False)
     token = request.json.get('token')
@@ -192,7 +203,12 @@ def login():
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """
-    Endpoint dedicado para el registro de nuevos usuarios (Provider Email).
+    Registra un nuevo usuario en el sistema usando el proveedor 'Email'.
+    
+    Objetivo:
+    - Crear una nueva identidad y método de autenticación en SeaTable.
+    - Enviar automáticamente un código de verificación al correo electrónico.
+    - Prevenir registros duplicados de correos ya existentes.
     """
     try:
         firstName = request.json.get('firstName')
@@ -237,7 +253,12 @@ def register():
 @auth_bp.route('/resend-confirmation', methods=['POST'])
 def resend_confirmation():
     """
-    Endpoint manual para solicitar el reenvío del email de confirmación.
+    Solicita el reenvío del código de verificación de correo electrónico.
+    
+    Objetivo:
+    - Generar un nuevo token de confirmación para el usuario especificado.
+    - Notificar al usuario mediante un nuevo correo electrónico.
+    - Validar que el usuario realmente necesite confirmación antes de enviar.
     """
     try:
         email = request.json.get('email')
@@ -276,8 +297,12 @@ def resend_confirmation():
 @auth_bp.route('/verify-email', methods=['POST'])
 def verify_email():
     """
-    Endpoint para verificar el email usando el código de 6 caracteres enviado al correo.
-    Recibe: { "token": "XXXXXX" }
+    Verifica el correo electrónico de un usuario utilizando un código de 6 dígitos.
+    
+    Objetivo:
+    - Validar el token de confirmación enviado por el usuario.
+    - Marcar el método de autenticación como verificado en la base de datos.
+    - Permitir que el usuario progrese al estado 'Active' después de la validación.
     """
     try:
         # Soporte Bearer o JSON
@@ -312,6 +337,15 @@ def verify_email():
 
 @auth_bp.route('/login_with_password_and_email', methods=['POST'])
 def login_with_password_and_email_route():
+    """
+    Ruta para la autenticación tradicional mediante correo y contraseña.
+    
+    Objetivo:
+    - Validar las credenciales contra el servicio de login.
+    - Manejar redirecciones para usuarios no verificados o bloqueos temporales.
+    - Generar el contexto del usuario y establecer la sesión en el servidor.
+    - Retornar el token JWT y el handshake_code para el cliente.
+    """
     try:
         email = request.json.get('email')
         password = request.json.get('password')
@@ -399,6 +433,16 @@ def login_with_password_and_email_route():
 
 @auth_bp.route('/callback')
 def callback():
+    """
+    Maneja el retorno (callback) del flujo OAuth de Google.
+    
+    Objetivo:
+    - Intercambiar el código de autorización por un token de acceso de Google.
+    - Procesar la información del usuario y sincronizarla con SeaTable.
+    - Resolver el inicio de sesión mediante comunicación postMessage (si es popup) 
+      o redirección estándar.
+    - Limpiar las cookies de estado de OAuth.
+    """
     try:
         code = request.args.get('code')
         state = request.args.get('state')
@@ -500,6 +544,14 @@ def callback():
 
 @auth_bp.route('/microsoft/callback')
 def microsoft_callback():
+    """
+    Maneja el retorno (callback) del flujo OAuth de Microsoft.
+    
+    Objetivo:
+    - Validar el estado y procesar el código de autorización de Microsoft.
+    - Identificar al usuario y actualizar su perfil en la base de datos de identidad.
+    - Gestionar el cierre del popup de autenticación y la entrega del token JWT al frontend.
+    """
     try:
         code = request.args.get('code')
         state = request.args.get('state')
@@ -599,6 +651,14 @@ def microsoft_callback():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
+    """
+    Cierra la sesión activa del usuario.
+    
+    Objetivo:
+    - Invalidar el token de sesión en SeaTable mediante la función logout_session.
+    - Limpiar todos los datos de sesión en el servidor Flask.
+    - Borrar la cookie de sesión del navegador para asegurar un cierre total.
+    """
     # 1. Invalida la sesión en la base de datos (SeaTable)
     # Soporte Bearer Header
     auth_header = request.headers.get('Authorization', '')
@@ -644,21 +704,20 @@ def debug_user(email):
 # ============================================================================
 # USER INFO ROUTES
 # ============================================================================
-
+@login_required
 @auth_bp.route('/verify-session', methods=['POST'])
 def verify_session_route():
     """
-    Endpoint central para validar la sesión (LIGERO).
-    Solo valida el token y status de cuenta. No trae roles ni permisos.
+    Valida si una sesión es vigente de forma ligera y rápida.
+    
+    Objetivo:
+    - Verificar la existencia y el estado (Active/Expired) del token proporcionado.
+    - Realizar una comprobación rápida de permisos para la aplicación actual.
+    - Retornar un handshake_code si la sesión es válida para permitir saltos entre apps.
     """
     data = request.json or {}
     email = data.get("email") or request.headers.get('X-User-Email')
     token = data.get("token")
-    
-    # Soporte Bearer Header
-    auth_header = request.headers.get('Authorization', '')
-    if auth_header.startswith('Bearer '):
-        token = auth_header.split(' ')[1]
     
     if not token:
         return jsonify({"success": False, "message": "Authentication token is required (Bearer Token)"}), 400
@@ -687,8 +746,12 @@ def verify_session_route():
 @login_required
 def get_user_context_route():
     """
-    Endpoint para obtener el contexto completo (PESADO).
-    Valida el token primero (@login_required lo hace) y luego trae todo de SeaTable/Cache.
+    Recupera el contexto completo y detallado del usuario autenticado.
+    
+    Objetivo:
+    - Obtener información extendida del perfil, roles, permisos y aplicaciones autorizadas.
+    - Este endpoint es "pesado" ya que carga la estructura RBAC completa.
+    - Se apoya en el decorador @login_required para la validación previa del token.
     """
     try:
         email = g.current_email
@@ -720,8 +783,12 @@ def get_user_context_route():
 @auth_bp.route('/validate-handshake', methods=['POST'])
 def validate_handshake_route():
     """
-    Endpoint ultra-rápido para validar un código de intercambio.
-    SOLO recibe 'code'.
+    Valida un código de intercambio (handshake) para transferir sesiones.
+    
+    Objetivo:
+    - Convertir un handshake_code temporal en una sesión válida para el usuario.
+    - Facilitar el Single Sign-On (SSO) entre diferentes aplicaciones del ecosistema.
+    - Validar permisos en tiempo real para la aplicación de destino.
     """
     try:
         
@@ -762,8 +829,12 @@ def validate_handshake_route():
 @auth_bp.route('/colors-app', methods=['GET', 'POST'])
 def get_app_colors_route():
     """
-    Endpoint pasivo para obtener colores de la aplicación por URL.
-    Requiere X-API-KEY pero NO requiere sesión de usuario.
+    Obtiene la identidad visual (colores y nombre) de una aplicación basada en su URL.
+    
+    Objetivo:
+    - Permitir que el frontend se personalice antes de que el usuario inicie sesión.
+    - No requiere autenticación de usuario, solo una X-API-KEY válida.
+    - Utiliza caché de metadatos para optimizar la respuesta.
     """
     try:
         from src.services.identity_service import identity_service
@@ -801,6 +872,14 @@ def get_app_colors_route():
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
+    """
+    Inicia el proceso de recuperación de contraseña olvidada.
+    
+    Objetivo:
+    - Validar la existencia del correo electrónico.
+    - Generar y enviar un enlace de recuperación con un token seguro.
+    - Gestionar el rate limiting para evitar spam de correos de recuperación.
+    """
     try:
         email = request.json.get('email')
         
@@ -837,6 +916,14 @@ def forgot_password():
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
+    """
+    Establece una nueva contraseña utilizando un token de recuperación.
+    
+    Objetivo:
+    - Validar la vigencia y autenticidad del token de reset.
+    - Actualizar la contraseña en la base de datos de SeaTable.
+    - Retornar información sobre sesiones activas que deban ser revisadas por el usuario.
+    """
     try:
         token = request.json.get('token')
         new_password = request.json.get('newPassword')
@@ -881,6 +968,14 @@ def reset_password():
 @auth_bp.route('/change-password', methods=['POST'])
 @login_required
 def change_password():
+    """
+    Cambia la contraseña del usuario autenticado.
+    
+    Objetivo:
+    - Validar la contraseña actual para asegurar la identidad.
+    - Actualizar a la nueva credencial en el registro del usuario.
+    - Requiere que el usuario esté plenamente autenticado (@login_required).
+    """
     try:
         current_password = request.json.get('old_password')
         new_password = request.json.get('new_password')
@@ -921,8 +1016,12 @@ def change_password():
 @login_required
 def logout_sessions_route():
     """
-    Endpoint para cerrar sesiones de forma remota.
-    El token es el JWT de la sesión actual para autorizar la acción (validado por @login_required).
+    Cierra sesiones de forma remota para el usuario autenticado.
+    
+    Objetivo:
+    - Permitir la invalidación selectiva o masiva de sesiones activas.
+    - Útil después de un cambio de contraseña o detección de actividad sospechosa.
+    - Asegura que el usuario conserve el control sobre sus accesos concurrentes.
     """
     try:
         data = request.json

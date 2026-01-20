@@ -1,4 +1,17 @@
-﻿import os
+﻿"""
+Capa de Persistencia e Interacción con SeaTable API.
+
+Este servicio actúa como un ORM simplificado y cliente de API para SeaTable. Provee una 
+interfaz unificada para realizar consultas SQL, operaciones CRUD y gestión de vínculos 
+entre tablas de forma segura y eficiente.
+
+Objetivos clave:
+1. Implementar un patrón Singleton para la gestión centralizada de conexiones.
+2. Facilitar la ejecución de consultas SQL complejas sobre las bases de datos de SeaTable.
+3. Automatizar la gestión de tokens de autenticación y re-conexión.
+4. Proveer métodos de alto nivel para operaciones de red (Append, Update, Link).
+"""
+import os
 import time
 from datetime import date
 from config import Config
@@ -6,6 +19,12 @@ from seatable_api import Base
 from seatable_api.exception import AuthExpiredError
 
 class Seatable:
+    """
+    Cliente centralizado para las operaciones de base de datos en SeaTable.
+    
+    Esta clase gestiona múltiples contextos de base de datos (Bases) y asegura 
+    una comunicación fluida y autenticada con el servidor de SeaTable.
+    """
     _instance = None
     _bases = {}
 
@@ -38,8 +57,12 @@ class Seatable:
     
     def get_base(self, base_key=None):
         """
-        Devuelve un objeto Base conectado a la BD especificada.
-        Si base_key es None â†’ usa la base por defecto.
+        Obtiene o inicializa una conexión (Base) a una base de datos específica.
+        
+        Objetivo:
+        - Reutilizar conexiones existentes mediante un sistema de caché de bases.
+        - Autenticar dinámicamente usando el token de API correspondiente.
+        - Asegurar que el servidor de SeaTable sea accesible antes de retornar la base.
         """
 
         # Aseguramos un diccionario interno para almacenar conexiones
@@ -71,6 +94,14 @@ class Seatable:
 
 
     def sql_query_one(self, query, base_data=None):
+        """
+        Ejecuta una consulta SQL y retorna un único registro.
+        
+        Objetivo:
+        - Simplificar la recuperación de filas únicas (ej: búsqueda por Email o ID).
+        - Manejar automáticamente la extracción del primer elemento del resultado.
+        - Proveer una interfaz limpia para consultas de existencia.
+        """
         max_retries = 3
         wait_seconds = 20
         print(query)
@@ -99,6 +130,14 @@ class Seatable:
         return []
 
     def sql_query(self, query, batch=10000, base_data=None):
+        """
+        Ejecuta una consulta SQL masiva y retorna una lista de registros.
+        
+        Objetivo:
+        - Permitir la ejecución de sentencias SQL nativas de SeaTable.
+        - Gestionar la paginación o el límite de registros si fuera necesario.
+        - Centralizar el logging y el manejo de errores de comunicación SQL.
+        """
         offset = 0
         all_data = []
         max_retries = 3
@@ -151,6 +190,14 @@ class Seatable:
 
     
     def perform_table_operation(self, table_name, row_data=None, type_batch="", row_id="",base_data=None):
+        """
+        Ejecuta operaciones atómicas de escritura (Creación o Actualización) en una tabla.
+        
+        Objetivo:
+        - Unificar las operaciones 'append_row' y 'update_row' en un solo método.
+        - Implementar lógica de reintento automático en caso de expiración de token.
+        - Validar la integridad de los datos antes de enviarlos a SeaTable.
+        """
         print(f"ðŸ“— Table to insert {table_name}")
 
         def run_operation(base):
@@ -209,6 +256,14 @@ class Seatable:
         return link_id
     
     def perform_link_operation(self, link_id, row_id, other_row_id, table_name, other_table_name, base_data=None):
+        """
+        Gestiona la creación de relaciones (vínculos) entre registros de diferentes tablas.
+        
+        Objetivo:
+        - Ejecutar la vinculación física entre dos IDs de fila usando un Link ID específico.
+        - Asegurar que la operación sea segura frente a tokens expirados.
+        - Mantener la consistencia de las relaciones bidireccionales en el sistema.
+        """
         print(f"ðŸ”— link_id {link_id}")
         print(f"ðŸ”— row_id {row_id}")
         print(f"ðŸ”— other_row_id {other_row_id}")

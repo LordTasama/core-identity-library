@@ -1,3 +1,16 @@
+"""
+Servicio de Identidad y Gestión de Permisos (RBAC Service).
+
+Este módulo gestiona la resolución de aplicaciones basadas en URLs, la recuperación de
+metadatos de apps y, fundamentalmente, el cálculo de permisos y modos de acceso (Data Modes)
+para los usuarios en cada aplicación del ecosistema.
+
+Objetivos clave:
+1. Identificar la aplicación de destino basándose en la URL de la petición.
+2. Calcular la matriz de permisos atómicos (RBAC) para una identidad específica.
+3. Gestionar la caché de permisos para optimizar el rendimiento de la autorización.
+4. Resolver la jerarquía de equipos y herencia de permisos.
+"""
 from src.services.seatable_service import seatable
 from flask import request, current_app
 import time
@@ -8,6 +21,12 @@ from src.utils.url_util import find_best_app_match
 from src.utils.logger import logger
 
 class IdentityService:
+    """
+    Servicio centralizado para la gestión de identidades y autorización.
+    
+    Esta clase implementa la lógica necesaria para transformar los registros de SeaTable 
+    en un contexto de seguridad utilizable por las aplicaciones clientes.
+    """
     def __init__(self):
         self.seatable = seatable
         # Cache para permisos: { (identity_id, app_key): (timestamp, data) }
@@ -94,7 +113,7 @@ class IdentityService:
         
         # Fallback histórico para desarrollo local (solicitado por el usuario)
         if current_url and ("localhost" in current_url or "127.0.0.1" in current_url):
-            override_url = "https://insights.prismgrp.com"
+            override_url = "https://eprcrm.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
@@ -103,8 +122,13 @@ class IdentityService:
 
     def get_identity_permissions(self, identity_id, app_key, identity_row=None, user_email=None, bypass_cache=False):
         """
-        Obtiene los permisos atómicos y el modo de datos para una identidad y aplicación.
-        Incluye cache TTL de 10 minutos y verificación de Status en tiempo real.
+        Calcula la matriz final de permisos y el modo de datos para un usuario y app.
+        
+        Objetivo:
+        - Determinar si el usuario tiene acceso a la aplicación solicitada.
+        - Consolidar todos los permisos provenientes de diferentes roles y asignaciones.
+        - Identificar el nivel de acceso a datos (own, team, assigned, all).
+        - Verificar en tiempo real el estado de la cuenta (Status) para bloquear accesos.
         """
         if not app_key:
             return {"permissions": [], "data_mode": "deny"}
@@ -309,7 +333,12 @@ class IdentityService:
 
     def get_identity_with_assignments(self, identity_id, user_email=None, app_key=None):
         """
-        Loads an Identity along with all its expanded Assignments and normalized Data.
+        Carga una identidad completa expandiendo sus asignaciones y roles asociados.
+        
+        Objetivo:
+        - Recuperar el árbol completo de permisos, equipos y asignaciones desde SeaTable.
+        - Normalizar los datos crudos de la base de datos en estructuras de Python.
+        - Servir como base para el cálculo final de permisos atómicos.
         """
         print(f"LOADING Identity expanded: {identity_id}" + (f" for app: {app_key}" if app_key else ""))
 
@@ -589,6 +618,13 @@ class IdentityService:
         return identity
 
     def _extract_data_mode(self, raw_data):
+        """
+        Analiza la configuración cruda de un rol para extraer su nivel de acceso a datos.
+        
+        Objetivo:
+        - Mapear las configuraciones de SeaTable a los tokens internos: 'all', 'own', 'team', 'assigned'.
+        - Proveer una lógica consistente para la interpretación de privilegios.
+        """
         if not raw_data: return None
         
         # Si es una lista (común en SeaTable for link/lookup/multi-select)

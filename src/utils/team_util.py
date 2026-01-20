@@ -1,20 +1,34 @@
+"""
+Utilidades de Gestión de Equipos y Jerarquías.
+
+Este módulo contiene la lógica para normalizar identificadores de usuario y calcular
+la estructura de subordinación (reporting lines) dentro de la organización.
+
+Objetivos clave:
+1. Normalizar correos electrónicos para asegurar consistencia en las búsquedas.
+2. Calcular el árbol completo de colaboradores (DFS) para la herencia de permisos de equipo.
+3. Prevenir ciclos infinitos en la jerarquía mediante límites de profundidad.
+"""
 def normalize_email(email):
-    """Normalize email by trimming and converting to lowercase."""
+    """
+    Estandariza un correo electrónico para su procesamiento consistente.
+    
+    Objetivo:
+    - Asegurar que las comparaciones de email sean insensibles a mayúsculas y espacios.
+    - Proveer una base confiable para las búsquedas en SeaTable.
+    """
     if not email or not isinstance(email, str):
         return ""
     return email.strip().lower()
 
 def calculate_team_hierarchy(manager_email, all_collaborators, max_depth=10):
     """
-    Calculates the complete tree of collaborators reporting to a manager.
+    Calcula recursivamente el árbol completo de colaboradores que reportan a un manager.
     
-    Args:
-        manager_email (str): The email of the manager to start from.
-        all_collaborators (list): List of dicts with 'Email address' and 'Manager Email'.
-        max_depth (int): Maximum recursion depth to prevent infinite loops.
-        
-    Returns:
-        dict: { "managerEmail": str, "members": list }
+    Objetivo:
+    - Identificar todos los miembros de un equipo basándose en la relación Manager-Colaborador.
+    - Utilizar una búsqueda en profundidad (DFS) para recorrer toda la jerarquía de mando.
+    - Servir de insumo para el cálculo de permisos basados en 'Team Access'.
     """
     normalized_manager = normalize_email(manager_email)
     if not normalized_manager:

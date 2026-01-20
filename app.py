@@ -1,3 +1,14 @@
+"""
+Punto de entrada principal de la API de Core Identity.
+
+Este archivo inicializa la aplicación Flask, configura los middlewares esenciales (CORS, seguridad por API Key),
+registra los controladores de rutas (Blueprints) y gestiona el manejo global de errores.
+
+Objetivos clave:
+1. Configuración del entorno y servidor Flask.
+2. Implementación de capas de seguridad perimetral (CORS y X-API-KEY).
+3. Centralización del ruteo hacia el módulo de autenticación.
+"""
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config import get_config
