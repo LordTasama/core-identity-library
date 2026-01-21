@@ -26,8 +26,18 @@ export default function SocialAuthButtons({
 
     useEffect(() => {
         const handleMessage = (event) => {
-            // Check if the origin matches the current window location origin as per instructions
-            if (event.origin !== window.location.origin) return;
+            // Get API origin to allow cross-origin messages from the authorized backend
+            let apiOrigin;
+            try {
+                apiOrigin = new URL(apiBaseUrl).origin;
+            } catch (e) {
+                console.error("Invalid apiBaseUrl:", apiBaseUrl);
+            }
+
+            // Check if origin matches current window or the API origin
+            const isAllowedOrigin = event.origin === window.location.origin || (apiOrigin && event.origin === apiOrigin);
+
+            if (!isAllowedOrigin) return;
 
             if (event.data.type === "OAUTH_SUCCESS") {
                 const { token, handshake_code, user } = event.data.payload;
@@ -55,10 +65,14 @@ export default function SocialAuthButtons({
 
         window.addEventListener("message", handleMessage, false);
         return () => window.removeEventListener("message", handleMessage);
-    }, [onSuccess, onError]);
+    }, [onSuccess, onError, apiBaseUrl]);
 
     const handleSocialLogin = (provider) => {
-        post('/login', { provider: provider })
+        // We explicitly send frontend_origin to help backend construction of postMessage target origin
+        post('/login', {
+            provider: provider,
+            frontend_origin: window.location.origin
+        })
             .then(data => {
                 const authUrl = data.auth_url || data.redirect_url;
                 if (authUrl) {
