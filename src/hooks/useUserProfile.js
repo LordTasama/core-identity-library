@@ -1,3 +1,8 @@
+/**
+ * Hook: useUserProfile
+ * Objetivo: Gestionar la obtención y el estado de la información del perfil del usuario actual.
+ * Descripción: Realiza la llamada al endpoint `/me` para obtener el contexto completo del usuario (roles, permisos, sesiones).
+ */
 import { useState, useEffect } from 'react';
 import { useAuthApi } from './useAuthApi';
 

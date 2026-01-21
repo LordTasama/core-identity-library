@@ -1,3 +1,8 @@
+/**
+ * Archivo Principal: index.js
+ * Objetivo: Exportar todos los componentes, hooks y utilidades de la librería para su uso externo.
+ * Descripción: Punto de entrada de la librería Core Identity, facilitando la importación de las herramientas de autenticación y gestión de usuario.
+ */
 import './styles/identity-layer.css';
 export { default as Login } from './components/Login';
 export { default as SignUp } from './components/SignUp';

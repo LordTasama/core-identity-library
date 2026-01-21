@@ -1,3 +1,8 @@
+/**
+ * Componente: FormError
+ * Objetivo: Mostrar mensajes de error en formularios de manera consistente.
+ * Descripción: Renderiza un recuadro de alerta rojo con un icono para notificar fallos de validación o errores de API.
+ */
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 

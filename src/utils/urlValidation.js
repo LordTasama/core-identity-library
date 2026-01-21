@@ -1,4 +1,9 @@
 /**
+ * Utilidad: urlValidation
+ * Objetivo: Validar y normalizar URLs, especialmente para imágenes de perfil y enlaces de aplicaciones.
+ * Descripción: Contiene funciones para comprobar la validez de una URL y obtener una imagen de perfil válida desde el objeto de usuario.
+ */
+/**
  * Validates if a string is a valid URL
  * @param {string} url - The URL to validate
  * @returns {boolean} - True if valid URL, false otherwise

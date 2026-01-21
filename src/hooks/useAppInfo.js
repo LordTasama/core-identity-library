@@ -1,3 +1,8 @@
+/**
+ * Hook: useAppInfo
+ * Objetivo: Obtener y gestionar la información visual y de configuración de la aplicación (colores, etc.).
+ * Descripción: Centraliza la lógica de obtención de estilos dinámicos desde la API, utilizando un sistema de caché para optimizar el rendimiento.
+ */
 import { useState, useEffect } from 'react';
 import { useAuthApi } from './useAuthApi';
 

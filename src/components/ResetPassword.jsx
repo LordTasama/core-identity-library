@@ -1,3 +1,8 @@
+/**
+ * Componente: ResetPassword
+ * Objetivo: Permitir a los usuarios establecer una nueva contraseña utilizando un código de recuperación.
+ * Descripción: Maneja el flujo de restablecimiento de contraseña, permitiendo también cerrar sesiones activas tras un cambio exitoso.
+ */
 import { useState, useEffect, useRef } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';

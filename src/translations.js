@@ -1,3 +1,8 @@
+/**
+ * Archivo: translations.js
+ * Objetivo: Centralizar todos los textos y etiquetas de la librería en múltiples idiomas (EN, ES).
+ * Descripción: Proporciona un objeto de traducción estructurado para internacionalizar los componentes y mensajes de error.
+ */
 export const translations = {
     en: {
         login: "Login",

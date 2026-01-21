@@ -1,3 +1,8 @@
+/**
+ * Componente: UserMenu
+ * Objetivo: Mostrar un menú desplegable con opciones de usuario (Perfil, Contraseña, Cerrar Sesión).
+ * Descripción: Renderiza el avatar o inicial del usuario y gestiona la apertura de un menú con accesos rápidos a funciones de cuenta.
+ */
 import { useState, useRef, useEffect } from 'react';
 import { translations } from '../translations';
 import { useAppInfo } from '../hooks/useAppInfo';

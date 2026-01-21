@@ -1,3 +1,8 @@
+/**
+ * Componente: EmailVerification
+ * Objetivo: Gestionar y mostrar el estado del proceso de verificación de correo electrónico del usuario.
+ * Descripción: Procesa el token de verificación de la URL, realiza la llamada a la API para confirmar el correo y muestra feedback visual del resultado.
+ */
 import { useState, useEffect } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';

@@ -1,3 +1,8 @@
+/**
+ * Componente: UserProfile
+ * Objetivo: Visualizar y gestionar la información detallada del perfil del usuario.
+ * Descripción: Muestra datos personales, roles, permisos y sesiones activas, permitiendo también la gestión de estas últimas.
+ */
 import { useState, useEffect } from 'react';
 import { translations } from '../translations';
 import { useAppInfo } from '../hooks/useAppInfo';

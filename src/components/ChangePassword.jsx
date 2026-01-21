@@ -1,3 +1,8 @@
+/**
+ * Componente: ChangePassword
+ * Objetivo: Proporcionar una interfaz para que los usuarios autenticados cambien su contraseña actual.
+ * Descripción: Gestiona el formulario de cambio de contraseña, validando que las nuevas contraseñas coincidan y comunicándose con la API de autenticación.
+ */
 import { useState } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';

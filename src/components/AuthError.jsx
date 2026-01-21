@@ -1,3 +1,8 @@
+/**
+ * Componente: AuthError
+ * Objetivo: Mostrar un mensaje de error legible cuando ocurre un fallo de autenticación o falta de permisos.
+ * Descripción: Presenta una alerta visual estilizada indicando que el usuario no tiene acceso o que hubo un error de autorización.
+ */
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { translations } from '../translations';

@@ -1,7 +1,11 @@
+/**
+ * Componente: SocialAuthButtons
+ * Objetivo: Facilitar la autenticación mediante proveedores externos (Google, Microsoft).
+ * Descripción: Renderiza botones para inicio de sesión social y maneja la comunicación vía ventanas emergentes (popups) con los proveedores de OAuth.
+ */
 import { useEffect } from 'react';
 import { SiGoogle } from 'react-icons/si';
 import { translations } from '../translations';
-import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
 
 export default function SocialAuthButtons({
@@ -14,7 +18,6 @@ export default function SocialAuthButtons({
     apiToken,
     texts: customTexts = {}
 }) {
-    const { isAuthorized } = useSecurity(apiToken);
     const t = { ...translations[lang], ...customTexts };
     const { post } = useAuthApi(apiBaseUrl, apiToken);
 
@@ -24,28 +27,35 @@ export default function SocialAuthButtons({
     useEffect(() => {
         const handleMessage = (event) => {
             // Check if the origin matches the current window location origin as per instructions
-            // Note: If API is on a different domain, this might need adjustment to event.origin === apiOrigin
             if (event.origin !== window.location.origin) return;
 
             if (event.data.type === "OAUTH_SUCCESS") {
-                const { token, user } = event.data.payload;
+                const { token, handshake_code, user } = event.data.payload;
                 console.log("OAuth Login Successful:", user);
 
                 if (onSuccess) {
                     onSuccess({
                         success: true,
                         token,
+                        handshake_code,
                         user,
                         email: user?.email, // Ensure compatibility with existing success handlers
                         provider: 'Social'
                     });
+                }
+            } else if (event.data.type === "OAUTH_ERROR") {
+                const { message, apps } = event.data.payload;
+                console.error("OAuth Login Error:", message);
+
+                if (onError) {
+                    onError(message, apps);
                 }
             }
         };
 
         window.addEventListener("message", handleMessage, false);
         return () => window.removeEventListener("message", handleMessage);
-    }, [onSuccess]);
+    }, [onSuccess, onError]);
 
     const handleSocialLogin = (provider) => {
         post('/login', { provider: provider })

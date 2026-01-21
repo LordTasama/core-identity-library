@@ -1,3 +1,8 @@
+/**
+ * Componente: WaitingConfirmation
+ * Objetivo: Informar al usuario que debe confirmar su cuenta y permitir el reenvío del código.
+ * Descripción: Muestra un estado de espera tras el registro o solicitud de recuperación, facilitando la entrada manual del código de verificación.
+ */
 import { useState, useEffect, useRef } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';

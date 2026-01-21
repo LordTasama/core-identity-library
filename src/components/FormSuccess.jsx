@@ -1,3 +1,8 @@
+/**
+ * Componente: FormSuccess
+ * Objetivo: Mostrar mensajes de éxito en formularios tras operaciones exitosas.
+ * Descripción: Renderiza un recuadro verde con un icono de confirmación para indicar que una operación se completó correctamente.
+ */
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 

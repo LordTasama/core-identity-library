@@ -1,3 +1,8 @@
+/**
+ * Componente: SignUp
+ * Objetivo: Proporcionar una interfaz para que los nuevos usuarios se registren en la plataforma.
+ * Descripción: Gestiona el formulario de registro de usuario, validando datos básicos y comunicándose con el endpoint de registro de la API.
+ */
 import { useState } from 'react';
 import SocialAuthButtons from './SocialAuthButtons';
 import { translations } from '../translations';
@@ -33,15 +38,24 @@ export default function SignUp({
         confirmPassword: ''
     });
 
+    const [suggestedApps, setSuggestedApps] = useState([]);
+
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
     }
 
+    const handleLoginSuccess = (data) => {
+        if (onSuccess) {
+            onSuccess(data);
+        }
+    };
+
     const handleSignUp = async (e) => {
         e.preventDefault();
         setLocalError('');
+        setSuggestedApps([]);
 
         if (formData.password !== formData.confirmPassword) {
             const errorMsg = t.passwordsDontMatch;
@@ -60,10 +74,11 @@ export default function SignUp({
             });
 
             if (result.success) {
-                if (onSuccess) onSuccess({ ...result, email: formData.email });
+                handleLoginSuccess({ ...result, email: formData.email });
             } else {
                 const errorMsg = result.message || result.error || t.unknownError;
                 setLocalError(errorMsg);
+                if (result.apps) setSuggestedApps(result.apps);
                 if (onError) onError(errorMsg);
                 setIsLoading(false);
             }
@@ -80,6 +95,7 @@ export default function SignUp({
             }
 
             setLocalError(errorMsg);
+            if (err.data?.apps) setSuggestedApps(err.data.apps);
             if (onError) onError(errorMsg);
             setIsLoading(false);
         }
@@ -115,9 +131,10 @@ export default function SignUp({
                     apiBaseUrl={apiBaseUrl}
                     user={user}
                     primaryColor={primaryColor}
-                    onSuccess={onSuccess}
-                    onError={(err) => {
+                    onSuccess={handleLoginSuccess}
+                    onError={(err, apps) => {
                         setLocalError(err);
+                        if (apps) setSuggestedApps(apps);
                         if (onError) onError(err);
                     }}
                     lang={lang}
@@ -138,6 +155,25 @@ export default function SignUp({
 
                 <form onSubmit={handleSignUp} className="space-y-4">
                     <FormError message={localError} />
+
+                    {suggestedApps.length > 0 && (
+                        <div className="p-3 bg-blue-50 border border-blue-100 rounded-md space-y-2">
+                            <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">{t.availableApps || 'Available Apps'}:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {suggestedApps.map(app => (
+                                    <a
+                                        key={app.appKey}
+                                        href={app.publicUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[10px] px-2 py-1 bg-white border border-blue-200 rounded-full text-blue-600 hover:bg-blue-100 transition-colors"
+                                    >
+                                        {app.appName}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">{t.firstName}</label>

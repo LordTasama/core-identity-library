@@ -1,3 +1,8 @@
+/**
+ * Componente: ForgotPassword
+ * Objetivo: Permitir a los usuarios solicitar un restablecimiento de contraseña mediante su correo electrónico.
+ * Descripción: Renderiza un formulario para recolectar el correo y gestiona el envío del enlace de recuperación a través de la API.
+ */
 import { useState } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';

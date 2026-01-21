@@ -1,3 +1,8 @@
+/**
+ * Componente: Login
+ * Objetivo: Gestionar la autenticación de usuarios mediante correo y contraseña.
+ * Descripción: Proporciona la interfaz de inicio de sesión, integrando botones de autenticación social y validando las credenciales con la API.
+ */
 import { useState } from 'react';
 import SocialAuthButtons from './SocialAuthButtons';
 import { translations } from '../translations';
@@ -28,16 +33,25 @@ export default function Login({
     const [isLoading, setIsLoading] = useState(false);
     const [localError, setLocalError] = useState('');
 
+    const [suggestedApps, setSuggestedApps] = useState([]);
+
     if (isAppInfoLoading) return null;
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
     }
 
+    const handleLoginSuccess = (data) => {
+        if (onSuccess) {
+            onSuccess(data);
+        }
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setLocalError('');
+        setSuggestedApps([]);
 
         try {
             const data = await post('/login', {
@@ -47,10 +61,11 @@ export default function Login({
             });
 
             if (data.success) {
-                if (onSuccess) onSuccess({ ...data, email });
+                handleLoginSuccess({ ...data, email });
             } else {
                 const errorMsg = data.message || data.error || t.unknownError;
                 setLocalError(errorMsg);
+                if (data.apps) setSuggestedApps(data.apps);
                 if (onError) onError(errorMsg);
                 setIsLoading(false);
             }
@@ -67,6 +82,7 @@ export default function Login({
             }
 
             setLocalError(errorMsg);
+            if (error.data?.apps) setSuggestedApps(error.data.apps);
             if (onError) onError(errorMsg);
             setIsLoading(false);
         }
@@ -97,9 +113,10 @@ export default function Login({
                     apiBaseUrl={apiBaseUrl}
                     user={user}
                     primaryColor={primaryColor}
-                    onSuccess={onSuccess}
-                    onError={(err) => {
+                    onSuccess={handleLoginSuccess}
+                    onError={(err, apps) => {
                         setLocalError(err);
+                        if (apps) setSuggestedApps(apps);
                         if (onError) onError(err);
                     }}
                     lang={lang}
@@ -120,6 +137,25 @@ export default function Login({
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <FormError message={localError} />
+
+                    {suggestedApps.length > 0 && (
+                        <div className="p-3 bg-blue-50 border border-blue-100 rounded-md space-y-2">
+                            <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">{t.availableApps || 'Available Apps'}:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {suggestedApps.map(app => (
+                                    <a
+                                        key={app.appKey}
+                                        href={app.publicUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[10px] px-2 py-1 bg-white border border-blue-200 rounded-full text-blue-600 hover:bg-blue-100 transition-colors"
+                                    >
+                                        {app.appName}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     <div className="space-y-2">
                         <label htmlFor="auth-email" className="text-sm font-medium leading-none">
                             {t.email}

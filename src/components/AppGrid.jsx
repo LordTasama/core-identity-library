@@ -1,3 +1,8 @@
+/**
+ * Componente: AppGrid
+ * Objetivo: Mostrar una cuadrícula de aplicaciones disponibles para el usuario, permitiendo la navegación entre ellas.
+ * Descripción: Este componente renderiza un botón que despliega un menú con las aplicaciones configuradas, gestionando colores dinámicos y estados de carga.
+ */
 import { useState, useRef, useEffect } from 'react';
 import { TbGridDots } from 'react-icons/tb';
 import { useAppInfo } from '../hooks/useAppInfo';

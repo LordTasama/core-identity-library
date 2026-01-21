@@ -1,3 +1,8 @@
+/**
+ * Hook: useAuthApi
+ * Objetivo: Proporcionar métodos estandarizados para interactuar con la API de autenticación.
+ * Descripción: Expone funciones para login, registro, gestión de sesiones y cambio de contraseña, manejando las cabeceras de seguridad necesarias.
+ */
 import { useSecurity } from "./useSecurity";
 
 export function useAuthApi(apiBaseUrl, apiToken) {
