@@ -13,6 +13,7 @@ Objetivos clave:
 """
 
 from flask import Blueprint, request, session, jsonify, redirect, make_response, current_app, g
+import json
 from src.services.login_service import (
     confirm_email_manual,
     login_with_password_and_email,
@@ -487,9 +488,9 @@ def callback():
             <html>
                 <body>
                     <script>
-                        const authData = {auth_data_json};
+                        const authData = {json.dumps(auth_data_json)};
                         if (window.opener) {{
-                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: auth_data }}, window.location.origin);
+                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, window.location.origin);
                             window.close();
                         }} else {{
                             // Si no hay opener, mostramos el error en pantalla o redirigimos
@@ -514,7 +515,7 @@ def callback():
                         success: true,
                         message: "Authentication successful",
                         token: "{final_token}",
-                        user: {user_ctx},
+                        user: {json.dumps(user_ctx)},
                         handshake_code: "{generate_handshake_code(user_ctx.get('email'))}",
                         redirect_url: "/home"
                     }};
@@ -591,9 +592,9 @@ def microsoft_callback():
             <html>
                 <body>
                     <script>
-                        const authData = {auth_data_json};
+                        const authData = {json.dumps(auth_data_json)};
                         if (window.opener) {{
-                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: auth_data }}, window.location.origin);
+                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, window.location.origin);
                             window.close();
                         }} else {{
                             document.body.innerHTML = "<h2>Acceso Denegado</h2><p>" + authData.message + "</p>";
@@ -617,7 +618,7 @@ def microsoft_callback():
                         success: true,
                         message: "Authentication successful",
                         token: "{final_token}",
-                        user: {user_ctx},
+                        user: {json.dumps(user_ctx)},
                         handshake_code: "{generate_handshake_code(user_ctx.get('email'))}",
                         redirect_url: "/home"
                     }};
