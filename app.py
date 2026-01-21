@@ -9,7 +9,7 @@ Objetivos clave:
 2. Implementación de capas de seguridad perimetral (CORS y X-API-KEY).
 3. Centralización del ruteo hacia el módulo de autenticación.
 """
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from flask_cors import CORS
 from config import get_config
 from src.routes import auth_bp
@@ -18,22 +18,30 @@ from src.utils.logger import logger
 def create_app():
     app = Flask(__name__)
     
-    # Cargar configuración basada en ENVIRONMENT
+    # Load configuration based on ENVIRONMENT
     app_config = get_config()
     app.config.from_object(app_config)
     
-    # Habilitar CORS
+    # Enable CORS
     CORS(app, supports_credentials=True)
     
-    # Registrar Blueprints
+    # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     
     @app.route('/')
     def index():
         return {"status": "running", "environment": app.config.get('ENVIRONMENT')}, 200
 
-    logger.info(f"Aplicación iniciando en modo: {app.config.get('ENVIRONMENT')}")
+    logger.info(f"Application starting in mode: {app.config.get('ENVIRONMENT')}")
     
+    @app.before_request
+    def set_global_language():
+        # Detect language from X-LANG header, default to 'en'
+        lang = request.headers.get('X-LANG', 'en').lower()
+        if lang not in ['en', 'es']:
+            lang = 'en'
+        g.lang = lang
+
     @app.before_request
     def check_api_key():
         # Permitir peticiones OPTIONS (CORS preflight) sin validar API Key

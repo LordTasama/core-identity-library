@@ -1,15 +1,15 @@
 """
-Controlador de Rutas de Autenticación y Sesión.
+Authentication and Session Route Controller.
 
-Este módulo define todos los puntos de entrada (endpoints) relacionados con el ciclo de vida 
-de la identidad del usuario, desde el registro y login (OAuth/Password) hasta la gestión 
-de sesiones y recuperación de contraseñas.
+This module defines all endpoints related to the user identity lifecycle, 
+from registration and login (OAuth/Password) to session management 
+and password recovery.
 
-Objetivos clave:
-1. Facilitar el flujo de autenticación multicanal (Google, Microsoft, Email).
-2. Gestionar la verificación de identidad mediante códigos de confirmación.
-3. Proveer mecanismos de validación de sesión ligeros y pesados para los clientes.
-4. Asegurar el cierre de sesión global y remoto.
+Key Objectives:
+1. Facilitate multi-channel authentication flow (Google, Microsoft, Email).
+2. Manage identity verification using confirmation codes.
+3. Provide lightweight and heavy session validation mechanisms for clients.
+4. Ensure global and remote logout.
 """
 
 from flask import Blueprint, request, session, jsonify, redirect, make_response, current_app, g
@@ -17,7 +17,7 @@ import json
 from src.services.login_service import (
     confirm_email_manual,
     login_with_password_and_email,
-    enviar_email_reset_password,
+    send_password_reset_email,
     reset_password_with_token,
     get_google_oauth_url,
     get_microsoft_oauth_url,
@@ -36,6 +36,7 @@ from src.services.login_service import (
 )
 from src.utils import login_required, get_current_user
 from src.utils.handshake import generate_handshake_code, validate_handshake_code
+from src.utils.i18n import t
 from config import Config
 
 auth_bp = Blueprint('auth', __name__)
@@ -48,12 +49,12 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """
-    Inicia el flujo de autenticación basado en el proveedor especificado.
+    Initiates the authentication flow based on the specified provider.
     
-    Objetivo:
-    - Para proveedores sociales (Google/Microsoft): Genera la URL de autorización.
-    - Para Email: Intenta una recuperación de sesión por IP si no hay credenciales, 
-      o valida la existencia del usuario para proceder al paso de contraseña.
+    Objective:
+    - For social providers (Google/Microsoft): Generates the authorization URL.
+    - For Email: Attempts a session recovery by IP if credentials are missing, 
+      or validates user existence to proceed to the password step.
     """
     provider = request.json.get('provider')
     temp_device = request.json.get('temp_device', False)
@@ -64,13 +65,13 @@ def login():
     print(f'ℹ️ Login attempt - provider: {provider}, temp_device: {temp_device}, has_token: {bool(token)}, email: {email}')
 
     if not provider:
-        return jsonify({'success': False, 'message': 'Provider is required'}), 400
+        return jsonify({'success': False, 'message': t('provider_required')}), 400
 
-    # 1. Fallback por IP+Device + Email (Solo si el provider es Email y no hay token y no hay password)
+    # 1. Fallback by IP+Device + Email (Only if the provider is Email and no token or password provided)
     if provider == 'Email' and not token and not password:
         fallback = get_fallback_session(email=email)
         if fallback:
-            print(f"✅ Reutilizando sesión existente para {email or 'IP/Device'}")
+            print(f"✅ Reusing existing session for {email or 'IP/Device'}")
             user_data = fallback.get('user')
             
             # Validación de permisos/roles para la App detectada o bloqueo de cuenta
@@ -106,7 +107,7 @@ def login():
                         'apps': user_ctx.get("apps", [])
                     }), 403
 
-                # Creamos la sesión real con la expiración correspondiente
+                # Create real session with corresponding expiration
                 final_token = create_session(user_ctx, temp_device=temp_device)
                 handshake = generate_handshake_code(user_ctx.get('email'))
                 return jsonify({
@@ -135,7 +136,7 @@ def login():
         if result.get("status"):
             user_ctx = result.get("user")
             
-            # Si no hay contexto de usuario pero hay redirect_url, es un caso de email no verificado o rate limit
+            # If no user context but redirect_url exists, it's a case of unverified email or rate limit
             if not user_ctx and result.get("redirect_url"):
                 return jsonify({
                     "success": True,
@@ -151,7 +152,7 @@ def login():
                     'apps': user_ctx.get("apps", [])
                 }), 403
 
-            # Generar token con la nueva lógica de expiración
+            # Generate token with new expiration logic
             final_token = create_session(user_ctx, temp_device=temp_device)
             handshake = generate_handshake_code(user_ctx.get('email'))
             
@@ -198,18 +199,18 @@ def login():
         return response
     
     else:
-        return jsonify({'success': False, 'message': 'Provider not supported in login endpoint'}), 400
+        return jsonify({'success': False, 'message': t('provider_not_supported')}), 400
 
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """
-    Registra un nuevo usuario en el sistema usando el proveedor 'Email'.
+    Registers a new user in the system using the 'Email' provider.
     
-    Objetivo:
-    - Crear una nueva identidad y método de autenticación en SeaTable.
-    - Enviar automáticamente un código de verificación al correo electrónico.
-    - Prevenir registros duplicados de correos ya existentes.
+    Objective:
+    - Create a new identity and authentication method in SeaTable.
+    - Automatically send a verification code to the email.
+    - Prevent duplicate registrations of existing emails.
     """
     try:
         firstName = request.json.get('firstName')
@@ -219,7 +220,7 @@ def register():
         
         # Validaciones básicas
         if not email or not password or not firstName or not lastName:
-             return jsonify({'success': False, 'message': 'Todos los campos son obligatorios'}), 400
+             return jsonify({'success': False, 'message': t('all_fields_required')}), 400
 
         userinfo = {
             'given_name': firstName,
@@ -228,8 +229,8 @@ def register():
             'password': password
         }
         
-        # Reutilizamos register_manual_user que es la función que encapsula la logica de registro 
-        # (quizas convendria renombrarla a register_user en el futuro)
+        # We reuse register_manual_user which is the function that encapsulates registration logic
+        # (perhaps it should be renamed to register_user in the future)
         result = register_manual_user(userinfo) 
         
         if result.get('success'):
@@ -240,10 +241,10 @@ def register():
                 'wait_seconds': result.get('wait_seconds')
             }), 200
         else:
-            return jsonify({'success': False, 'message': result.get('error', 'Error al registrar usuario')}), 400
+            return jsonify({'success': False, 'message': result.get('error', 'Error registering user')}), 400
             
     except Exception as e:
-        print(f"❌ Error en register: {e}")
+        print(f"❌ Error in register: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
@@ -254,17 +255,17 @@ def register():
 @auth_bp.route('/resend-confirmation', methods=['POST'])
 def resend_confirmation():
     """
-    Solicita el reenvío del código de verificación de correo electrónico.
+    Requests the resending of the email verification code.
     
-    Objetivo:
-    - Generar un nuevo token de confirmación para el usuario especificado.
-    - Notificar al usuario mediante un nuevo correo electrónico.
-    - Validar que el usuario realmente necesite confirmación antes de enviar.
+    Objective:
+    - Generate a new confirmation token for the specified user.
+    - Notify the user via a new email.
+    - Validate that the user truly needs confirmation before sending.
     """
     try:
         email = request.json.get('email')
         if not email:
-            return jsonify({'success': False, 'message': 'Email is required'}), 400
+            return jsonify({'success': False, 'message': t('email_required')}), 400
             
         success, message, wait_time = resend_confirmation_email_logic(email)
         
@@ -291,22 +292,22 @@ def resend_confirmation():
                 }), 400
             
     except Exception as e:
-        print(f"❌ Error en resend_confirmation: {e}")
+        print(f"❌ Error in resend_confirmation: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
 @auth_bp.route('/verify-email', methods=['POST'])
 def verify_email():
     """
-    Verifica el correo electrónico de un usuario utilizando un código de 6 dígitos.
+    Verifies a user's email using a 6-digit code.
     
-    Objetivo:
-    - Validar el token de confirmación enviado por el usuario.
-    - Marcar el método de autenticación como verificado en la base de datos.
-    - Permitir que el usuario progrese al estado 'Active' después de la validación.
+    Objective:
+    - Validate the confirmation token sent by the user.
+    - Mark the authentication method as verified in the database.
+    - Allow the user to progress to the 'Active' state after validation.
     """
     try:
-        # Soporte Bearer o JSON
+        # Bearer or JSON support
         auth_header = request.headers.get('Authorization', '')
         token = request.json.get('token') if request.is_json else None
         
@@ -314,7 +315,7 @@ def verify_email():
             token = auth_header.split(' ')[1]
 
         if not token:
-            return jsonify({'success': False, 'message': 'Token is required (Bearer Token)'}), 400
+            return jsonify({'success': False, 'message': t('invalid_token', error='required')}), 400
             
         if confirm_email_manual(token):
             return jsonify({
@@ -328,7 +329,7 @@ def verify_email():
             }), 400
             
     except Exception as e:
-        print(f"❌ Error en verify_email: {e}")
+        print(f"❌ Error in verify_email: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
@@ -339,13 +340,13 @@ def verify_email():
 @auth_bp.route('/login_with_password_and_email', methods=['POST'])
 def login_with_password_and_email_route():
     """
-    Ruta para la autenticación tradicional mediante correo y contraseña.
+    Route for traditional authentication via email and password.
     
-    Objetivo:
-    - Validar las credenciales contra el servicio de login.
-    - Manejar redirecciones para usuarios no verificados o bloqueos temporales.
-    - Generar el contexto del usuario y establecer la sesión en el servidor.
-    - Retornar el token JWT y el handshake_code para el cliente.
+    Objective:
+    - Validate credentials against the login service.
+    - Handle redirections for unverified users or temporary blocks.
+    - Generate the user context and establish the session on the server.
+    - Return the JWT token and the handshake_code for the client.
     """
     try:
         email = request.json.get('email')
@@ -354,20 +355,20 @@ def login_with_password_and_email_route():
         if not email or not password:
             return jsonify({
                 "success": False,
-                "message": "Email and password are required"
+                "message": t('all_fields_required')
             }), 400
         
         result = login_with_password_and_email(email, password)
         if not result or not isinstance(result, dict):
             return jsonify({
                 "success": False,
-                "message": "Invalid response from authentication service"
+                "message": t('invalid_response_auth')
             }), 500
         
         if result.get("status"):
             user_ctx = result.get("user")
             
-            # Caso: Usuario no verificado o rate limit (no hay user_ctx pero sí redirect_url)
+            # Case: Unverified user or rate limit (no user_ctx but redirect_url present)
             if not user_ctx and result.get("redirect_url"):
                 return jsonify({
                     "success": True,
@@ -376,7 +377,7 @@ def login_with_password_and_email_route():
                     "wait_seconds": result.get("wait_seconds", 0)
                 }), 200
 
-            # Validación de permisos/roles para la App detectada
+            # Role/Permission validation for detected App
             if user_ctx and not user_ctx.get("success"):
                 return jsonify({
                     'success': False,
@@ -388,10 +389,10 @@ def login_with_password_and_email_route():
             if not auth_row:
                  return jsonify({
                     "success": False,
-                    "message": "Authentication succeeded but user data is missing"
+                    "message": t('auth_data_missing')
                 }), 500
 
-            # Usar prepare_session_data para unificar la lógica de sesión
+            # Use prepare_session_data to unify session logic
             session_data = prepare_session_data(auth_row)
             session.update(session_data)
             session.permanent = True
@@ -419,12 +420,12 @@ def login_with_password_and_email_route():
             }), 400
             
     except Exception as e:
-        print(f"❌ Error en login_with_password_and_email_route: {e}")
+        print(f"❌ Error in login_with_password_and_email_route: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
             "success": False,
-            "message": "An error occurred during login"
+            "message": t('error_processing_request')
         }), 500
 
 
@@ -435,14 +436,13 @@ def login_with_password_and_email_route():
 @auth_bp.route('/callback')
 def callback():
     """
-    Maneja el retorno (callback) del flujo OAuth de Google.
+    Handles the return (callback) of the Google OAuth flow.
     
-    Objetivo:
-    - Intercambiar el código de autorización por un token de acceso de Google.
-    - Procesar la información del usuario y sincronizarla con SeaTable.
-    - Resolver el inicio de sesión mediante comunicación postMessage (si es popup) 
-      o redirección estándar.
-    - Limpiar las cookies de estado de OAuth.
+    Objective:
+    - Exchange the authorization code for a Google access token.
+    - Process user information and synchronize it with SeaTable.
+    - Resolve the login via postMessage communication (if popup) or standard redirection.
+    - Clear OAuth state cookies.
     """
     try:
         code = request.args.get('code')
@@ -474,8 +474,8 @@ def callback():
 
 
 
-        print(f"Aca user: {user}")
-        user_ctx = user # result.get('user') ya es el contexto limpio
+        print(f"Here user: {user}")
+        user_ctx = user # result.get('user') is already the cleaned context
         
         if user_ctx and not user_ctx.get("success"):
             auth_data_json = {
@@ -493,8 +493,8 @@ def callback():
                             window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
                             window.close();
                         }} else {{
-                            // Si no hay opener, mostramos el error en pantalla o redirigimos
-                            document.body.innerHTML = "<h2>Acceso Denegado</h2><p>" + authData.message + "</p>";
+                            // If there is no opener, show error on screen or redirect
+                            document.body.innerHTML = "<h2>" + {json.dumps(t('access_denied'))} + "</h2><p>" + authData.message + "</p>";
                         }}
                     </script>
                 </body>
@@ -506,7 +506,7 @@ def callback():
         # Generar Token JWT real
         final_token = create_session(user_ctx, temp_device=False)
         
-        # Limpiar state
+        # Clear state
         response_redirect = make_response(f"""
         <html>
             <body>
@@ -521,15 +521,15 @@ def callback():
                     }};
                     
                     if (window.opener) {{
-                        // Si se abrió en un popup, enviamos los datos al padre y cerramos
+                        // If opened in a popup, send data to parent and close
                         window.opener.postMessage({{ type: 'OAUTH_SUCCESS', payload: authData }}, "*");
                         window.close();
                     }} else {{
-                        // Si fue redirección normal, vamos a /home
+                        // If normal redirection, go to /home
                         window.location.href = "/home";
                     }}
                 </script>
-                <p>Authentication successful. Redirecting...</p>
+                <p>{t('auth_successful')}. {t('redirecting')}</p>
             </body>
         </html>
         """)
@@ -546,12 +546,12 @@ def callback():
 @auth_bp.route('/microsoft/callback')
 def microsoft_callback():
     """
-    Maneja el retorno (callback) del flujo OAuth de Microsoft.
+    Handles the return (callback) of the Microsoft OAuth flow.
     
-    Objetivo:
-    - Validar el estado y procesar el código de autorización de Microsoft.
-    - Identificar al usuario y actualizar su perfil en la base de datos de identidad.
-    - Gestionar el cierre del popup de autenticación y la entrega del token JWT al frontend.
+    Objective:
+    - Validate state and process the Microsoft authorization code.
+    - Identify the user and update their profile in the identity database.
+    - Manage authentication popup closure and JWT token delivery to the frontend.
     """
     try:
         code = request.args.get('code')
@@ -597,7 +597,7 @@ def microsoft_callback():
                             window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
                             window.close();
                         }} else {{
-                            document.body.innerHTML = "<h2>Acceso Denegado</h2><p>" + authData.message + "</p>";
+                            document.body.innerHTML = "<h2>" + {json.dumps(t('access_denied'))} + "</h2><p>" + authData.message + "</p>";
                         }}
                     </script>
                 </body>
@@ -606,10 +606,10 @@ def microsoft_callback():
             response_redirect.set_cookie('oauth_state', '', expires=0)
             return response_redirect
 
-        # Generar Token JWT real
+        # Generate real JWT Token
         final_token = create_session(user_ctx, temp_device=False)
         
-        # Respuesta HTML para manejar Popups o Redirección
+        # HTML response to handle Popups or Redirection
         response_redirect = make_response(f"""
         <html>
             <body>
@@ -624,15 +624,15 @@ def microsoft_callback():
                     }};
                     
                     if (window.opener) {{
-                        // Comunicar con la ventana padre y cerrar el popup
+                        // Communicate with parent window and close popup
                         window.opener.postMessage({{ type: 'OAUTH_SUCCESS', payload: authData }}, "*");
                         window.close();
                     }} else {{
-                        // Redirección estándar si no hay ventana padre
+                        // Standard redirection if no parent window
                         window.location.href = "/home";
                     }}
                 </script>
-                <p>Microsoft Authentication successful. Redirecting...</p>
+                <p>{t('auth_successful')}. {t('redirecting')}</p>
             </body>
         </html>
         """)
@@ -653,14 +653,14 @@ def microsoft_callback():
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     """
-    Cierra la sesión activa del usuario.
+    Closes the user's active session.
     
-    Objetivo:
-    - Invalidar el token de sesión en SeaTable mediante la función logout_session.
-    - Limpiar todos los datos de sesión en el servidor Flask.
-    - Borrar la cookie de sesión del navegador para asegurar un cierre total.
+    Objective:
+    - Invalidate session token in SeaTable using logout_session function.
+    - Clear all session data in the Flask server.
+    - Delete the session cookie from the browser to ensure total closure.
     """
-    # 1. Invalida la sesión en la base de datos (SeaTable)
+    # 1. Invalidate session in database (SeaTable)
     # Soporte Bearer Header
     auth_header = request.headers.get('Authorization', '')
     token = request.json.get('token') if request.is_json else None
@@ -668,16 +668,16 @@ def logout():
     if auth_header.startswith('Bearer '):
         token = auth_header.split(' ')[1]
     
-    # Fallback a g si ya pasó por un middleware (aunque aquí quitamos login_required)
+    # Fallback to g if it already passed through middleware (although we removed login_required here)
     if not token:
         token = g.get('current_token')
     
     if token:
         logout_session(token)
 
-    # 2. Limpia la sesión de Flask y cookies
+    # 2. Clear Flask session and cookies
     session.clear()
-    response = make_response(jsonify({'success': True, 'message': 'Logged out successfully'}))
+    response = make_response(jsonify({'success': True, 'message': t('logged_out_success')}))
     session_cookie_name = current_app.config.get('SESSION_COOKIE_NAME', 'session')
     response.set_cookie(session_cookie_name, '', expires=0, httponly=True, samesite='Lax', path='/')
     return response
@@ -690,16 +690,16 @@ def logout():
 @auth_bp.route('/debug/user/<email>')
 def debug_user(email):
     """
-    Ruta de diagnóstico para verificar la identidad, roles, asignaciones y permisos de un usuario.
+    Diagnostic route to verify user identity, roles, assignments, and permissions.
     
-    Objetivo:
-    - Facilitar la depuración técnica al mostrar el estado crudo del usuario en el sistema.
-    - Validar la resolución de App Key y el cálculo de permisos para la URL actual.
-    - Proveer visibilidad sobre la jerarquía del equipo y los roles vinculados.
+    Objective:
+    - Facilitate technical debugging by showing the raw user state in the system.
+    - Validate App Key resolution and permission calculation for the current URL.
+    - Provide visibility into team hierarchy and linked roles.
     """
     from src.services.login_service import get_debug_user_info
     try:
-        # Pasamos la URL base actual para que el diagnóstico detecte la App Key correcta
+        # We pass current base URL for diagnosis to detect correct App Key
         current_url = request.host_url.rstrip('/')
         data = get_debug_user_info(email, current_url=current_url)
         return jsonify({"success": True, "data": data}), 200
@@ -714,25 +714,22 @@ def debug_user(email):
 @auth_bp.route('/verify-session', methods=['POST'])
 def verify_session_route():
     """
-    Valida si una sesión es vigente de forma ligera y rápida.
+    Validates if a session is valid in a light and fast way.
     
-    Objetivo:
-    - Verificar la existencia y el estado (Active/Expired) del token proporcionado.
-    - Realizar una comprobación rápida de permisos para la aplicación actual.
-    - Retornar un handshake_code si la sesión es válida para permitir saltos entre apps.
+    Objective:
+    - Verify existence and status (Active/Expired) of the provided token.
+    - Perform a quick permission check for the current application.
+    - Return a handshake_code if session is valid to allow hopping between apps.
     """
-    data = request.json or {}
-    email = data.get("email") or request.headers.get('X-User-Email')
-    token = data.get("token")
-    
-    if not token:
-        return jsonify({"success": False, "message": "Authentication token is required (Bearer Token)"}), 400
+    # Data already arrives validated and clean in 'g' thanks to the @login_required decorator
+    email = g.current_email
+    token = g.current_token
         
     result = verify_session(email, token)
     
     if result.get("success"):
-        # Verificación extra: ¿Tiene permisos en esta App específica?
-        # verify_session es ligero, pero si queremos interceptar permisos aquí debemos cargar el contexto
+        # Extra verification: Does it have permissions in this specific App?
+        # verify_session is lightweight, but if we want to intercept permissions here we must load context
         user_ctx = _get_user_context(email)
         if user_ctx and not user_ctx.get("success"):
             return jsonify({
@@ -752,22 +749,22 @@ def verify_session_route():
 @login_required
 def get_user_context_route():
     """
-    Recupera el contexto completo y detallado del usuario autenticado.
+    Retrieves complete and detailed context of the authenticated user.
     
-    Objetivo:
-    - Obtener información extendida del perfil, roles, permisos y aplicaciones autorizadas.
-    - Este endpoint es "pesado" ya que carga la estructura RBAC completa.
-    - Se apoya en el decorador @login_required para la validación previa del token.
+    Objective:
+    - Obtain extended profile information, roles, permissions, and authorized applications.
+    - This endpoint is "heavy" since it loads the full RBAC structure.
+    - Relies on the @login_required decorator for prior token validation.
     """
     try:
         email = g.current_email
-        # Aquí sí traemos el contexto pesado
+        # Here we do bring the heavy context
         user_data = _get_user_context(email)
         
         if not user_data:
-            return jsonify({'success': False, 'message': 'User context not found'}), 404
+            return jsonify({'success': False, 'message': t('user_context_not_found')}), 404
 
-        # Validación de permisos/roles o bloqueo de cuenta
+        # Permission/role validation or account block
         if user_data and not user_data.get("success"):
             return jsonify({
                 'success': False,
@@ -777,30 +774,30 @@ def get_user_context_route():
 
         return jsonify({
             'success': True,
-            'message': 'User context retrieved',
+            'message': t('user_context_retrieved'),
             'user': user_data,
             'token': g.current_token,
             'handshake_code': generate_handshake_code(email)
         })
     except Exception as e:
-        print(f"❌ Error en get_user_context_route: {e}")
+        print(f"❌ Error in get_user_context_route: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @auth_bp.route('/validate-handshake', methods=['POST'])
 def validate_handshake_route():
     """
-    Valida un código de intercambio (handshake) para transferir sesiones.
+    Validates a handshake code to transfer sessions.
     
-    Objetivo:
-    - Convertir un handshake_code temporal en una sesión válida para el usuario.
-    - Facilitar el Single Sign-On (SSO) entre diferentes aplicaciones del ecosistema.
-    - Validar permisos en tiempo real para la aplicación de destino.
+    Objective:
+    - Convert a temporary handshake_code into a valid user session.
+    - Facilitate Single Sign-On (SSO) between different applications in the ecosystem.
+    - Validate permissions in real-time for the target application.
     """
     try:
         
         code = request.json.get('code')
         if not code:
-            return jsonify({'success': False, 'message': 'Code is required'}), 400
+            return jsonify({'success': False, 'message': t('code_required')}), 400
             
         is_valid, email = validate_handshake_code(code)
         
@@ -835,12 +832,12 @@ def validate_handshake_route():
 @auth_bp.route('/colors-app', methods=['GET', 'POST'])
 def get_app_colors_route():
     """
-    Obtiene la identidad visual (colores y nombre) de una aplicación basada en su URL.
+    Retrieves the visual identity (colors and name) of an application based on its URL.
     
-    Objetivo:
-    - Permitir que el frontend se personalice antes de que el usuario inicie sesión.
-    - No requiere autenticación de usuario, solo una X-API-KEY válida.
-    - Utiliza caché de metadatos para optimizar la respuesta.
+    Objective:
+    - Allow the frontend to customize itself before the user logs in.
+    - Does not require user authentication, only a valid X-API-KEY.
+    - Uses metadata cache to optimize response.
     """
     try:
         from src.services.identity_service import identity_service
@@ -879,12 +876,12 @@ def get_app_colors_route():
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     """
-    Inicia el proceso de recuperación de contraseña olvidada.
+    Initializes the password recovery process.
     
-    Objetivo:
-    - Validar la existencia del correo electrónico.
-    - Generar y enviar un enlace de recuperación con un token seguro.
-    - Gestionar el rate limiting para evitar spam de correos de recuperación.
+    Objective:
+    - Validate existence of the email.
+    - Generate and send a recovery link with a secure token.
+    - Manage rate limiting to prevent spam recovery emails.
     """
     try:
         email = request.json.get('email')
@@ -892,43 +889,43 @@ def forgot_password():
         if not email:
             return jsonify({
                 'success': False,
-                'message': 'Email is required'
+                'message': t('email_required')
             }), 400
         
-        result = enviar_email_reset_password(email)
+        result = send_password_reset_email(email)
         
         if result.get("status"):
             return jsonify({
                 'success': True,
-                'message': result.get("message", "If the email exists, a password reset link has been sent."),
+                'message': result.get("message", t('password_reset_sent')),
                 'wait_seconds': result.get("wait_seconds")
             }), 200
         else:
             return jsonify({
                 'success': False,
-                'message': result.get("message", "Error sending reset email"),
+                'message': result.get("message", t('error_processing_request')),
                 'wait_seconds': result.get("wait_seconds")
             }), 500
             
     except Exception as e:
-        print(f"❌ Error en forgot_password: {e}")
+        print(f"❌ Error in forgot_password: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'message': 'An error occurred while processing your request'
+            'message': t('error_processing_request')
         }), 500
 
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     """
-    Establece una nueva contraseña utilizando un token de recuperación.
+    Sets a new password using a recovery token.
     
-    Objetivo:
-    - Validar la vigencia y autenticidad del token de reset.
-    - Actualizar la contraseña en la base de datos de SeaTable.
-    - Retornar información sobre sesiones activas que deban ser revisadas por el usuario.
+    Objective:
+    - Validate maturity and authenticity of the reset token.
+    - Update the password in the SeaTable database.
+    - Return information about active sessions to be reviewed by the user.
     """
     try:
         token = request.json.get('token')
@@ -975,12 +972,12 @@ def reset_password():
 @login_required
 def change_password():
     """
-    Cambia la contraseña del usuario autenticado.
+    Changes the authenticated user's password.
     
-    Objetivo:
-    - Validar la contraseña actual para asegurar la identidad.
-    - Actualizar a la nueva credencial en el registro del usuario.
-    - Requiere que el usuario esté plenamente autenticado (@login_required).
+    Objective:
+    - Validate current password to ensure identity.
+    - Update to the new credential in the user record.
+    - Requires the user to be fully authenticated (@login_required).
     """
     try:
         current_password = request.json.get('old_password')
@@ -1022,12 +1019,12 @@ def change_password():
 @login_required
 def logout_sessions_route():
     """
-    Cierra sesiones de forma remota para el usuario autenticado.
+    Closes sessions remotely for the authenticated user.
     
-    Objetivo:
-    - Permitir la invalidación selectiva o masiva de sesiones activas.
-    - Útil después de un cambio de contraseña o detección de actividad sospechosa.
-    - Asegura que el usuario conserve el control sobre sus accesos concurrentes.
+    Objective:
+    - Allow selective or bulk invalidation of active sessions.
+    - Useful after a password change or suspicious activity detection.
+    - Ensures the user maintains control over concurrent access.
     """
     try:
         data = request.json

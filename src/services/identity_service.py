@@ -1,15 +1,15 @@
 """
-Servicio de Identidad y Gestión de Permisos (RBAC Service).
+Identity Service and Permission Management (RBAC Service).
 
-Este módulo gestiona la resolución de aplicaciones basadas en URLs, la recuperación de
-metadatos de apps y, fundamentalmente, el cálculo de permisos y modos de acceso (Data Modes)
-para los usuarios en cada aplicación del ecosistema.
+This module manages application resolution based on URLs, app metadata retrieval,
+and primarily the calculation of permissions and data access modes (Data Modes)
+for users in each application of the ecosystem.
 
-Objetivos clave:
-1. Identificar la aplicación de destino basándose en la URL de la petición.
-2. Calcular la matriz de permisos atómicos (RBAC) para una identidad específica.
-3. Gestionar la caché de permisos para optimizar el rendimiento de la autorización.
-4. Resolver la jerarquía de equipos y herencia de permisos.
+Key Objectives:
+1. Identify target applications based on the request URL.
+2. Calculate the atomic permission matrix (RBAC) for a specific identity.
+3. Manage permission cache to optimize authorization performance.
+4. Resolve team hierarchy and permission inheritance.
 """
 from src.services.seatable_service import seatable
 from flask import request, current_app
@@ -19,38 +19,39 @@ from functools import lru_cache
 from src.utils.team_util import calculate_team_hierarchy, normalize_email
 from src.utils.url_util import find_best_app_match
 from src.utils.logger import logger
+from src.utils.i18n import t
 
 class IdentityService:
     """
-    Servicio centralizado para la gestión de identidades y autorización.
+    Centralized service for identity management and authorization.
     
-    Esta clase implementa la lógica necesaria para transformar los registros de SeaTable 
-    en un contexto de seguridad utilizable por las aplicaciones clientes.
+    This class implements the logic necessary to transform SeaTable records 
+    into a security context usable by client applications.
     """
     def __init__(self):
         """
-        Inicializa el servicio de identidad con conexión a SeaTable y configuración de caché.
+        Initializes the identity service with SeaTable connection and cache configuration.
         """
         self.seatable = seatable
-        # Cache para permisos: { (identity_id, app_key): (timestamp, data) }
+        # Cache for permissions: { (identity_id, app_key): (timestamp, data) }
         self._permissions_cache = {}
-        self._cache_ttl = 900       # 15 minutos (permisos/roles)
-        self._apps_cache_ttl = 86400 # 24 horas (metadatos de aplicaciones)
+        self._cache_ttl = 900       # 15 minutes (permissions/roles)
+        self._apps_cache_ttl = 86400 # 24 hours (application metadata)
         self._apps_cache = None
         self._apps_cache_time = 0
 
     def _get_all_apps_cached(self):
         """
-        Recupera la lista de todas las aplicaciones registradas, con soporte para caché persistente.
+        Retrieves the list of all registered applications, with persistent cache support.
         
-        Objetivo:
-        - Minimizar las llamadas a la base de datos para obtener metadatos estáticos de aplicaciones.
-        - Refrescar automáticamente la lista cada 24 horas para reflejar nuevas apps registradas.
+        Objective:
+        - Minimize database calls to retrieve static application metadata.
+        - Automatically refresh the list every 24 hours to reflect new registered apps.
         """
         from config import Config
         now = time.time()
         
-        # Si el caché está habilitado, verificamos TTL
+        # If cache is enabled, we verify TTL
         if Config.CACHED_APPS:
             if self._apps_cache and (now - self._apps_cache_time < self._apps_cache_ttl):
                 return self._apps_cache
@@ -69,19 +70,19 @@ class IdentityService:
     @lru_cache(maxsize=32)
     def get_app_key_by_url(self, current_url=None):
         """
-        Busca en la tabla Applications la aplicación que coincida con la URL proporcionada.
-        Usa match por prefijo y busca el más específico (más largo).
+        Searches the Applications table for the application that matches the provided URL.
+        Uses prefix match and looks for the most specific one (longest).
         """
         if not current_url:
             source = "backend_host"
             
-            # 1. Prioridad Máxima: Encabezado X-REQUEST-URL (Enviado por el Frontend)
+            # 1. Maximum Priority: X-REQUEST-URL header (Sent by the Frontend)
             x_request_url = request.headers.get('X-REQUEST-URL')
             if x_request_url:
                 current_url = x_request_url.rstrip('/')
                 source = "x_request_url_header"
             
-            # 2. Intentar obtener URL del cuerpo de la petición o parámetros (POST/GET)
+            # 2. Attempt to get URL from the request body or parameters (POST/GET)
             if not current_url:
                 try:
                     if request.is_json:
@@ -93,7 +94,7 @@ class IdentityService:
                 except Exception:
                     pass
             
-            # 3. Intentar encabezados estándar Referer u Origin
+            # 3. Attempt standard Referer or Origin headers
             if not current_url:
                 referer = request.headers.get('Referer')
                 origin = request.headers.get('Origin')
@@ -105,13 +106,13 @@ class IdentityService:
                     current_url = origin.rstrip('/')
                     source = "origin_header"
                 else:
-                    # 4. Fallback al host del backend
+                    # 4. Fallback to backend host
                     current_url = request.host_url.rstrip('/')
                     source = "backend_host"
             
             logger.info(f"🔍 APPLICATION DETECTION - Source: {source}, URL: {current_url}")
         
-        # Usar el caché de aplicaciones en lugar de consultar cada vez
+        # Use application cache instead of querying every time
         apps = self._get_all_apps_cached()
         
         app_key = find_best_app_match(current_url, apps)
@@ -120,24 +121,24 @@ class IdentityService:
             logger.info(f"✅ APP DETECTED: {app_key}")
             return app_key
         
-        # Fallback histórico para desarrollo local (solicitado por el usuario)
+        # Historical fallback for local development (requested by the user)
         if current_url and ("localhost" in current_url or "127.0.0.1" in current_url):
             override_url = "https://eprcrm.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
-        logger.error(f"❌ No se encontró una aplicación para la URL: {current_url}")
+        logger.error(f"❌ {t('app_not_found', url=current_url)}")
         return None
 
     def get_identity_permissions(self, identity_id, app_key, identity_row=None, user_email=None, bypass_cache=False):
         """
-        Calcula la matriz final de permisos y el modo de datos para un usuario y app.
+        Calculates the final permission matrix and data mode for a user and app.
         
-        Objetivo:
-        - Determinar si el usuario tiene acceso a la aplicación solicitada.
-        - Consolidar todos los permisos provenientes de diferentes roles y asignaciones.
-        - Identificar el nivel de acceso a datos (own, team, assigned, all).
-        - Verificar en tiempo real el estado de la cuenta (Status) para bloquear accesos.
+        Objective:
+        - Determine if the user has access to the requested application.
+        - Consolidate all permissions from different roles and assignments.
+        - Identify data access level (own, team, assigned, all).
+        - Verify account status (Status) in real-time to block access.
         """
         if not app_key:
             return {"permissions": [], "data_mode": "deny"}
@@ -145,7 +146,7 @@ class IdentityService:
         now = time.time()
         cache_key = (identity_id, app_key)
         
-        # 1. VERIFICACIÓN DE STATUS (TIEMPO REAL)
+        # 1. STATUS VERIFICATION (REAL-TIME)
         if not identity_row:
             identity_row = self.seatable.sql_query_one(
                 f"SELECT * FROM `Identity` WHERE `_id` = '{identity_id}'", 
@@ -153,34 +154,34 @@ class IdentityService:
             )
         
         if not identity_row:
-            print(f"DEBUG: Identity not found for ID: {identity_id}")
+            logger.debug(f"Identity not found for ID: {identity_id}")
             return {"permissions": [], "data_mode": "deny"}
             
-        # Si es una lista (de sql_query_one), tomar el primer elemento
+        # If it's a list (from sql_query_one), take the first element
         if isinstance(identity_row, list) and len(identity_row) > 0:
             identity_row = identity_row[0]
             
-        print(f"DEBUG: Identity Row Keys: {list(identity_row.keys())}")
+        logger.debug(f"Identity Row Keys: {list(identity_row.keys())}")
         identity_display_id = identity_row.get("Identity ID")
-        print(f"DEBUG: Identity ID (display): {identity_display_id}")
+        logger.debug(f"Identity ID (display): {identity_display_id}")
 
         if identity_row.get("Status") != "Active":
-            print(f"ERROR: Identidad {identity_id} inactiva.")
+            logger.error(f"ERROR: {t('identity_inactive', id=identity_id)}")
             return {"permissions": [], "data_mode": "deny"}
 
-        # 2. CACHÉ TTL (Si no se solicita bypass)
+        # 2. CACHE TTL (If bypass not requested)
         if not bypass_cache and cache_key in self._permissions_cache:
             timestamp, data = self._permissions_cache[cache_key]
             if now - timestamp < self._cache_ttl:
                 return data
 
-        print(f"CALCULATING permissions (SQL) for Identity: {identity_id} en App: {app_key}")
+        logger.debug(f"CALCULATING permissions (SQL) for Identity: {identity_id} in App: {app_key}")
                 
-        # 3. Roles a través de Assignments (Usando links de la fila de Identity para evitar JOINS ambiguos)
+        # 3. Roles through Assignments (Using links from Identity row to avoid ambiguous JOINS)
         assignment_links = identity_row.get("Assignments", [])
         raw_assignments = []
         if assignment_links:
-            # Extraer row_ids
+            # Extract row_ids
             assig_ids = []
             for al in assignment_links:
                 if isinstance(al, dict):
@@ -194,21 +195,21 @@ class IdentityService:
                 query_assig = f"SELECT `Data` AS `AssigData`, `Role`, `_id` AS `assig_row_id` FROM `Assignments` WHERE `_id` IN ('{ids_str}') AND `Status` = 'Active'"
                 
                 if app_key:
-                    # Filtramos por App Key (Lookup en Assignments)
+                    # Filter by App Key (Lookup in Assignments)
                     query_assig += f" AND `App Key` LIKE '%{app_key}%'"
                 
-                print(f"DEBUG: Querying assignments by IDs: {query_assig}")
+                logger.debug(f"Querying assignments by IDs: {query_assig}")
                 raw_assignments = self.seatable.sql_query(query_assig, base_data="core_identity")
         
-        print(f"DEBUG: Assignments found for permissions: {len(raw_assignments)}")
+        logger.debug(f"Assignments found for permissions: {len(raw_assignments)}")
         
         data_modes = set()
         data_mode_sources = {}  # {mode: [{"Role ID": "...", "Role Name": "...", "source": "assignment|role"}]}
         active_role_ids = set() 
-        role_row_ids_to_fetch = set() # Fila IDs (links)
-        role_strings_to_fetch = set() # Role IDs (texto)
+        role_row_ids_to_fetch = set() # Row IDs (links)
+        role_strings_to_fetch = set() # Role IDs (text)
         
-        # A) Procesar Assignments (Ya vienen filtrados por app_key en la query superior)
+        # A) Process Assignments (Already filtered by app_key in top query)
         for assig in raw_assignments:
             raw_assig_data = assig.get("AssigData")
             mode = self._extract_data_mode(raw_assig_data)
@@ -223,13 +224,13 @@ class IdentityService:
                 rid = rl.get("row_id")
                 if rid: role_row_ids_to_fetch.add(rid)
 
-        # B) Procesar Identity.Roles (Lista de strings)
+        # B) Process Identity.Roles (List of strings)
         direct_role_list = identity_row.get("Roles", [])
         if isinstance(direct_role_list, list):
             for r_str in direct_role_list:
                 if r_str: role_strings_to_fetch.add(r_str)
 
-        # D) Validar TODOS los roles contra la App Key en una sola consulta
+        # D) Validate ALL roles against App Key in a single query
         where_clauses = []
         if role_row_ids_to_fetch:
             ids_str = "', '".join(role_row_ids_to_fetch)
@@ -262,7 +263,7 @@ class IdentityService:
                         modes_to_add = [mode] if not isinstance(mode, list) else mode
                         for m in modes_to_add:
                             data_modes.add(m)
-                            # Rastrear qué rol contribuye con este modo
+                            # Trace which role contributes this mode
                             if m not in data_mode_sources:
                                 data_mode_sources[m] = []
                             data_mode_sources[m].append({
@@ -275,8 +276,8 @@ class IdentityService:
             self._permissions_cache[cache_key] = (now, res)
             return res
 
-        # 5. Obtener permisos desde la tabla Permissions (Lista Plana Única)
-        # Filtramos permisos que tengan vinculados nuestros Role IDs
+        # 5. Get permissions from Permission table (Single Flat List)
+        # Filter permissions linked to our Role IDs
         perms_data = self.seatable.sql_query(
             "SELECT `Permission ID`, `Action Key`, `Roles` FROM `Permissions` WHERE `Status` = 'Active'",
             base_data="core_identity"
@@ -286,8 +287,8 @@ class IdentityService:
         seen_perm_ids = set()
 
         for p in perms_data:
-            p_roles = p.get("Roles", []) # Lista de links hacia Roles (usa display_value que es el Role ID)
-            # Verificar si este permiso pertenece a alguno de los roles activos del usuario
+            p_roles = p.get("Roles", []) # List of links towards Roles (uses display_value which is Role ID)
+            # Check if this permission belongs to any of the user's active roles
             has_role = any(pr.get("display_value") in active_role_ids for pr in p_roles)
             
             if has_role:
@@ -299,7 +300,7 @@ class IdentityService:
                         "Action Key": p.get("Action Key")
                     })
 
-        # 6. Definir el modo de datos
+        # 6. Define data mode
         priority = {"all": 4, "team": 3, "assigned": 2, "own": 1, "deny": 0}
         final_data_mode = "own"
         max_priority = 0
@@ -318,8 +319,8 @@ class IdentityService:
             }
         }
 
-        # --- NUEVO: Si el modo es TEAM, calcular jerarquía ---
-        # OPTIMIZACIÓN: Solo calculamos jerarquía si la app es EPR CRM (https://eprcrm.prismgrp.com)
+        # --- NEW: If mode is TEAM, calculate hierarchy ---
+        # OPTIMIZATION: Only calculate hierarchy if the app is EPR CRM (https://eprcrm.prismgrp.com)
         app_url = request.host_url.rstrip('/')
         is_crm_app = "eprcrm.prismgrp.com" in app_url
         
@@ -336,20 +337,20 @@ class IdentityService:
             result["data_mode_info"]["managerEmail"] = hierarchy.get("managerEmail")
             logger.debug(f"Hierarchy calculated: {len(result['data_mode_info']['members'])} members found")
         
-        # Guardar en caché
+        # Save to cache
         self._permissions_cache[cache_key] = (now, result)
         return result
 
     def get_identity_with_assignments(self, identity_id, user_email=None, app_key=None):
         """
-        Carga una identidad completa expandiendo sus asignaciones y roles asociados.
+        Loads a complete identity expanding its assignments and associated roles.
         
-        Objetivo:
-        - Recuperar el árbol completo de permisos, equipos y asignaciones desde SeaTable.
-        - Normalizar los datos crudos de la base de datos en estructuras de Python.
-        - Servir como base para el cálculo final de permisos atómicos.
+        Objective:
+        - Retrieve the full tree of permissions, teams, and assignments from SeaTable.
+        - Normalize raw database data into Python structures.
+        - Serve as a basis for the final atomic permission calculation.
         """
-        print(f"LOADING Identity expanded: {identity_id}" + (f" for app: {app_key}" if app_key else ""))
+        logger.debug(f"LOADING Identity expanded: {identity_id}" + (f" for app: {app_key}" if app_key else ""))
 
         
         # 1. Fetch Identity Basic Info
@@ -363,7 +364,7 @@ class IdentityService:
         if isinstance(identity, list) and len(identity) > 0:
             identity = identity[0]
             
-        # --- NUEVO: Fetch Collaborator Info ---
+        # --- NEW: Fetch Collaborator Info ---
         collaborator_links = identity.get("Collaborator ID") or []
         collaborator_info = []
         if collaborator_links:
@@ -382,7 +383,7 @@ class IdentityService:
                     })
         
         identity["collaborator_info"] = collaborator_info
-        identity.pop("Collaborator ID", None) # Limpiar el campo original link
+        identity.pop("Collaborator ID", None) # Clear original link field
         # Use identity email if user_email not provided
         if not user_email:
             # Try to find primary email for this identity in Auth Methods
@@ -397,7 +398,7 @@ class IdentityService:
                 if auth_rows_any and len(auth_rows_any) > 0:
                     user_email = auth_rows_any[0].get("Email")
 
-        # Variable para recolectar App Keys únicas (para el campo 'apps' del contexto)
+        # Variable to collect unique App Keys (for the 'apps' field of the context)
         unique_app_keys = set()
 
         # 2. Fetch all Assignments for this Identity
@@ -408,7 +409,7 @@ class IdentityService:
             identity["apps"] = []
             return identity
         
-        # Extraer los row_ids de los assignments
+        # Extract row_ids from assignments
         assignment_ids = []
         for link in assignment_links:
             if isinstance(link, dict):
@@ -421,7 +422,7 @@ class IdentityService:
             identity["apps"] = []
             return identity
         
-        # Construir query para obtener los assignments
+        # Build query to get assignments
         ids_str = "', '".join(assignment_ids)
         query_assig = f"""
             SELECT 
@@ -436,15 +437,15 @@ class IdentityService:
             WHERE `_id` IN ('{ids_str}')
         """
         
-        # IMPORTANTE: Ya no filtramos en el SQL por app_key para poder obtener todas las apps del usuario
-        # en el campo 'apps', pero lo filtraremos localmente para los Assignments retornados.
+        # IMPORTANT: We no longer filter in the SQL by app_key to obtain all user apps
+        # in the 'apps' field, but we will filter it locally for the returned Assignments.
         assignments = self.seatable.sql_query(query_assig, base_data="core_identity")
 
 
         # 3. Process and Normalize Assignments
         expanded_assignments = []
         
-        # NUEVO: Primero recolectamos LAS APPS de todos los assignments (Sin filtrar)
+        # NEW: First we collect APPS of all assignments (Without filter)
         for assig in assignments:
             a_key = assig.get("App Key")
             if a_key:
@@ -453,15 +454,15 @@ class IdentityService:
                 else:
                     unique_app_keys.add(a_key)
 
-        # Ahora filtramos la lista para el procesamiento si se especificó un app_key
+        # Now we filter the list for processing if an app_key was specified
         if app_key:
-            # Hacemos un match parcial para emular el LIKE '%app_key%'
+            # We perform a partial match to emulate LIKE '%app_key%'
             assignments = [
                 a for a in assignments 
                 if a.get("App Key") and app_key in str(a.get("App Key"))
             ]
 
-        # Primero, recolectamos todos los role row_ids para los assignments filtrados
+        # First, collect all role row_ids for the filtered assignments
         all_role_row_ids = set()
         for assig in assignments:
             role_link = assig.get("Role", [])
@@ -472,7 +473,7 @@ class IdentityService:
                         if rid:
                             all_role_row_ids.add(rid)
         
-        # Obtener los nombres de todos los roles en una sola query
+        # Get the names of all roles in a single query
         role_names_map = {}  # {row_id: {"Role ID": "...", "Role Name": "..."}}
         if all_role_row_ids:
             ids_str = "', '".join(all_role_row_ids)
@@ -487,12 +488,12 @@ class IdentityService:
                 }
         
         for assig in assignments:
-            # a) Unwrap Lookups/Links for display (solo Data, ya no App Key)
+            # a) Unwrap Lookups/Links for display (Data only, no longer App Key)
             val = assig.get("Data")
             if isinstance(val, list) and len(val) > 0:
                 assig["Data"] = val[0]
             
-            # b) Clean up Role: convertir a objetos con Role ID y Role Name
+            # b) Clean up Role: convert to objects with Role ID and Role Name
             role_link = assig.get("Role", [])
             enriched_roles = []
             if isinstance(role_link, list):
@@ -500,7 +501,7 @@ class IdentityService:
                     if isinstance(r, dict):
                         rid = r.get("row_id")
                         if rid and rid in role_names_map:
-                            # Crear objeto con Role ID y Role Name
+                            # Create object with Role ID and Role Name
                             role_info = role_names_map[rid]
                             role_obj = {
                                 "Role ID": role_info.get("Role ID"),
@@ -508,7 +509,7 @@ class IdentityService:
                             }
                             enriched_roles.append(role_obj)
                         else:
-                            # Fallback: usar display_value como Role ID
+                            # Fallback: use display_value as Role ID
                             fallback_value = r.get("display_value") or str(r)
                             role_obj = {
                                 "Role ID": fallback_value,
@@ -516,7 +517,7 @@ class IdentityService:
                             }
                             enriched_roles.append(role_obj)
                     else:
-                        # Si es string directo
+                        # If direct string
                         role_obj = {
                             "Role ID": str(r),
                             "Role Name": None
@@ -578,7 +579,7 @@ class IdentityService:
             elif isinstance(normalized_data, str):
                 is_team = normalized_data.lower() == "team"
             
-            # OPTIMIZACIÓN: Solo calculamos jerarquía si la app es EPR CRM
+            # OPTIMIZATION: Only calculate hierarchy if the app is EPR CRM
             app_url = request.host_url.rstrip('/')
             is_crm_app = "eprcrm.prismgrp.com" in app_url
             
@@ -603,13 +604,13 @@ class IdentityService:
             assig.pop("_id", None)
             assig.pop("Customers", None)
             assig.pop("Markets", None)
-            assig.pop("App Key", None)  # Eliminar App Key ya que todos están filtrados por la misma app
+            assig.pop("App Key", None)  # Remove App Key since all are filtered by the same app
             
             expanded_assignments.append(assig)
 
         identity["Assignments"] = expanded_assignments
         
-        # --- NUEVO: Enriquecer con metadatos de Aplicaciones (Sin hacer nueva query a Assignments) ---
+        # --- NEW: Enrich with Application metadata (Without making new query to Assignments) ---
         if unique_app_keys:
             all_apps = self._get_all_apps_cached()
             allowed_apps_metadata = []
@@ -628,19 +629,19 @@ class IdentityService:
 
     def _extract_data_mode(self, raw_data):
         """
-        Analiza la configuración cruda de un rol para extraer su nivel de acceso a datos.
+        Analyzes the raw configuration of a role to extract its data access level.
         
-        Objetivo:
-        - Mapear las configuraciones de SeaTable a los tokens internos: 'all', 'own', 'team', 'assigned'.
-        - Proveer una lógica consistente para la interpretación de privilegios.
+        Objective:
+        - Map SeaTable configurations to internal tokens: 'all', 'own', 'team', 'assigned'.
+        - Provide consistent logic for privilege interpretation.
         """
         if not raw_data: return None
         
-        # Si es una lista (común en SeaTable for link/lookup/multi-select)
+        # If it's a list (common in SeaTable for link/lookup/multi-select)
         if isinstance(raw_data, list):
             if not raw_data: return None
-            # Si el primer elemento es un string, devolvemos el string (ej. ['own'])
-            # Si hay varios, devolvemos la lista para que el llamante decida
+            # If the first element is a string, we return the string (e.g. ['own'])
+            # If there are several, we return the list so the caller can decide
             if len(raw_data) == 1:
                 return self._extract_data_mode(raw_data[0])
             return [self._extract_data_mode(item) for item in raw_data]

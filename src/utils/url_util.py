@@ -1,24 +1,24 @@
 """
-Utilidades de Procesamiento y Matching de URLs.
+URL Processing and Matching Utilities.
 
-Este módulo provee funciones para la normalización de URLs y la identificación 
-automática de aplicaciones basadas en prefijos de URL, permitiendo la detección 
-dinámica del contexto de la App.
+This module provides functions for URL normalization and automatic 
+identification of applications based on URL prefixes, enabling 
+dynamic App context detection.
 
-Objetivos clave:
-1. Estandarizar URLs eliminando protocolos, subdominios (www) y slashes finales.
-2. Implementar un motor de matching de 'mejor coincidencia' (prefix match longest wins).
-3. Facilitar la resolución de configuraciones App-specific basadas en el origen de la petición.
+Key Objectives:
+1. Standardize URLs by removing protocols, subdomains (www), and trailing slashes.
+2. Implement a 'best match' engine (longest prefix match wins).
+3. Facilitate App-specific configuration resolution based on the request origin.
 """
 import re
 
 def normalize_url(url):
     """
-    Estandariza una URL para facilitar comparaciones consistentes.
+    Standardizes a URL to facilitate consistent comparisons.
     
-    Objetivo:
-    - Eliminar ruido (http, https, www, slashes) que pueda afectar el matching.
-    - Convertir a minúsculas para comparaciones insensibles a mayúsculas.
+    Objective:
+    - Remove noise (http, https, www, slashes) that might affect matching.
+    - Convert to lowercase for case-insensitive comparisons.
     """
     if not url:
         return ""
@@ -38,12 +38,12 @@ def normalize_url(url):
 
 def find_best_app_match(input_url, applications):
     """
-    Identifica la aplicación que mejor coincide con la URL de entrada.
+    Identifies the application that best matches the input URL.
     
-    Objetivo:
-    - Comparar la URL de la petición contra las URLs públicas de las Apps registradas.
-    - Aplicar la regla de 'la coincidencia más específica gana' (prefijo más largo).
-    - Resolver el App Key necesario para aplicar el RBAC correspondiente.
+    Objective:
+    - Compare the request URL against the public URLs of registered Apps.
+    - Apply the 'most specific match wins' rule (longest prefix).
+    - Resolve the App Key needed to apply the corresponding RBAC.
     """
     normalized_input = normalize_url(input_url)
     if not normalized_input:

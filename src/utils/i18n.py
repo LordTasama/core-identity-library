@@ -1,0 +1,107 @@
+from flask import g, request
+
+TRANSLATIONS = {
+    'en': {
+        'all_fields_required': 'All fields are required',
+        'email_required': 'Email is required',
+        'password_required': 'Password is required',
+        'first_last_name_required': 'First and last name are required',
+        'password_required_email_reg': 'Password is required for email registration',
+        'email_already_registered': 'This email is already Registered',
+        'email_registered_with': 'This email is already registered with {provider}',
+        'confirmation_email_sent': 'Confirmation email sent.',
+        'error_sending_confirmation': 'Error sending confirmation email',
+        'incorrect_password': 'Incorrect Password',
+        'password_not_set': 'Password not set for this user',
+        'user_not_found': 'User not found',
+        'session_expired': 'Session has expired',
+        'token_not_belong_user': 'The token does not belong to this user',
+        'invalid_token': 'Invalid token: {error}',
+        'account_blocked': 'Your account is {status}.',
+        'password_changed_success': 'Password changed successfully',
+        'password_update_failed': 'Failed to update password',
+        'invalid_reset_code': 'Invalid or expired reset code',
+        'invalid_reset_status': 'Invalid reset code status',
+        'wait_before_requesting': 'Please wait {wait_seconds} before requesting another link.',
+        'session_not_found': 'Session not found on the server',
+        'unauthorized': 'Unauthorized: {message}',
+        'no_active_sessions_found': 'No active sessions found to close',
+        'sessions_closed_success': 'Successfully closed {count} sessions',
+        'password_reset_sent': 'If the email exists, a password reset link has been sent.',
+        'weak_password': 'The password is too weak', # Placeholder for more specific messages
+        'invalid_auth_provider': 'Authentication successful, but you must log in with your {provider} account.',
+        'error_processing_request': 'Error processing request',
+        'access_denied': 'Access Denied',
+        'auth_successful': 'Authentication successful',
+        'redirecting': 'Redirecting...',
+        'provider_required': 'Provider is required',
+        'provider_not_supported': 'Provider not supported in login endpoint',
+        'invalid_response_auth': 'Invalid response from authentication service',
+        'auth_data_missing': 'Authentication succeeded but user data is missing',
+        'logged_out_success': 'Logged out successfully',
+        'user_context_not_found': 'User context not found',
+        'user_context_retrieved': 'User context retrieved',
+        'code_required': 'Code is required',
+        'auth_token_required': 'Authentication token is required (Bearer Token)',
+        'app_not_found': 'Application not found for URL: {url}',
+        'identity_inactive': 'Identity {id} is inactive.',
+    },
+    'es': {
+        'all_fields_required': 'Todos los campos son obligatorios',
+        'email_required': 'El correo electrónico es obligatorio',
+        'password_required': 'La contraseña es obligatoria',
+        'first_last_name_required': 'El nombre y apellido son obligatorios',
+        'password_required_email_reg': 'La contraseña es obligatoria para el registro por email',
+        'email_already_registered': 'Este Correo ya está Registrado',
+        'email_registered_with': 'Este Correo ya está registrado con {provider}',
+        'confirmation_email_sent': 'Correo de confirmación enviado.',
+        'error_sending_confirmation': 'Error al enviar el correo de confirmación',
+        'incorrect_password': 'Contraseña incorrecta',
+        'password_not_set': 'Contraseña no establecida para este usuario',
+        'user_not_found': 'Usuario no encontrado',
+        'session_expired': 'La sesión ha expirado',
+        'token_not_belong_user': 'El token no pertenece a este usuario',
+        'invalid_token': 'Token inválido: {error}',
+        'account_blocked': 'Tu cuenta está {status}.',
+        'password_changed_success': 'Contraseña cambiada exitosamente',
+        'password_update_failed': 'Error al actualizar la contraseña',
+        'invalid_reset_code': 'Código de reset inválido o expirado',
+        'invalid_reset_status': 'Estado de código de reset inválido',
+        'wait_before_requesting': 'Por favor espera {wait_seconds} antes de solicitar otro enlace.',
+        'session_not_found': 'Sesión no encontrada en el servidor',
+        'unauthorized': 'No autorizado: {message}',
+        'no_active_sessions_found': 'No se encontraron sesiones activas para cerrar',
+        'sessions_closed_success': 'Se cerraron exitosamente {count} sesiones',
+        'password_reset_sent': 'Si el correo existe, se ha enviado un enlace de recuperación.',
+        'weak_password': 'La contraseña es demasiado débil',
+        'invalid_auth_provider': 'Autenticación exitosa, pero debes iniciar sesión con tu cuenta de {provider}.',
+        'error_processing_request': 'Error al procesar la solicitud',
+        'access_denied': 'Acceso Denegado',
+        'auth_successful': 'Autenticación exitosa',
+        'redirecting': 'Redirigiendo...',
+        'provider_required': 'El proveedor es obligatorio',
+        'provider_not_supported': 'Proveedor no soportado en el endpoint de login',
+        'invalid_response_auth': 'Respuesta inválida del servicio de autenticación',
+        'auth_data_missing': 'Autenticación exitosa pero faltan los datos del usuario',
+        'logged_out_success': 'Sesión cerrada exitosamente',
+        'user_context_not_found': 'Contexto de usuario no encontrado',
+        'user_context_retrieved': 'Contexto de usuario recuperado',
+        'code_required': 'El código es obligatorio',
+        'auth_token_required': 'El token de autenticación es obligatorio (Bearer Token)',
+        'app_not_found': 'Aplicación no encontrada para la URL: {url}',
+        'identity_inactive': 'Identidad {id} está inactiva.',
+    }
+}
+
+def t(key, **kwargs):
+    """
+    Helper function to get translated strings.
+    Uses g.lang which is set in app.py before_request.
+    Defaults to English.
+    """
+    lang = getattr(g, 'lang', 'en')
+    if lang not in TRANSLATIONS:
+        lang = 'en'
+    
+    text = TRANSLATIONS[lang].get(key, TRANSLATIONS['en'].get(key, key))
+    return text.format(**kwargs)

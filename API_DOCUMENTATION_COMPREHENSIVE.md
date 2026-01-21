@@ -58,6 +58,18 @@ Un desglose exhaustivo de los componentes del software:
 | `SMTP_USER` | Email | Cuenta desde la cual se enviarán los OTPs de registro. |
 | `SMTP_PASS` | Password | Contraseña de la cuenta de correo. |
 | `MAIL_FROM` | String | Etiqueta del remitente (ej: `Prism Auth <system@prism.com>`). |
+| `URL_REDIRECT_CALLBACK` | URL | URL de redirección para el callback de OAuth. |
+
+### 4.1. Encabezados Globales (Global Headers)
+Todas las peticiones a la API deben (o pueden) incluir los siguientes encabezados:
+
+| Header | Requerido | Descripción |
+| :--- | :--- | :--- |
+| `X-API-KEY` | **Sí** | Llave maestra definida en la variable de entorno `API_KEY`. |
+| `Authorization` | Solo rutas protegidas | Token JWT en formato `Bearer <TOKEN>`. |
+| `X-LANG` | No | Idioma preferido para las respuestas (`en` o `es`). Por defecto es `en`. |
+| `X-REQUEST-URL` | No | URL del frontend para ayudar en la detección automática de la App Key. |
+| `X-User-Email` | No | Email del usuario (opcional, ayuda en la validación de sesión). |
 
 ---
 
@@ -174,6 +186,21 @@ Define qué registros puede ver el usuario dentro de su aplicación.
 #### `POST /api/auth/logout_sessions`
 **Uso:** Cerrar sesiones en otros dispositivos.
 - **Payload:** `{ "email": "...", "token": "...", "all_sessions": true }`
+
+---
+
+## 8. Soporte Multi-Lenguaje (i18n)
+La API implementa un sistema dinámico de internacionalización para todos los mensajes de retorno, logs internos y errores.
+
+### 8.1. Funcionamiento del Idioma
+El sistema determina el idioma de la respuesta siguiendo este orden de prioridad:
+1.  **Header `X-LANG`:** El valor enviado (`en` o `es`).
+2.  **Default:** Si no se envía el header, el sistema responde en **Inglés (`en`)**.
+
+### 8.2. Cobertura de Traducción
+*   **Mensajes de API:** Todos los campos `message` en los JSON de respuesta.
+*   **Logs del Servidor:** Registro de eventos y errores en consola.
+*   **Documentación de Código:** Los docstrings y comentarios internos han sido estandarizados a Inglés para mantenimiento internacional.
 
 ---
 

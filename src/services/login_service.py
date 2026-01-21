@@ -1,26 +1,29 @@
 """
-Motor Lógico de Autenticación y Gestión de Identidades (Core Service).
+Authentication Logic and Identity Management Engine (Core Service).
 
-Este módulo es el núcleo del sistema de identidad. Centraliza toda la lógica de negocio
-para la creación de usuarios, validación de credenciales, gestión de sesiones JWT
-y procesos de recuperación de cuenta.
+This module is the identity system's core. It centralizes all business logic
+for user creation, credential validation, JWT session management,
+and account recovery processes.
 
-Objetivos clave:
-1. Orquestar el flujo de registro y login multiplataforma.
-2. Gestionar la persistencia de sesiones y el ciclo de vida de los tokens.
-3. Proveer una capa de abstracción entre las rutas de la API y la base de datos (SeaTable).
-4. Implementar políticas de seguridad (Password Strength, Rate Limiting, RBAC inicial).
+Key Objectives:
+1. Orchestrate multi-platform registration and login flow.
+2. Manage session persistence and token lifecycle.
+3. Provide an abstraction layer between API routes and the database (SeaTable).
+4. Implement security policies (Password Strength, Rate Limiting, initial RBAC).
 """
 
-from src.services.seatable_service import seatable
-import time
-import bcrypt
-import secrets
-import requests
+from flask import g, session, request
 import jwt
 import datetime
-from src.utils.post_email_util import send_email
+import time
+import secrets
+import string
+import secrets
+import bcrypt
+from src.services.seatable_service import seatable
+from src.utils.logger import logger
 from config import Config
+from src.utils.i18n import t
 from flask import request
 import string
 from src.utils.logger import logger
@@ -37,45 +40,45 @@ import bcrypt
 
 # Caché global para contextos de usuario (Email + AppKey)
 _USER_CONTEXT_CACHE = {}  # { (email, app_key): (timestamp, data) }
-_CONTEXT_TTL = 900        # 15 minutos
+_CONTEXT_TTL = 900        # 15 minutes
 
-# Caché global para validación de sesiones
+# Global cache for session validation
 _SESSION_VALIDATION_CACHE = {} # { (email, token): (timestamp, data) }
-_SESSION_TTL = 900             # 15 minutos
+_SESSION_TTL = 900             # 15 minutes
 
 import re
 
 def validate_password_strength(password):
     """
-    Evalúa si una contraseña cumple con los estándares mínimos de seguridad.
+    Evaluates if a password meets minimum security standards.
     
-    Objetivo:
-    - Asegurar que las contraseñas tengan complejidad suficiente (8+ caracteres, 
-      mayúsculas, minúsculas, números y caracteres especiales).
-    - Mitigar ataques de fuerza bruta mediante el fomento de contraseñas robustas.
+    Objective:
+    - Ensure passwords have sufficient complexity (8+ characters, 
+      uppercase, lowercase, numbers, and special characters).
+    - Mitigate brute force attacks by encouraging robust passwords.
     """
     if len(password) < 8:
-        return False, "La contraseña debe tener al menos 8 caracteres"
+        return False, "Password must be at least 8 characters long"
     if not re.search(r"[A-Z]", password):
-        return False, "La contraseña debe incluir al menos una letra mayúscula"
+        return False, "Password must include at least one uppercase letter"
     if not re.search(r"[a-z]", password):
-        return False, "La contraseña debe incluir al menos una letra minúscula"
+        return False, "Password must include at least one lowercase letter"
     if not re.search(r"\d", password):
-        return False, "La contraseña debe incluir al menos un número"
+        return False, "Password must include at least one number"
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-        return False, "La contraseña debe incluir al menos un carácter especial (ej: !@#$%)"
+        return False, "Password must include at least one special character (e.g., !@#$%)"
     
-    return True, "Contraseña válida"
+    return True, "Valid password"
 
 def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row=None):
     """
-    Recupera el perfil integral del usuario necesario para la sesión.
+    Retrieves the comprehensive user profile needed for the session.
     
-    Objetivo:
-    - Consultar el método de autenticación, la identidad (Profile) y el estado de la cuenta.
-    - Resolver dinámicamente el App Key por URL y calcular permisos RBAC para esa app.
-    - Implementar una capa de caché de 15 minutos para optimizar peticiones recurrentes.
-    - Permite inyectar 'initial_auth_row' para evitar la primera consulta redundante.
+    Objective:
+    - Query the authentication method, identity (Profile), and account status.
+    - Dynamically resolve the App Key by URL and calculate RBAC permissions for that app.
+    - Implement a 15-minute cache layer to optimize recurrent requests.
+    - Allows injecting 'initial_auth_row' to avoid the first redundant query.
     """
     from src.services.identity_service import identity_service
     
@@ -99,14 +102,14 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
                 allowed_apps_names = [a.get("appName") for a in allowed_apps if a.get("appName")]
                 return {
                     "success": False,
-                    "message": f"No tienes permisos para acceder a esta aplicación. Apps autorizadas: {', '.join(allowed_apps_names) if allowed_apps_names else 'ninguna'}",
+                    "message": f"You do not have permissions to access this application. Authorized apps: {', '.join(allowed_apps_names) if allowed_apps_names else 'none'}",
                     "apps": allowed_apps
                 }
 
             cached_data["success"] = True
             return cached_data
 
-    logger.info(f"USER CONTEXT CACHE MISS para {email} [{app_key}] - Cargando de SeaTable...")
+    logger.info(f"USER CONTEXT CACHE MISS for {email} [{app_key}] - Loading from SeaTable...")
     
     escaped_email = email.replace("'", "''")
     row_auth = initial_auth_row
@@ -126,7 +129,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         row_auth = auth_rows[0]
     identity_links = row_auth.get("Identity", [])
     if not identity_links:
-        logger.warning(f"Usuario {email} no tiene Identity vinculado.")
+        logger.warning(f"User {email} has no linked Identity.")
         return None
         
     identity_id = identity_links[0].get("row_id")
@@ -140,12 +143,12 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         else:
             identity_status = identity_row.get("Status", "Active")
     
-    # Interceptación por Estatus de la Identidad
+    # Identity Status Interception
     if identity_status and identity_status != "Active":
         print(f"🛑 IDENTITY BLOCKED: User {email} has status {identity_status}")
         return {
             "success": False,
-            "message": f"Tu cuenta está {identity_status.lower()}. Por favor contacta a soporte.",
+            "message": f"Your account is {identity_status.lower()}. Please contact support.",
             "apps": []
         }
 
@@ -176,7 +179,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         
         return {
             "success": False,
-            "message": f"No tienes permisos para acceder a esta aplicación. Apps autorizadas: {', '.join(allowed_apps_names) if allowed_apps_names else 'ninguna'}",
+            "message": f"You do not have permissions to access this application. Authorized apps: {', '.join(allowed_apps_names) if allowed_apps_names else 'none'}",
             "apps": allowed_apps
         }
 
@@ -195,7 +198,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         if sessions_res and isinstance(sessions_res, list):
             active_sessions = sessions_res
     except Exception as e_sess:
-        logger.error(f"Error cargando sesiones para {email}: {e_sess}")
+        logger.error(f"Error loading sessions for {email}: {e_sess}")
 
     # Enriquecer con los permisos ya calculados
     identity_data["permissions"] = auth_data.get("permissions", [])
@@ -203,7 +206,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     identity_data["dataModeInfo"] = auth_data.get("data_mode_info", {})
     identity_data["appKey"] = app_key
     
-    # Obtener info visual de la app actual (Colores)
+    # Get visual info of the current app (Colors)
     all_apps = identity_service._get_all_apps_cached()
     current_app_meta = next((a for a in all_apps if a.get("App Key") == app_key), {})
     identity_data["app_info"] = {
@@ -212,7 +215,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         "appName": current_app_meta.get("App Name")
     }
 
-    # Enriquecer con metadatos de sesión
+    # Enrich with session metadata
     identity_data["email"] = email
     identity_data["auth_method_id"] = auth_method_id
     identity_data["auth_method_custom_id"] = auth_method_custom_id
@@ -227,41 +230,41 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
 
 def create_session(user_context, temp_device=False):
     """
-    Genera y persiste una nueva sesión de usuario.
+    Generates and persists a new user session.
     
-    Objetivo:
-    - Crear un JSON Web Token (JWT) firmado para uso del cliente.
-    - Registrar la sesión en SeaTable con metadatos de IP, User-Agent y expiración.
-    - Manejar políticas de expiración variables (180 días vs 30 días para dispositivos temporales).
+    Objective:
+    - Create a signed JSON Web Token (JWT) for client use.
+    - Register the session in SeaTable with IP, User-Agent, and expiration metadata.
+    - Handle variable expiration policies (180 days vs. 30 days for temporary devices).
     """
     try:
         if not user_context:
-            raise ValueError("Contexto de usuario vacío")
+            raise ValueError("Empty user context")
 
-        # 1. Capturar metadata del dispositivo/conexión
+        # 1. Capture device/connection metadata
         ip_address = request.headers.get('X-Forwarded-For', request.remote_addr) or '127.0.0.1'
         if ',' in ip_address:
             ip_address = ip_address.split(',')[0].strip()
         
-        # Nueva limpieza: Eliminar puerto o identificadores extras (ej: 123.123.123.123:5000)
-        # Si tiene ':' y '.' es probablemente IPv4:port. Si tiene ':' pero no es IPv6 (múltiples ':'), lo limpiamos.
+        # New cleanup: Remove port or extra identifiers (e.g., 123.123.123.123:5000)
+        # If it has ':' and '.' it's probably IPv4:port. If it has ':' but isn't IPv6 (multiple ':'), we clean it.
         if ':' in ip_address and ('.' in ip_address or ip_address.count(':') == 1):
              ip_address = ip_address.split(':')[0].strip()
         user_agent = request.headers.get('User-Agent', 'Unknown')
 
-        # 2. Determinar expiración (180 días vs 30 días)
-        # El provider viene o en 'authProvider' o en 'auth_provider' o en user_context['login_type']
+        # 2. Determine expiration (180 days vs. 30 days)
+        # The provider comes either in 'authProvider', 'auth_provider', or user_context['login_type']
         provider = user_context.get("authProvider") or user_context.get("auth_provider")
         auth_method_custom_id = user_context.get("auth_method_custom_id")
         
-        # --- NUEVA LÓGICA: Evitar duplicados ---
-        # Antes de crear, buscamos si ya hay una sesión ACTIVA para este ID + IP + UI
+        # --- NEW LOGIC: Avoid duplicates ---
+        # Before creating, check if there is an ACTIVE session for this ID + IP + UI
         escaped_ip = ip_address.replace("'", "''")
         escaped_ua = user_agent.replace("'", "''")
         auth_method_id = str(user_context.get("auth_method_id", ""))
 
-        # Usamos IN para filtrar por el _id del link, ya que SeaTable SQL no soporta alias ni JOINs estándar
-        logger.debug(f"🔍 Buscando sesión activa existente: IP='{escaped_ip}', UA='{escaped_ua}', AuthMethod='{auth_method_custom_id}'")
+        # We use IN to filter by the link's _id, since SeaTable SQL doesn't support aliasing or standard JOINs
+        logger.debug(f"🔍 Searching for existing active session: IP='{escaped_ip}', UA='{escaped_ua}', AuthMethod='{auth_method_custom_id}'")
 
         check_query = f"""
             SELECT Token, _id, `Expiration Date` 
@@ -275,26 +278,26 @@ def create_session(user_context, temp_device=False):
         existing_sess_res = seatable.sql_query(check_query, base_data="core_identity")
         if existing_sess_res and isinstance(existing_sess_res, list):
             existing_sess = existing_sess_res[0]
-            logger.info(f"Reutilizando sesión activa existente para {auth_method_custom_id} (ID: {auth_method_id})")
-            # Agregamos la fecha de expiración existente al contexto para el frontend
+            logger.info(f"Reusing existing active session for {auth_method_custom_id} (ID: {auth_method_id})")
+            # We add the existing expiration date to the context for the frontend
             user_context["expired_at"] = existing_sess.get("Expiration Date")
             return existing_sess.get("Token")
 
         days = 180
         if provider == "Email" and temp_device:
             days = 30
-            logger.info(f"Sesión temporal detectada para Email. Expiración: {days} días.")
+            logger.info(f"Temporary session detected for Email. Expiration: {days} days.")
         else:
-            logger.info(f"Sesión estándar. Expiración: {days} días. (Provider: {provider})")
+            logger.info(f"Standard session. Expiration: {days} days. (Provider: {provider})")
 
         expiration_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days)
         expiration_iso = expiration_time.strftime("%Y-%m-%d %H:%M:%S")
 
-        # 2.1. Agregar campo expired_at al contexto (para que el frontend lo reciba)
+        # 2.1. Add expired_at field to context (for the frontend to receive it)
         user_context["expired_at"] = expiration_iso
         
-        # El payload será MINIMALISTA. No guardamos permisos ni apps aquí por seguridad y tamaño.
-        # Los datos pesados se recuperan del Cache del servidor en cada verify_session.
+        # The payload will be MINIMALIST. We don't store permissions or apps here for security and size reasons.
+        # Heavy data is retrieved from the server's cache on each verify_session.
         payload = {
             "email": user_context.get("email"),
             "identity_id": user_context.get("_id"),
@@ -310,7 +313,7 @@ def create_session(user_context, temp_device=False):
         # 3. Codificar JWT
         token = jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
         
-        # 4. Preparar datos para tabla Sessions
+        # 4. Prepare data for Sessions table
         
         session_data = {
             "Token": token,
@@ -318,7 +321,7 @@ def create_session(user_context, temp_device=False):
             "IP": ip_address,
             "Device Name": user_agent,
             "Expiration Date": expiration_iso
-            # El link se crea explícitamente abajo con perform_link_operation
+            # The link is created explicitly below with perform_link_operation
         }
         
         # 3. Insertar sesión
@@ -330,12 +333,12 @@ def create_session(user_context, temp_device=False):
         )
         
         if not created_session:
-            raise Exception("Error al insertar fila en Sessions")
+            raise Exception("Error inserting row in Sessions")
             
         session_row_id = created_session.get("_id")
         
-        # 4. Crear Relaciones (Links)
-        # Link con Auth Methods
+        # 4. Create Relationships (Links)
+        # Link with Auth Methods
         auth_link_id = seatable.get_column_link_id("Sessions", "Auth Method", base_data="core_identity")
         
         seatable.perform_link_operation(
@@ -347,62 +350,62 @@ def create_session(user_context, temp_device=False):
             base_data="core_identity"
         )
 
-        logger.info(f"Sesión creada exitosamente para {user_context.get('email')}")
+        logger.info(f"Session successfully created for {user_context.get('email')}")
         return token
         
     except Exception as e:
-        logger.error(f"Error creando sesión para {user_context.get('email', 'unknown')}: {e}", exc_info=True)
+        logger.error(f"Error creating session for {user_context.get('email', 'unknown')}: {e}", exc_info=True)
         return None
 
 def insert_user_in_database(userinfo,auth_provider):
     """
-    Sincroniza y persiste la información del usuario en la base de datos SeaTable.
+    Synchronizes and persists user information in the SeaTable database.
     
-    Objetivo:
-    - Asegurar la existencia del registro en 'Auth Methods' y su vínculo con 'Identity'.
-    - Actualizar metadatos de perfil (Nombre, Foto) si han cambiado en el proveedor.
-    - Manejar el hasheo de contraseñas para registros manuales.
-    - Coordinar la creación en cascada: Identity -> Auth Methods -> Roles -> Vínculos.
+    Objective:
+    - Ensure the 'Auth Methods' record exists and is linked to 'Identity'.
+    - Update profile metadata (Name, Photo) if it has changed in the provider.
+    - Handle password hashing for manual registrations.
+    - Coordinate cascading creation: Identity -> Auth Methods -> Roles -> Links.
     """
 
 
     PORTAL_USERS_TABLE = "Auth Methods"
     IDENTITY_TABLE = "Identity"
-    IDENTITY_LINK_COL = "Identity"  # columna link en Portal Users que apunta a Identity
+    IDENTITY_LINK_COL = "Identity"  # Link column in Portal Users pointing to Identity
 
 
     # ==================================================
-    # 0) Buscar usuario por email
+    # 0) Search user by email
     # ==================================================
     email = userinfo.get('email')
     if not email:
-        raise ValueError("El campo 'email' es requerido en userinfo")
+        raise ValueError("'email' field is required in userinfo")
 
     escaped_email = email.replace("'", "''")
     query = f"SELECT * FROM `Auth Methods` WHERE `Email` = '{escaped_email}'"
     existing_users = seatable.sql_query_one(query, base_data="core_identity")
 
     # ==================================================
-    # 1) Preparar datos separados por tabla
+    # 1) Prepare data separated by table
     # ==================================================
-    # Campos que pertenecen EXCLUSIVAMENTE a la tabla Identity
+    # Fields that belong EXCLUSIVELY to the Identity table
     
-    # Nombres de campos que vienen en userinfo
+    # Field names coming in userinfo
     first_name_raw = userinfo.get('given_name') or userinfo.get('first_name')
     last_name_raw = userinfo.get('family_name') or userinfo.get('last_name')
     profile_pic = userinfo.get('picture') or userinfo.get('profile_image_url')
 
-    # Datos para Identity (Solo lo que recibimos realmente)
+    # Data for Identity (Only what we actually receive)
     data_identity = {'Status': 'Active'}
     if first_name_raw: data_identity['First Name'] = first_name_raw
     if last_name_raw: data_identity['Last Name'] = last_name_raw
     if profile_pic: data_identity['Profile Image URL'] = profile_pic
 
-    # La validación de campos obligatorios para registro manual se hace 
-    # en la capa superior (register_manual_user).
+    # Mandatory field validation for manual registration is done 
+    # in the upper layer (register_manual_user).
 
 
-    # Datos para Auth Methods (Sin campos de Identity)
+    # Data for Auth Methods (No Identity fields)
     password = userinfo.get('password')
     password_hash_str = None
     if auth_provider == "Email" and password:
@@ -421,10 +424,10 @@ def insert_user_in_database(userinfo,auth_provider):
         data_auth['Password'] = password_hash_str
 
     # ==================================================
-    # 2) FLUJO DE CREACIÓN / ACTUALIZACIÓN
+    # 2) CREATION / UPDATE FLOW
     # ==================================================
     if not existing_users:
-        print(f"👤 Usuario nuevo. Siguiendo flujo: Identity -> Auth Method")
+        print(f"👤 New user. Following flow: Identity -> Auth Method")
 
         # SOLO para usuarios nuevos: Si no vienen nombres y es Social, aplicamos fallbacks
         if auth_provider != "Email":
@@ -433,9 +436,9 @@ def insert_user_in_database(userinfo,auth_provider):
             if 'Last Name' not in data_identity: 
                 data_identity['Last Name'] = "User"
         else:
-            # Para Email ya validamos arriba, pero nos aseguramos aquí de nuevo
+            # For Email, we already validated above, but we ensure here again
             if 'First Name' not in data_identity or 'Last Name' not in data_identity:
-                raise ValueError(f"No se puede crear el usuario {email}: faltan nombres.")
+                raise ValueError(f"Cannot create user {email}: names missing.")
 
         # 2.1) Crear Identity
         identity_created = seatable.perform_table_operation(
@@ -445,11 +448,11 @@ def insert_user_in_database(userinfo,auth_provider):
             base_data="core_identity"
         )
         if not identity_created:
-            raise Exception(f"No se pudo crear Identity para {email}")
+            raise Exception(f"Could not create Identity for {email}")
         
         identity_row_id = identity_created.get('_id')
 
-        # 2.2) Crear Auth Method (vinculado a Identity)
+        # 2.2) Create Auth Method (linked to Identity)
         data_auth[IDENTITY_LINK_COL] = [identity_row_id]
         auth_created = seatable.perform_table_operation(
             table_name=PORTAL_USERS_TABLE,
@@ -458,34 +461,34 @@ def insert_user_in_database(userinfo,auth_provider):
             base_data="core_identity"
         )
         if not auth_created:
-            raise Exception(f"No se pudo crear Auth Method para {email}")
+            raise Exception(f"Could not create Auth Method for {email}")
         
         auth_row_id = auth_created.get('_id')
 
-        # 2.3) Asignar Rol por defecto al Identity
+        # 2.3) Assign Default Role to Identity
         _assign_default_role_to_identity(identity_row_id)
 
-        # 2.4) Vínculo inverso: Identity -> Auth Methods
+        # 2.4) Reverse Link: Identity -> Auth Methods
         _link_identity_to_auth(identity_row_id, auth_row_id)
 
         return auth_created
 
     else:
         # ==================================================
-        # 3) USUARIO EXISTE -> ACTUALIZAR / ASEGURAR IDENTITY
+        # 3) USER EXISTS -> UPDATE / ENSURE IDENTITY
         # ==================================================
         existing_user = existing_users[0]
         auth_row_id = existing_user.get('_id')
         
-        # Obtener link a Identity
+        # Get Identity link
         identity_links = existing_user.get(IDENTITY_LINK_COL, [])
         identity_row_id = None
         if identity_links:
             identity_row_id = identity_links[0].get('row_id') if isinstance(identity_links[0], dict) else identity_links[0]
 
-        # 3.1) Si NO tiene Identity, crearlo ahora
+        # 3.1) If it has NO Identity, create it now
         if not identity_row_id:
-            print(f"ℹ️ Usuario existente sin Identity. Creando uno ahora...")
+            print(f"ℹ️ Existing user without Identity. Creating one now...")
             identity_created = seatable.perform_table_operation(
                 table_name=IDENTITY_TABLE,
                 row_data=data_identity,
@@ -503,19 +506,19 @@ def insert_user_in_database(userinfo,auth_provider):
                 base_data="core_identity"
             )
             
-            # Asignar Rol
+            # Assign Role
             _assign_default_role_to_identity(identity_row_id)
             
-            # Link inverso
+            # Reverse link
             _link_identity_to_auth(identity_row_id, auth_row_id)
         else:
-            # 3.2) Si YA tiene Identity, actualizar solo si recibimos datos nuevos del provider
-            # Creamos un set de datos para update que NO incluya Status (ya que ya existe)
-            # y solo si tenemos algo que actualizar
+            # 3.2) If it ALREADY has Identity, update only if we receive new data from the provider
+            # We create a data set for update that does NOT include Status (since it already exists)
+            # and only if we have something to update
             update_identity_data = {k: v for k, v in data_identity.items() if k != 'Status'}
             
             if update_identity_data:
-                print(f"📇 Actualizando Identity {identity_row_id} con datos frescos del provider...")
+                print(f"📇 Updating Identity {identity_row_id} with fresh data from provider...")
                 seatable.perform_table_operation(
                     table_name=IDENTITY_TABLE,
                     row_id=identity_row_id,
@@ -524,8 +527,8 @@ def insert_user_in_database(userinfo,auth_provider):
                     base_data="core_identity"
                 )
 
-        # 3.3) Actualizar Auth Method si hay cambios (ej. password)
-        # Solo actualizamos si no es login social (para evitar sobreescribir Verified=False)
+        # 3.3) Update Auth Method if there are changes (e.g., password)
+        # We only update if it's not a social login (to avoid overwriting Verified=False)
         if auth_provider == "Email":
              seatable.perform_table_operation(
                 table_name=PORTAL_USERS_TABLE,
@@ -535,31 +538,31 @@ def insert_user_in_database(userinfo,auth_provider):
                 base_data="core_identity"
             )
 
-        # Retornar usuario actualizado/existente
+        # Return updated/existing user
         return existing_user
 
 def _assign_default_role_to_identity(identity_row_id):
     """
-    Asigna automáticamente el rol más restrictivo disponible para la App actual.
+    Automatically assigns the most restrictive role available for the current App.
     
-    Objetivo:
-    - Implementar el principio de menor privilegio al momento del registro.
-    - Identificar roles de tipo 'own' o 'assigned' específicos para la aplicación detectada.
-    - Realizar el vínculo en la tabla 'Assignments' para otorgar acceso inmediato.
+    Objective:
+    - Implement the principle of least privilege during registration.
+    - Identify 'own' or 'assigned' type roles specific to the detected application.
+    - Perform the link in the 'Assignments' table to grant immediate access.
     """
     from src.services.identity_service import identity_service
     try:
-        # 1. Obtener app_key dinámicamente según la URL
+        # 1. Obtain app_key dynamically based on URL
         app_key = identity_service.get_app_key_by_url()
         if not app_key:
-            logger.warning("No se pudo determinar app_key para auto-asignación de rol. Abortando.")
+            logger.warning("Could not determine app_key for role auto-assignment. Aborting.")
             return
 
-        # 2. Obtener todos los roles para filtrar localmente (evitar problemas de nombres de columnas)
+        # 2. Get all roles to filter locally (avoid column name issues)
         roles = seatable.sql_query("SELECT * FROM `Roles`", base_data="core_identity")
         
-        # 3. Clasificar roles de la App por su Data Mode
-        # Prioridad buscada: own (menos acceso) > assigned
+        # 3. Classify App roles by their Data Mode
+        # Preferred priority: own (least access) > assigned
         app_roles_by_mode = {"own": [], "assigned": []}
         
         for r in roles:
@@ -579,14 +582,14 @@ def _assign_default_role_to_identity(identity_row_id):
             if not is_match:
                 continue
 
-            # Extraer modo usando la lógica central de IdentityService
+            # Extract mode using IdentityService core logic
             mode = identity_service._extract_data_mode(r.get("Data"))
             
-            # Solo nos interesan 'own' y 'assigned' para auto-asignación
+            # We only care about 'own' and 'assigned' for auto-assignment
             if mode in app_roles_by_mode:
                 app_roles_by_mode[mode].append(r)
 
-        # 4. Seleccionar el rol ganador (el más restringido disponible)
+        # 4. Select the winning role (the most restricted available one)
         winner_role = None
         if app_roles_by_mode["own"]:
             winner_role = app_roles_by_mode["own"][0]
@@ -594,23 +597,23 @@ def _assign_default_role_to_identity(identity_row_id):
             winner_role = app_roles_by_mode["assigned"][0]
 
         if not winner_role:
-            logger.info(f"ℹ️ No se encontró un rol adecuado (own/assigned) para la App {app_key}. No se asignará rol automático.")
+            logger.info(f"ℹ️ No suitable role (own/assigned) found for App {app_key}. No automatic role will be assigned.")
             return
 
         role_id_key = winner_role.get("Role ID")
-        logger.info(f"🎯 Rol seleccionado para auto-asignación: {role_id_key} (Modo: {identity_service._extract_data_mode(winner_role.get('Data'))})")
+        logger.info(f"🎯 Role selected for auto-assignment: {role_id_key} (Mode: {identity_service._extract_data_mode(winner_role.get('Data'))})")
 
-        # 5. Buscar en la tabla Assignments la fila global para ese rol en esa App
+        # 5. Search in the Assignments table for the global row for that role in that App
         query_assig = f"SELECT `_id` FROM `Assignments` WHERE `Role` = '{role_id_key}' AND `App Key` LIKE '%{app_key}%'"
         assignment_rows = seatable.sql_query(query_assig, base_data="core_identity")
         
         if not assignment_rows:
-            logger.warning(f"⚠️ Se identificó el rol {role_id_key} pero no existe un registro en 'Assignments' para esta App.")
+            logger.warning(f"⚠️ Role {role_id_key} identified but no record exists in 'Assignments' for this App.")
             return
             
         assignment_row_id = assignment_rows[0].get('_id')
         
-        # 6. Realizar el vínculo entre Identity y el Assignment
+        # 6. Establish the link between Identity and Assignment
         link_assig_id = seatable.get_column_link_id("Identity", "Assignments", base_data="core_identity")
         seatable.perform_link_operation(
             link_id=link_assig_id,
@@ -621,50 +624,50 @@ def _assign_default_role_to_identity(identity_row_id):
             base_data="core_identity"
         )
 
-        logger.info(f"✅ Identity {identity_row_id} vinculada exitosamente al rol {role_id_key} de la App {app_key}.")
+        logger.info(f"✅ Identity {identity_row_id} successfully linked to role {role_id_key} of App {app_key}.")
         
     except Exception as e:
-        logger.error(f"❌ Error en auto-asignación de rol: {e}")
+        logger.error(f"❌ Error in role auto-assignment: {e}")
         import traceback
         traceback.print_exc()
 
 def _link_identity_to_auth(identity_row_id, auth_row_id):
     """
-    Establece el vínculo inverso en la base de datos entre Identity y Auth Methods.
+    Establishes the reverse link in the database between Identity and Auth Methods.
     
-    Objetivo:
-    - Asegurar que la relación sea bidireccional en SeaTable para facilitar consultas.
-    - Mantener la integridad referencial entre el perfil del usuario y su método de acceso.
+    Objective:
+    - Ensure the relationship is bidirectional in SeaTable to facilitate queries.
+    - Maintain referential integrity between the user profile and their access method.
     """
     try:
-        # Esperar un poco para que SeaTable propague las filas
+        # Wait a bit for SeaTable to propagate rows
 
         link_id = seatable.get_column_link_id("Identity", "Auth Method", base_data="core_identity")
         seatable.perform_link_operation(link_id, identity_row_id, auth_row_id, "Identity", "Auth Methods", base_data="core_identity")
-        print("✅ Vínculo inverso Identity -> Auth Method completado.")
+        print("✅ Identity -> Auth Method reverse link completed.")
     except Exception as e:
-        print(f"⚠️ Error en vínculo inverso: {e}")
+        print(f"⚠️ Error in reverse link: {e}")
 
 
 def process_mock_social_login(provider, email=None):
     """
-    Simula un flujo de autenticación exitoso para propósitos de desarrollo controlado.
+    Simulates a successful authentication flow for controlled development purposes.
     
-    Objetivo:
-    - Facilitar pruebas locales sin dependencia de APIs externas (Google/Microsoft).
-    - Generar un contexto de usuario completo y funcional bajo demanda.
-    - Permitir el bypass de la validación real de credenciales cuando MOCK_AUTH es True.
+    Objective:
+    - Facilitate local testing without dependency on external APIs (Google/Microsoft).
+    - Generate a complete and functional user context on demand.
+    - Allow bypassing real credential validation when MOCK_AUTH is True.
     """
     from flask import session
     
     target_email = email or 'tasamaperez2005@gmail.com'
-    print(f"🛠️ SIMULANDO LOGIN SOCIAL ({provider}) para: {target_email}")
+    print(f"🛠️ SIMULATING SOCIAL LOGIN ({provider}) for: {target_email}")
     
-    # Verificar si el usuario ya existe para no sobreescribir sus nombres reales con los del mock
+    # Check if the user already exists to avoid overwriting their real names with mock ones
     escaped_email = target_email.replace("'", "''")
     existing_auth = seatable.sql_query_one(f"SELECT * FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", base_data="core_identity")
     
-    # Creamos un formato de userinfo compatible con lo que espera insert_user_in_database
+    # We create a userinfo format compatible with what insert_user_in_database expects
     mock_userinfo = {
         'email': target_email,
         'picture': 'https://placehold.co/600x400',
@@ -672,29 +675,29 @@ def process_mock_social_login(provider, email=None):
     }
 
     if not existing_auth:
-        # Solo si es nuevo asignamos los nombres del mockup
+        # Only if new, we assign mock names
         mock_userinfo['given_name'] = 'Anderson'
         mock_userinfo['family_name'] = 'Tasama'
     
-    # Intentamos insertar/actualizar el usuario. 
+    # We try to insert/update the user.
     user = insert_user_in_database(mock_userinfo, provider)
     
     if not user:
-        return {'success': False, 'error': 'Error al crear/obtener usuario mock'}
+        return {'success': False, 'error': 'Error creating/retrieving mock user'}
         
     if isinstance(user, list):
         user = user[0]
         
 
 
-    print(f"🔍 Buscando Auth Methods para vincular sesión...")
+    print(f"🔍 Searching for Auth Methods to link session...")
     
-    # 1. Obtener contexto (Bypass caché para login y forzar provider)
+    # 1. Obtain context (Bypass cache for login and force provider)
     user_context = _get_user_context(mock_userinfo['email'], provider=provider, bypass_cache=True)
     
     if not user_context:
-        print("❌ Error al obtener contexto para usuario mock")
-        return {'success': False, 'error': 'Error obteniendo contexto de usuario'}
+        print("❌ Error obtaining context for mock user")
+        return {'success': False, 'error': 'Error obtaining user context'}
         
     return {'success': True, 'user': user_context}
 
@@ -702,15 +705,15 @@ def process_mock_social_login(provider, email=None):
 
 
 
-# funcion para calcular el display name de la tabla Vendors
+# Function to calculate the display name for the Vendors table
 def calculate_display_name(vendor, banking):
     """
-    Calcula el nombre a mostrar (Display Name) para entidades de negocio.
+    Calculates the display name for business entities.
     
-    Objetivo:
-    - Seguir las reglas de visualización de QuickBooks para proveedores y banca.
-    - Manejar la prioridad entre nombres de personas físicas y razones sociales.
-    - Facilitar la identificación visual clara en dashboards y reportes.
+    Objective:
+    - Follow QuickBooks display rules for vendors and banking.
+    - Handle priority between personal names and business names.
+    - Facilitate clear visual identification in dashboards and reports.
     """
 
     # Nombre completo de vendor
@@ -730,54 +733,54 @@ def calculate_display_name(vendor, banking):
     print("account_name:", account_name)
 
     # --------------------------------------
-    # CASO 1: NO HAY COMPANY → persona física
+    # CASE 1: NO COMPANY → individual
     # --------------------------------------
-    # Caso: vendor es persona física (no tiene company)
+    # Case: vendor is an individual (has no company)
     if not company:
-        # Si cuenta es de la misma persona → display = vendor_full_name
+        # If account belongs to the same person → display = vendor_full_name
         if account_name.lower() == vendor_full_name.lower():
             return vendor_full_name
 
-        # Si cuenta es de un tercero → display = vendor_full_name / account_name
+        # If account belongs to a third party → display = vendor_full_name / account_name
         if account_name:
             return f"{vendor_full_name} / {account_name}"
 
-        # Si no hay account_name por alguna razón
+        # If no account_name for some reason
         return vendor_full_name
 
 
     # --------------------------------------
-    # CASO 2: SÍ hay COMPANY
+    # CASE 2: COMPANY exists
     # --------------------------------------
-    # Escenario 4: empresa = cuenta bancaria
+    # Scenario 4: company = bank account
     if account_name.lower() == company.lower():
         return company
 
-    # Escenarios 2 y 3: empresa y cuenta son diferentes
+    # Scenarios 2 and 3: company and account are different
     if account_name:
         return f"{company} / {account_name}"
 
-    # Si no hay nombre de cuenta → usar solo la empresa
+    # If no account name → use only the company
     return company
 
 
 
 
-# Funcion para enviar el correo de confirmacion de la cuenta manual
-def enviar_email_confirm_manual(email, user_id):
+# Function to send manual account confirmation email
+def send_manual_confirmation_email(email, auth_row_id=None):
     """
-    Gestiona el envío físico del código de confirmación al usuario.
+    Manages the physical dispatch of the confirmation code to the user.
     
-    Objetivo:
-    - Generar un código alfanumérico seguro de 6 caracteres.
-    - Persistir el token y la marca de tiempo en la base de datos de SeaTable.
-    - Construir y enviar un correo electrónico con formato HTML profesional.
+    Objective:
+    - Generate a secure 6-character alphanumeric code.
+    - Persist the token and timestamp in the SeaTable database.
+    - Construct and send an email with professional HTML formatting.
     """
     try:
-        # Generar código de 6 caracteres alfanumérico
+        # Alphanumeric 6-character code generation
         token = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-        # Guardar token en la base de datos y actualizar el timestamp del último envío (local time sin microsegundos)
+        # Save token to database and update last email sent timestamp (local time without microseconds)
         now = datetime.datetime.now().replace(microsecond=0)
         current_time_iso = now.strftime("%Y-%m-%d %H:%M:%S")
         seatable.perform_table_operation(
@@ -787,7 +790,7 @@ def enviar_email_confirm_manual(email, user_id):
                 "Last Email Sent": current_time_iso
             }, 
             type_batch="update_row", 
-            row_id=user_id, 
+            row_id=auth_row_id, 
             base_data="core_identity"
         )
 
@@ -795,7 +798,7 @@ def enviar_email_confirm_manual(email, user_id):
 
         subject = "[Prism Group] Your Account Verification Code"
         
-        # Cuerpo HTML
+        # HTML Body
         body_html = f"""\
         <html>
         <body style="font-family: Arial, Helvetica, sans-serif; background-color: #f4f8fb; padding: 40px; color: #333;">
@@ -828,34 +831,34 @@ def enviar_email_confirm_manual(email, user_id):
         return send_email(email, subject, body_html)
 
     except Exception as e:
-        print(f"❌ No se pudo enviar el correo de confirmación: {e}")
+        print(f"❌ Could not send confirmation email: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def resend_confirmation_email_logic(email, user_id=None):
     """
-    Orquesta el reenvío de códigos de verificación con políticas de protección.
+    Orchestrates the resending of verification codes with protection policies.
     
-    Objetivo:
-    - Implementar un rate limit de 5 minutos entre solicitudes para prevenir abusos.
-    - Asegurar que el usuario realmente requiera verificación antes de proceder.
-    - Manejar la búsqueda fresca de datos para garantizar la integridad del proceso.
+    Objective:
+    - Implement a 5-minute rate limit between requests to prevent abuse.
+    - Ensure the user actually requires verification before proceeding.
+    - Handle fresh data fetching to guarantee process integrity.
     """
     try:
         email = (email or "").lower().strip()
         escaped_email = email.replace("'", "''")
         
-        # 1. Obtener los datos del usuario (siempre consulta fresca)
+        # 1. Get user data (always fresh query)
         if user_id:
             query = f"SELECT * FROM `Auth Methods` WHERE `_id` = '{user_id}'"
         else:
-            # Si no hay ID, buscamos por email y provider Email, priorizando NO verificado y el más reciente basado en el último envío
+            # If no ID, we search by email and Email provider, prioritizing NOT verified and most recent based on last sent
             query = f"SELECT * FROM `Auth Methods` WHERE `Email` = '{escaped_email}' AND `Auth Provider` = 'Email' AND `Verified` = false ORDER BY `Last Email Sent` DESC"
             
         user_rows = seatable.sql_query_one(query, base_data="core_identity")
         
-        # Si no se encuentra como no-verificado, verificamos si ya existe como verificado
+        # If not found as unverified, we check if it already exists as verified
         if not user_rows:
             query_verified = f"SELECT * FROM `Auth Methods` WHERE `Email` = '{escaped_email}' AND `Auth Provider` = 'Email' AND `Verified` = true ORDER BY `Last Email Sent` DESC"
             verified_rows = seatable.sql_query_one(query_verified, base_data="core_identity")
@@ -866,7 +869,7 @@ def resend_confirmation_email_logic(email, user_id=None):
         user_data = user_rows[0]
         user_id_final = user_data.get("_id")
         
-        # 2. Verificar Rate Limit
+        # 2. Check Rate Limit
         last_sent_str = user_data.get('Last Email Sent')
         if last_sent_str:
             try:
@@ -881,17 +884,17 @@ def resend_confirmation_email_logic(email, user_id=None):
                     msg = f"Please wait {wait_seconds // 60}m {wait_seconds % 60}s before requesting another confirmation email."
                     return False, msg, wait_seconds
             except Exception as e:
-                print(f"⚠️ Error verificando rate limit: {e}")
+                print(f"⚠️ Error checking rate limit: {e}")
 
-        # 3. Enviar Correo
-        print(f"DEBUG: Intentando enviar email a {email}")
-        if enviar_email_confirm_manual(email, user_id_final):
+        # 3. Send Email
+        print(f"DEBUG: Attempting to send email to {email}")
+        if send_manual_confirmation_email(email, auth_row_id=user_id_final):
             return True, "Confirmation email sent.", 0
         else:
             return False, "Failed to send confirmation email.", 0
             
     except Exception as e:
-        print(f"❌ Error en resend_confirmation_email_logic: {e}")
+        print(f"❌ Error in resend_confirmation_email_logic: {e}")
         import traceback
         traceback.print_exc()
         return False, f"Internal error: {str(e)}", 0
@@ -899,46 +902,46 @@ def resend_confirmation_email_logic(email, user_id=None):
 
 def confirm_email_manual(token):
     """
-    Valida y procesa la confirmación de una cuenta mediante token.
+    Validates and processes account confirmation via token.
     
-    Objetivo:
-    - Verificar la existencia, coincidencia y vigencia (24h) del token recibido.
-    - Activar el método de autenticación y la identidad del usuario en SeaTable.
-    - Limpiar el token usado para evitar su reutilización.
+    Objective:
+    - Verify the existence, match, and validity (24h) of the received token.
+    - Activate the authentication method and user identity in SeaTable.
+    - Clear the used token to prevent reuse.
     """
     try:
-        print("📩 Iniciando confirm_email_manual() con token:", token)
+        print("📩 Starting confirm_email_manual() with token:", token)
         escaped_token = (token or "").replace("'", "''").strip()
         
-        # 🔹 Buscar el token en la tabla
+        # 🔹 Search for token in the table
         rows = seatable.sql_query(f"SELECT * FROM `Auth Methods` WHERE Token = '{escaped_token}'", base_data="core_identity")
         if not rows:
-            print("❌ Token no encontrado")
+            print("❌ Token not found")
             return False
 
         user_data = rows[0]
         row_id = user_data.get("_id")
         
-        # 🔹 Verificar Expiración (24 horas para confirmación de email)
+        # 🔹 Verify Expiration (24 hours for email confirmation)
         last_sent_str = user_data.get('Last Email Sent')
         if last_sent_str:
             try:
                 last_sent_dt = datetime.datetime.strptime(last_sent_str, "%Y-%m-%d %H:%M:%S")
                 now = datetime.datetime.now()
                 diff = now - last_sent_dt
-                if diff.total_seconds() > 86400:  # 24 horas
-                    print(f"❌ Token expirado ({(diff.total_seconds()/3600):.1f} horas transcurridas)")
+                if diff.total_seconds() > 86400:  # 24 hours
+                    print(f"❌ Token expired ({(diff.total_seconds()/3600):.1f} hours elapsed)")
                     return False
             except Exception as e:
-                print(f"⚠️ Error verificando expiración: {e}")
+                print(f"⚠️ Error checking expiration: {e}")
 
-        # 🔹 Marcar como confirmado y borrar token
-        print("✏️ Actualizando registro en SeaTable...")
+        # 🔹 Mark as confirmed and delete token
+        print("✏️ Updating record in SeaTable...")
         seatable.perform_table_operation("Auth Methods", row_data={"Verified": True, "Token": None}, type_batch="update_row", row_id=row_id, base_data="core_identity")
-        print("✅ Registro actualizado correctamente")    
+        print("✅ Record successfully updated")    
         return True
     except Exception as e:
-        print(f"❌ Error al confirmar el correo: {e}")
+        print(f"❌ Error confirming email: {e}")
         return False
 
 
@@ -948,75 +951,75 @@ def confirm_email_manual(token):
 
 def login_with_password_and_email(email, password, login_type="manual"):
     """
-    Ejecuta la validación de credenciales para el inicio de sesión.
+    Executes credential validation for login.
     
-    Objetivo:
-    - Autenticar al usuario comparando el hash de la contraseña (bcrypt).
-    - Gestionar el bypass para logins sociales simulados en desarrollo.
-    - Interceptar usuarios no verificados para forzar el reenvío del correo de activación.
-    - Retornar el contexto completo del usuario y su registro de autenticación tras el éxito.
+    Objective:
+    - Authenticate user by comparing password hash (bcrypt).
+    - Manage bypass for simulated social logins in development.
+    - Intercept unverified users to force verification email resend.
+    - Return comprehensive user context and authentication record upon success.
     """
     try:
-        # Validar campo email
+        # Validate email field
         if not email:
             return {"status": False, "message": "Email is required", "user": None}
         
-        # Normalizar email a minúsculas
+        # Normalize email to lowercase
         email = email.lower().strip()
-        # Escapar comillas simples en el email para evitar problemas en la consulta SQL
+        # Escape single quotes in email to avoid SQL injection issues
         escaped_email = email.replace("'", "''")
         
-        # Bypass temporal para Google/Microsoft (Test/Dev)
-        # Si es login social simulado, solo verificamos que exista en Auth Methods (sin importar Verified por ahora para facilitar tests, o sí?)
-        # El usuario pidió: "si yo envio... type: "google" o "microsoft" inmediatamente me dejes pasar"
-        # Asumiremos que el email debe existir.
+        # Temporary bypass for Google/Microsoft (Test/Dev)
+        # If simulated social login, we only verify it exists in Auth Methods
+        # The user requested: "if I send... type: 'google' or 'microsoft' let me through immediately"
+        # We assume email must exist.
         
         is_bypass = login_type and login_type.lower() in ["google", "microsoft"]
         
         if is_bypass:
-            print(f"⚠️ LOGIN BYPASS: Tipo '{login_type}' detectado para {email}")
-            # Buscamos usuario sin importar verified para test, o mantenemos verified=True?
-            # Por seguridad básica, exigimos que exista.
+            print(f"⚠️ LOGIN BYPASS: Type '{login_type}' detected for {email}")
+            # We search for user regardless of verified for test
+            # For basic security, we require it to exist.
             user = seatable.sql_query_one(f"SELECT * FROM `Auth Methods` WHERE Email = '{escaped_email}'", base_data="core_identity")
         else:
-            # Login manual estándar
+            # Standard manual login
             if not password:
                  return {"status": False, "message": "Password is required", "user": None}
                  
-            # IMPORTANTE: Filtrar por provider 'Email' y ordenar por Last Email Sent
+            # IMPORTANT: Filter by 'Email' provider and sort by Last Email Sent
             user = seatable.sql_query_one(f"SELECT * FROM `Auth Methods` WHERE Email = '{escaped_email}' AND `Auth Provider` = 'Email' ORDER BY `Last Email Sent` DESC", base_data="core_identity")
 
-        # Verificar que se encontró el usuario
+        # Verify that the user was found
         if not user or not isinstance(user, list) or len(user) == 0:
-            print(f"❌ Usuario no encontrado: {email}")
+            print(f"❌ User not found: {email}")
             return {"status": False, "message": "Email not found.", "user": None}
         
         user_data = user[0]
         
-        # Si no es bypass, verificar si el usuario está confirmado
+        # If not bypass, verify if the user is confirmed
         if not is_bypass:
             is_verified = user_data.get('Verified', False)
             
             if not is_verified:
-                print(f"⚠️ Usuario no verificado: {email}. Verificando contraseña antes de reenviar...")
+                print(f"⚠️ Unverified user: {email}. Verifying password before resending...")
                 
-                # Verificar contraseña antes de reenviar email
+                # Verify password before resending email
                 hashed_password = user_data.get('Password')
                 
                 if not hashed_password:
-                    print("❌ No se encontró la contraseña en el usuario")
-                    return {"status": False, "message": "Password not set for this user", "user": None}
+                    print("❌ Password not found for user")
+                    return {"status": False, "message": t('password_not_set'), "user": None}
                 
                 if not isinstance(hashed_password, str):
                     hashed_password = str(hashed_password)
                 
                 password_bytes = password.encode('utf-8')
                 if not bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8')):
-                     print("❌ Contraseña incorrecta para usuario no verificado")
-                     return {"status": False, "message": "Incorrect password", "user": None}
+                     print("❌ Incorrect password for unverified user")
+                     return {"status": False, "message": t('incorrect_password'), "user": None}
                 
-                # Contraseña correcta, usar lógica de reenvío
-                # LLAMAMOS IGUAL QUE EL BOTÓN "RESEND": solo con el email para que haga su propia consulta fresca
+                # Correct password, use resend logic
+                # SAME CALL AS THE "RESEND" BUTTON: only with email so it does its own fresh query
                 success, message, wait_time = resend_confirmation_email_logic(email)
                 
                 print(f"DEBUG LOGIN: Fresh call to resend logic result: success={success}, wait_time={wait_time}")
@@ -1029,29 +1032,29 @@ def login_with_password_and_email(email, password, login_type="manual"):
                     "user": None
                 }
         
-        # Si el usuario está verificado, continuar con validación de contraseña
+        # If the user is verified, continue with password validation
         if not is_bypass:
-            # Lógica normal de password para usuarios verificados
+            # Normal password logic for verified users
             hashed_password = user_data.get('Password')
             
             if not hashed_password:
-                print("❌ No se encontró la contraseña en el usuario")
-                return {"status": False, "message": "Password not set for this user", "user": None}
+                print("❌ Password not found for user")
+                return {"status": False, "message": t('password_not_set'), "user": None}
             
             if not isinstance(hashed_password, str):
                 hashed_password = str(hashed_password)
             
             password_bytes = password.encode('utf-8')
             if not bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8')):
-                 print("❌ Contraseña incorrecta")
-                 return {"status": False, "message": "Incorrect Password", "user": None}
+                 print("❌ Incorrect password")
+                 return {"status": False, "message": t('incorrect_password'), "user": None}
             
-            print("✅ Contraseña correcta")
+            print("✅ Correct password")
         else:
-            print(f"✅ BYPASS EXITOSO para {email}")
+            print(f"✅ SUCCESSFUL BYPASS for {email}")
 
-        # --- ÉXITO LOGIN ---
-        # 1. Obtener contexto del usuario (En login siempre tiempo real y especificando provider)
+        # --- LOGIN SUCCESS ---
+        # 1. Obtain user context (In login, always real-time and specifying provider)
         user_context = _get_user_context(email, provider="Email", bypass_cache=True)
         if not user_context:
              return {"status": False, "message": "Error retrieving user context", "user": None}
@@ -1064,7 +1067,7 @@ def login_with_password_and_email(email, password, login_type="manual"):
         }
 
     except Exception as e:
-        print(f"❌ Error al iniciar sesión: {e}")
+        print(f"❌ Error logging in: {e}")
         import traceback
         traceback.print_exc()
         return {"status": False, "message": str(e), "user": None}
@@ -1074,42 +1077,42 @@ def login_with_password_and_email(email, password, login_type="manual"):
 # PASSWORD MANAGEMENT FUNCTIONS
 # ============================================================================
 
-def enviar_email_reset_password(email):
+def send_password_reset_email(email):
     """
-    Inicia el flujo de recuperación de contraseña enviando un código al correo.
+    Starts the password recovery flow by sending a code to the email.
     
-    Objetivo:
-    - Validar la existencia y elegibilidad del usuario para el reset de password.
-    - Generar un código de seguridad (token) y registrar el intento en SeaTable.
-    - Aplicar un rate limit de 5 minutos para envíos de correos de recuperación.
-    - Asegurar que la comunicación sea segura y el token tenga vigencia limitada (15m).
+    Objective:
+    - Validate user existence and eligibility for password reset.
+    - Generate a security code (token) and register the attempt in SeaTable.
+    - Apply a 5-minute rate limit for recovery email dispatches.
+    - Ensure communication is secure and the token has limited validity (15m).
     """
     try:
         email = email.lower().strip()
-        # Buscar usuario por email y provider Email, ordenando por Last Email Sent
+        # Search for user by email and Email provider, sorting by Last Email Sent
         escaped_email = email.replace("'", "''")
         user = seatable.sql_query_one(f"SELECT * FROM `Auth Methods` WHERE Email = '{escaped_email}' AND `Auth Provider` = 'Email' ORDER BY `Last Email Sent` DESC", base_data="core_identity")
         
-        # Verificar que el usuario exista y esté confirmado
+        # Verify that the user exists and is confirmed
         if not user or not isinstance(user, list) or len(user) == 0:
-            # Por seguridad, no revelar si el email existe o no
-            print(f"⚠️ Intento de reset de contraseña para email no encontrado o no confirmado: {email}")
-            return {"status": True, "message": "If the email exists, a password reset link has been sent."}
+            # For security, do not reveal if the email exists or not
+            print(f"⚠️ Password reset attempt for non-existent or unconfirmed email: {email}")
+            return {"status": True, "message": t('password_reset_sent')}
         
         user_data = user[0]
         user_id = user_data.get('_id')
         
         if not user_id:
-            print("❌ No se encontró el ID del usuario")
-            return {"status": False, "message": "Error processing request"}
+            print("❌ User ID not found")
+            return {"status": False, "message": t('error_processing_request')}
         
-        # Verificar que el usuario tenga un Auth Provider que permita reset de contraseña (Solo Email)
+        # Verify that the user has an Auth Provider that allows password reset (Email Only)
         auth_provider = user_data.get('Auth Provider', 'Email')
         if auth_provider and auth_provider.lower() != 'email':
-            print(f"⚠️ Intento de reset de contraseña para usuario OAuth: {email} ({auth_provider})")
-            return {"status": True, "message": "If the email exists, a password reset link has been sent."}
+            print(f"⚠️ Password reset attempt for OAuth user: {email} ({auth_provider})")
+            return {"status": True, "message": t('password_reset_sent')}
         
-        # Verificar Rate Limit para reset de contraseña (5 minutos)
+        # Check Rate Limit for password reset (5 minutes)
         last_sent_str = user_data.get('Last Email Sent')
         if last_sent_str:
             try:
@@ -1118,19 +1121,19 @@ def enviar_email_reset_password(email):
                 diff = now - last_sent_dt
                 if diff.total_seconds() < 300:
                     wait_seconds = int(300 - diff.total_seconds())
-                    print(f"⚠️ Rate limit activo para reset-password de {email}. Faltan {wait_seconds} segundos.")
+                    print(f"⚠️ Rate limit active for reset-password of {email}. {wait_seconds} seconds remaining.")
                     return {
                         "status": True,
-                        "message": f"Please wait {wait_seconds // 60}m {wait_seconds % 60}s before requesting another link.",
+                        "message": t('wait_before_requesting', wait_seconds=f"{wait_seconds // 60}m {wait_seconds % 60}s"),
                         "wait_seconds": wait_seconds
                     }
             except Exception as e:
-                print(f"⚠️ Error verificando rate limit en reset: {e}")
+                print(f"⚠️ Error checking rate limit on reset: {e}")
         
-        # Generar código de 6 caracteres alfanumérico para el reset
+        # Generate a 6-character alphanumeric code for the reset
         reset_token = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-        # Guardar token en la base de datos y actualizar Last Email Sent
+        # Save token to the database and update Last Email Sent
         current_time_iso = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         seatable.perform_table_operation(
             "Auth Methods", 
@@ -1164,21 +1167,21 @@ def enviar_email_reset_password(email):
         </html>
         """
         
-        # Enviar correo usando la función genérica
+        # Send email using generic function
         email_sent = send_email(email, subject, body_html)
         
         if email_sent:
-            print(f"✅ Correo de reset de contraseña enviado a: {email}")
+            print(f"✅ Password reset email sent to: {email}")
             return {
                 "status": True, 
-                "message": "If the email exists, a password reset link has been sent.",
+                "message": t('password_reset_sent'),
                 "wait_seconds": 0
             }
         else:
             return {"status": False, "message": "Error sending reset email"}
         
     except Exception as e:
-        print(f"❌ Error al enviar correo de reset de contraseña: {e}")
+        print(f"❌ Error sending password reset email: {e}")
         import traceback
         traceback.print_exc()
         return {"status": False, "message": "Error sending reset email"}
@@ -1186,15 +1189,15 @@ def enviar_email_reset_password(email):
 
 def reset_password_with_token(token, new_password):
     """
-    Completa el cambio de contraseña utilizando el token de seguridad.
+    Completes the password change using the security token.
     
-    Objetivo:
-    - Validar la fortaleza de la nueva contraseña y la validez del token de reset.
-    - Actualizar el hash de la contraseña en SeaTable y anular el token usado.
-    - Identificar sesiones activas vinculadas para que el frontend pueda informarlas.
+    Objective:
+    - Validate the strength of the new password and the reset token's validity.
+    - Update the password hash in SeaTable and void the used token.
+    - Identify active linked sessions so the frontend can report them.
     """
     try:
-        # 0. Validar fortaleza de la contraseña
+        # 0. Validate password strength
         is_strong, msg = validate_password_strength(new_password)
         if not is_strong:
             return {"status": False, "message": msg}
@@ -1219,23 +1222,23 @@ def reset_password_with_token(token, new_password):
             user_data = user_data[0] if user_data else None
 
         if not user_data or not isinstance(user_data, dict):
-            return {"status": False, "message": "Invalid or expired reset code"}
+            return {"status": False, "message": t('invalid_reset_code')}
 
-        # Verificar Expiración (15 minutos) basada en Last Email Sent
+        # Verify Expiration (15 minutes) based on Last Email Sent
         last_sent_str = user_data.get('Last Email Sent')
         if last_sent_str:
             try:
                 last_sent_dt = datetime.datetime.strptime(last_sent_str, "%Y-%m-%d %H:%M:%S")
-                # Comparar con hora local para consistencia
+                # Compare with local time for consistency
                 now = datetime.datetime.now()
                 diff = now - last_sent_dt
                 if diff.total_seconds() > 900:  # 15 minutos
                     return {"status": False, "message": "The reset code has expired"}
             except Exception as e:
-                print(f"⚠️ Error verificando expiración de token: {e}")
+                print(f"⚠️ Error checking token expiration: {e}")
         else:
-            # Si no hay fecha de envío, algo está mal
-            return {"status": False, "message": "Invalid reset code status"}
+            # If no sent date, something is wrong
+            return {"status": False, "message": t('invalid_reset_status')}
 
        
 
@@ -1259,18 +1262,18 @@ def reset_password_with_token(token, new_password):
         if not update_result:
             return {"status": False, "message": "Failed to reset password"}
 
-        # 🔹 Obtener sesiones activas para informar al usuario
+        # 🔹 Obtain active sessions to inform the user
         active_sessions = []
         try:
-            # Usar el ID personalizado (literal) tal como pidió el usuario
+            # Use the custom ID (literal) as requested by the user
             custom_auth_id = user_data.get("ID")
-            # Buscamos sesiones activas vinculadas a este Auth Method
+            # Search for active sessions linked to this Auth Method
             query_sessions = f"SELECT _id, IP, `Device Name`, `Expiration Date` FROM `Sessions` WHERE `Auth Method` = '{custom_auth_id}' AND `Status` = 'Active' ORDER BY `Expiration Date` DESC"
             sessions_res = seatable.sql_query(query_sessions, base_data="core_identity")
             if sessions_res and isinstance(sessions_res, list):
                 active_sessions = sessions_res
         except Exception as e:
-            print(f"⚠️ Error recuperando sesiones activas: {e}")
+            print(f"⚠️ Error retrieving active sessions: {e}")
 
         return {
             "status": True, 
@@ -1289,17 +1292,17 @@ def reset_password_with_token(token, new_password):
 
 def get_google_oauth_url():
     """
-    Construye la URL de autorización para el inicio de sesión con Google.
+    Constructs the authorization URL for Google login.
     
-    Objetivo:
-    - Generar un estado (state) seguro para prevenir ataques CSRF.
-    - Configurar los scopes necesarios (openid, email, profile) para recuperar la identidad.
-    - Definir la redirect_uri basada en la configuración global del sistema.
+    Objective:
+    - Generate a secure state token to prevent CSRF attacks.
+    - Configure necessary scopes (openid, email, profile) to retrieve identity.
+    - Define the redirect_uri based on global system configuration.
     """
     state = secrets.token_urlsafe(32)
     print(f"Generated OAuth state: {state}")
     
-    # Para OAuth usamos el dominio configurado en el .env porque debe coincidir con la whitelist de Google
+    # For OAuth, we use the domain configured in .env because it must match Google's whitelist
     domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
     redirect_uri = f'{domain}/api/auth/callback'
     print(f"DEBUG: Google Redirect URI: {redirect_uri}")
@@ -1321,17 +1324,17 @@ def get_google_oauth_url():
 
 def get_microsoft_oauth_url():
     """
-    Construye la URL de autorización para el inicio de sesión con Microsoft.
+    Constructs the authorization URL for Microsoft login.
     
-    Objetivo:
-    - Configurar el flujo OAuth2 de Microsoft Azure AD.
-    - Solicitar permisos de lectura de perfil (User.Read) y correo electrónico.
-    - Gestionar el estado de la sesión mediante un token aleatorio único.
+    Objective:
+    - Configure Microsoft Azure AD OAuth2 flow.
+    - Request profile read permissions (User.Read) and email.
+    - Manage session state using a unique random token.
     """
     state = secrets.token_urlsafe(32)
     print(f"[MICROSOFT] Generated OAuth state: {state}")
     
-    # Para OAuth usamos el dominio configurado en el .env porque debe coincidir con la whitelist de Microsoft
+    # For OAuth, we use the domain configured in .env because it must match Microsoft's whitelist
     domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
     redirect_uri = f'{domain}/api/auth/microsoft/callback'
     print(f"DEBUG: Microsoft Redirect URI: {redirect_uri}")
@@ -1353,13 +1356,13 @@ def get_microsoft_oauth_url():
 
 def register_manual_user(userinfo):
     """
-    Orquesta el registro de un nuevo usuario mediante el proveedor por correo.
+    Orchestrates the registration of a new user via the email provider.
     
-    Objetivo:
-    - Validar obligatoriedad y fortaleza de credenciales antes de la persistencia.
-    - Detectar usuarios existentes para evitar duplicidad o sugerir reenvío de activación.
-    - Iniciar la creación física en base de datos y disparar el primer correo de confirmación.
-    - Retornar el punto de redirección adecuado según el estado del registro.
+    Objective:
+    - Validate mandatory fields and credential strength before persistence.
+    - Detect existing users to prevent duplication or suggest activation resend.
+    - Initiate physical creation in the database and trigger the first confirmation email.
+    - Return the appropriate redirection point according to the registration status.
     """
     try:
         email = userinfo.get('email')
@@ -1367,29 +1370,29 @@ def register_manual_user(userinfo):
         first_name = userinfo.get('given_name') or userinfo.get('firstName')
         last_name = userinfo.get('family_name') or userinfo.get('lastName')
 
-        # 1. VALIDACIONES CRÍTICAS
+        # 1. CRITICAL VALIDATIONS
         if not email:
-            return {'success': False, 'error': 'El correo electrónico es obligatorio'}
+            return {'success': False, 'error': t('email_required')}
         
-        # Si es un registro manual (Email), validamos campos obligatorios
+        # If it's a manual registration (Email), we validate mandatory fields
         if not password:
-            return {'success': False, 'error': 'La contraseña es obligatoria para el registro por email'}
+            return {'success': False, 'error': t('password_required_email_reg')}
         
-        # Validar fortaleza de la contraseña
+        # Validate password strength
         is_strong, msg = validate_password_strength(password)
         if not is_strong:
-            return {'success': False, 'error': msg}
+            return {'success': False, 'error': msg} # Assuming validate_password_strength returns translated or simple msg
         
         if not first_name or not last_name:
-            return {'success': False, 'error': 'El nombre y apellido son obligatorios'}
+            return {'success': False, 'error': t('first_last_name_required')}
 
-        # Normalizamos nombres para insert_user_in_database
+        # Normalize names for insert_user_in_database
         userinfo['given_name'] = first_name
         userinfo['family_name'] = last_name
     
         
-        # Verificar si el correo ya está registrado
-        # Escapamos comillas por seguridad
+        # Check if email is already registered
+        # Escape quotes for security
         escaped_email = email.replace("'", "''")
         
         user_rows = seatable.sql_query_one(
@@ -1398,20 +1401,20 @@ def register_manual_user(userinfo):
         
         if user_rows:
             existing_user = user_rows[0]
-            # Si existe, verificamos el estado
+            # If exists, check status
             is_verified = existing_user.get('Verified')
             provider = existing_user.get('Auth Provider')
             
-            # Si ya está verificado, o es de otro provider (Google/MS), bloqueamos
+            # If already verified or from another provider (Google/MS), block
             if is_verified:
-                print(f"👤 Este Correo ya esta Registrado y Verificado ({provider})")
-                return {'success': False, 'error': 'Este Correo ya esta Registrado'}
+                print(f"👤 This email is already Registered and Verified ({provider})")
+                return {'success': False, 'error': t('email_already_registered')}
             
-            # Si EXISTE pero NO está verificado y es Email provider, permitimos "sobreescribir/reenviar"
+            # If EXISTS but NOT verified and is Email provider, allow "overwrite/resend"
             if provider == 'Email':
-                print(f"ℹ️ Usuario existe pero NO está verificado. Reintentando registro/reenvío.")
-                # Verificar Rate Limit antes de reenviar en registro
-                # PASAMOS EL _id para precisión
+                print(f"ℹ️ User exists but is NOT verified. Retrying registration/resend.")
+                # Check Rate Limit before resending in registration
+                # Pass _id for precision
                 success, message, wait_time = resend_confirmation_email_logic(email, user_id=existing_user.get("_id"))
                 if success:
                     return {
@@ -1424,15 +1427,15 @@ def register_manual_user(userinfo):
                 else:
                     return {
                         'success': True, 
-                        'message': message, 
-                        'wait_seconds': wait_time,
-                        'redirect_url': '/esperando-confirmacion'
+                        'message': t('wait_before_requesting', wait_seconds=f"{wait_time // 60}m {wait_time % 60}s"),
+                        'redirect_url': '/esperando-confirmacion',
+                        'wait_seconds': wait_time
                     }
             else:
-                # Caso raro: No verificado pero provider distinto? Bloqueamos por si acaso
-                return {'success': False, 'error': f'Este Correo ya esta registrado con {provider}'}
+                # Rare case: Not verified but different provider? Block just in case
+                return {'success': False, 'error': t('email_registered_with', provider=provider)}
         
-        print(f"👤 Procediendo con registro/actualización de usuario")
+        print(f"👤 Proceeding with user registration/update")
         
         user = insert_user_in_database(userinfo, "Email")
         print('user:', user)
@@ -1440,20 +1443,20 @@ def register_manual_user(userinfo):
         if isinstance(user, list) and len(user) > 0:
             user = user[0]
         
-        # Al ser usuario nuevo, enviamos directamente (enviar_email_confirm_manual ya pone el Last Email Sent)
-        if enviar_email_confirm_manual(email, user['_id']):
+        # Since it's a new user, send directly (enviar_email_confirm_manual already sets Last Email Sent)
+        if send_manual_confirmation_email(email, user['_id']):
             return {
                 'success': True, 
                 'user': user, 
                 'redirect_url': '/esperando-confirmacion',
-                'message': 'Confirmation email sent.',
+                'message': t('confirmation_email_sent'),
                 'wait_seconds': 0
             }
         else:
-            return {'success': False, 'error': 'Error al enviar el correo de confirmación'}
+            return {'success': False, 'error': t('error_sending_confirmation')}
             
     except Exception as e:
-        print(f"❌ Error en register_manual_user: {e}")
+        print(f"❌ Error in register_manual_user: {e}")
         import traceback
         traceback.print_exc()
         return {'success': False, 'error': str(e)}
@@ -1461,13 +1464,13 @@ def register_manual_user(userinfo):
 
 def process_google_callback(code, state, expected_state):
     """
-    Procesa el retorno de Google tras la autorización exitosa del usuario.
+    Processes the Google return after successful user authorization.
     
-    Objetivo:
-    - Validar la integridad del flujo mediante la comparación de estados (CSRF Protection).
-    - Intercambiar el código de autorización por un Access Token de Google.
-    - Recuperar y normalizar el perfil del usuario para su sincronización en SeaTable.
-    - Establecer la sesión inicial de Flask y retornar el contexto de identidad.
+    Objective:
+    - Validate flow integrity by comparing states (CSRF Protection).
+    - Exchange the authorization code for a Google Access Token.
+    - Retrieve and normalize the user profile for SeaTable synchronization.
+    - Establish the initial Flask session and return the identity context.
     """
     try:
         if state != expected_state:
@@ -1509,7 +1512,7 @@ def process_google_callback(code, state, expected_state):
         # Create or update user
         auth_row = insert_user_in_database(userinfo, "Google")
         
-        # Sincronizar con Identity
+        # Synchronize with Identity
         if isinstance(auth_row, list):
             auth_row = auth_row[0]
             
@@ -1538,12 +1541,12 @@ def process_google_callback(code, state, expected_state):
 
 def process_microsoft_callback(code, state, expected_state):
     """
-    Procesa el retorno de Microsoft tras la autorización del usuario.
+    Processes the Microsoft return after user authorization.
     
-    Objetivo:
-    - Autenticar el flujo mediante el intercambio de códigos por tokens de Microsoft Graph.
-    - Sincronizar el perfil del usuario (Azure AD) con la base de datos de identidades.
-    - Gestionar la persistencia de la sesión y la transición de vuelta a la app.
+    Objective:
+    - Authenticate the flow by exchanging codes for Microsoft Graph tokens.
+    - Synchronize the user profile (Azure AD) with the identity database.
+    - Manage session persistence and the transition back to the app.
     """
     try:
         if state != expected_state:
@@ -1571,28 +1574,28 @@ def process_microsoft_callback(code, state, expected_state):
         
         access_token = token_json.get("access_token")
         
-        # Obtener datos del usuario desde Graph
+        # Get user data from Graph
         graph_user_url = "https://graph.microsoft.com/v1.0/me"
         headers = {"Authorization": f"Bearer {access_token}"}
         graph_res = requests.get(graph_user_url, headers=headers)
         userinfo = graph_res.json()
         print(f"Voy a imprimir lo que me suelta Microsoft {userinfo}")
         
-        # Normalizar campos
+        # Normalize fields
         final_userinfo = {
             "email": userinfo.get("mail") or userinfo.get("userPrincipalName"),
             "given_name": userinfo.get("givenName"),
             "family_name": userinfo.get("surname"),
         }
         
-        # Insertar usuario
+        # Insert user
         auth_row = insert_user_in_database(final_userinfo, "Microsoft")
         
-        # Normalizar user
+        # Normalize user
         if isinstance(auth_row, list):
             auth_row = auth_row[0]
 
-        # Obtener contexto inyectando el resultado previo para ahorrar query
+        # Obtain context injecting the previous result to save a query
         u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row)
         
         return {'success': True, 'user': u_final}
@@ -1605,19 +1608,19 @@ def process_microsoft_callback(code, state, expected_state):
 
 def prepare_session_data(user):
     """
-    Prepara el diccionario de datos de sesión para ser almacenado en Flask Session.
+    Prepares the session data dictionary to be stored in Flask Session.
     
-    Objetivo:
-    - Centralizar la estructura de datos que se guarda en la cookie de sesión.
-    - Resolver vínculos críticos (Identity, Collaborator) para tenerlos disponibles en cada petición.
-    - Asegurar que el 'vendor_email' sea siempre el correo primario del usuario.
+    Objective:
+    - Centralize the data structure stored in the session cookie.
+    - Resolve critical links (Identity, Collaborator) to have them available in each request.
+    - Ensure 'vendor_email' is always the user's primary email.
     """
-    # Optimizamos: Si el objeto 'user' ya trae la identidad (link),
-    # intentamos usar esos datos para evitar llamadas SQL repetitivas.
+    # We optimize: If the 'user' object already brings the identity (link),
+    # we try to use that data to avoid repetitive SQL calls.
     
     identity_links = user.get('Identity', [])
     if not identity_links:
-        # Fallback: No podemos preparar sesión completa sin identidad vinculada
+        # Fallback: We cannot prepare a complete session without a linked identity
         return {
             'user_id': user.get('_id'),
             'row_auth_methods': user.get('_id'),
@@ -1628,7 +1631,7 @@ def prepare_session_data(user):
     identity_row_id = identity_links[0].get('row_id')
     identity_display = identity_links[0].get('display_value')
 
-    # Roles (Ya no se obtienen de Identity.Role, se manejarán vía Assignments y Permisos)
+    # Roles (No longer obtained from Identity.Role, handled via Assignments and Permissions)
     roles_list = []
 
     # Collaborator Info
@@ -1654,12 +1657,12 @@ def prepare_session_data(user):
 
 def change_password_service(user_email, current_password, new_password, user):
     """
-    Servicio encargado de la actualización segura de contraseñas.
+    Service in charge of secure password updates.
     
-    Objetivo:
-    - Validar que la contraseña actual sea correcta antes de permitir el cambio.
-    - Asegurar que la nueva contraseña cumpla con los requisitos de fortaleza.
-    - Actualizar de forma atómica el hash en SeaTable.
+    Objective:
+    - Validate current password is correct before allowing the change.
+    - Ensure the new password meets strength requirements.
+    - Atomically update the hash in SeaTable.
     """
     """
     Cambia la contraseña del usuario autenticado.
@@ -1674,7 +1677,7 @@ def change_password_service(user_email, current_password, new_password, user):
         dict: {'success': bool, 'message': str}
     """
     try:
-        # Validar fortaleza de la contraseña
+        # Validate password strength
         is_strong, msg = validate_password_strength(new_password)
         if not is_strong:
             return {'success': False, 'message': msg}
@@ -1689,8 +1692,8 @@ def change_password_service(user_email, current_password, new_password, user):
 
         user_record = user_data[0]
         
-        # Verificar que el usuario tenga un Auth Provider que permita cambio de contraseña
-        # Solo permitimos cambio de contraseña a usuarios del proveedor 'Email'
+        # Verify that the user has an Auth Provider that allows password change
+        # We only allow password changes for users of the 'Email' provider
         auth_provider = user_record.get('Auth Provider', '')
         if auth_provider and auth_provider.lower() != 'email':
             return {
@@ -1702,21 +1705,21 @@ def change_password_service(user_email, current_password, new_password, user):
         if not stored_password:
             return {'success': False, 'message': 'No password found for this user. Please contact support.'}
         
-        # Verificar que la contraseña actual sea correcta
+        # Verify that the current password is correct
         password_bytes = current_password.encode('utf-8')
         if not bcrypt.checkpw(password_bytes, stored_password.encode('utf-8')):
             return {'success': False, 'message': 'Current password is incorrect'}
         
-        # Verificar que la nueva contraseña sea diferente a la actual
+        # Verify that the new password is different from the current one
         if bcrypt.checkpw(new_password.encode('utf-8'), stored_password.encode('utf-8')):
             return {'success': False, 'message': 'New password must be different from current password'}
         
-        # Hashear la nueva contraseña
+        # Hash the new password
         new_password_bytes = new_password.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed_new_password = bcrypt.hashpw(new_password_bytes, salt)
         
-        # Actualizar la contraseña en Seatable
+        # Update password in Seatable
         user_id = user_data[0].get('_id')
         if not user_id:
             return {'success': False, 'message': 'User ID not found'}
@@ -1730,14 +1733,14 @@ def change_password_service(user_email, current_password, new_password, user):
         )
         
         if update_result:
-            print(f"✅ Contraseña actualizada exitosamente para el usuario: {user_email}")
-            return {'success': True, 'message': 'Password changed successfully'}
+            print(f"✅ Password successfully updated for user: {user_email}")
+            return {'success': True, 'message': t('password_changed_success')}
         else:
-            print(f"❌ Error al actualizar la contraseña para el usuario: {user_email}")
-            return {'success': False, 'message': 'Failed to update password'}
+            print(f"❌ Error updating password for user: {user_email}")
+            return {'success': False, 'message': t('password_update_failed')}
             
     except Exception as e:
-        print(f"❌ Error al cambiar la contraseña: {e}")
+        print(f"❌ Error changing password: {e}")
         import traceback
         traceback.print_exc()
         return {'success': False, 'message': f'An error occurred while changing password: {str(e)}'}
@@ -1745,11 +1748,11 @@ def change_password_service(user_email, current_password, new_password, user):
 
 def get_roles_from_identity(identity_row_id):
     """
-    Recupera los roles asociados a una identidad.
+    Retrieves the roles associated with an identity.
     
-    Objetivo:
-    - Obtener el campo 'Vendor ID' que funciona como referencia a los roles del usuario.
-    - Servir de base para la resolución de permisos en el flujo de sesión.
+    Objective:
+    - Get the 'Vendor ID' field that functions as a reference to user roles.
+    - Serve as a basis for permission resolution in the session flow.
     """
 
     roles = seatable.sql_query_one(
@@ -1761,12 +1764,12 @@ def get_roles_from_identity(identity_row_id):
 
 def get_collaborator_info_from_identity(identity_row_id):
     """
-    Obtiene la información detallada de los colaboradores vinculados a una identidad.
+    Obtains detailed information on collaborators linked to an identity.
     
-    Objetivo:
-    - Resolver la relación entre una Identidad y sus registros en la tabla Collaborators.
-    - Extraer el 'Seatable User' y el correo electrónico para uso en lógica de negocio y UI.
-    - Normalizar la respuesta para facilitar su consumo en el contexto del usuario.
+    Objective:
+    - Resolve the relationship between an Identity and its records in the Collaborators table.
+    - Extract the 'Seatable User' and email for use in business logic and UI.
+    - Normalize the response to facilitate its consumption in the user's context.
     """
     row = seatable.sql_query_one(
         f"SELECT `Collaborator ID` FROM `Identity` WHERE `_id` = '{identity_row_id}'",
@@ -1774,7 +1777,7 @@ def get_collaborator_info_from_identity(identity_row_id):
     )
 
     if not row:
-        print(f"⚠️ No se encontró Identity con _id={identity_row_id}")
+        print(f"⚠️ Identity not found with _id={identity_row_id}")
         return []
 
     if isinstance(row, list):
@@ -1788,7 +1791,7 @@ def get_collaborator_info_from_identity(identity_row_id):
     if not row_ids:
         return []
 
-    # Consultar la tabla Collaborators para obtener detalles adicionales
+    # Query the Collaborators table for additional details
     ids_str = "', '".join(row_ids)
     collab_details = seatable.sql_query(
         f"SELECT `_id`, `Seatable User`, `Email address` FROM `Collaborators` WHERE `_id` IN ('{ids_str}')",
@@ -1808,11 +1811,11 @@ def get_collaborator_info_from_identity(identity_row_id):
 
 def get_email_primary_from_auth(identity_id):
     """
-    Identifica el correo electrónico marcado como primario para una identidad específica.
+    Identifies the email marked as primary for a specific identity.
     
-    Objetivo:
-    - Asegurar que las comunicaciones y la identificación de sesión usen el correo principal.
-    - Manejar la lógica de 'Is Primary' en la tabla Auth Methods.
+    Objective:
+    - Ensure communications and session identification use the main email.
+    - Manage the 'Is Primary' logic in the Auth Methods table.
     """
 
 
@@ -1821,9 +1824,9 @@ def get_email_primary_from_auth(identity_id):
         base_data="core_identity"
     )
 
-    # sql_query_one a veces retorna dict y a veces lista; normalizamos
+    # sql_query_one sometimes returns a dict and sometimes a list; normalize
     if not row:
-        print(f"⚠️ No se encontró Identity con id={identity_id}")
+        print(f"⚠️ Identity not found with id={identity_id}")
         return []
 
     if isinstance(row, list):
@@ -1835,12 +1838,12 @@ def get_email_primary_from_auth(identity_id):
 
 def get_debug_user_info(email, current_url=None):
     """
-    Recolecta información exhaustiva de Core Identity para fines de diagnóstico técnico.
+    Collects comprehensive Core Identity information for technical diagnostic purposes.
     
-    Objetivo:
-    - Mapear la relación completa entre Identity, Auth Methods y Assignments.
-    - Mostrar qué App Key se está detectando y qué permisos resultan de esa app.
-    - Visualizar el estado de la cuenta y los metadatos de creación para depuración.
+    Objective:
+    - Map the complete relationship between Identity, Auth Methods, and Assignments.
+    - Show which App Key is being detected and what permissions result from that app.
+    - Visualize the account status and creation metadata for debugging.
     """
     from src.services.identity_service import identity_service
     
@@ -1852,7 +1855,7 @@ def get_debug_user_info(email, current_url=None):
         "roles": []
     }
     
-    # 1. Buscar en Auth Methods para obtener la Identity vinculada
+    # 1. Search in Auth Methods to get the linked Identity
     escaped_email = email.replace("'", "''")
     auth_rows = seatable.sql_query(
         f"SELECT `Identity`, `Email`, `ID` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", 
@@ -1869,11 +1872,11 @@ def get_debug_user_info(email, current_url=None):
     identity_id = identity_links[0].get("row_id")
     user_email = auth_rows[0].get("Email")
 
-    # 2. Obtener App Key según la URL (si se proporciona)
+    # 2. Obtain App Key according to the URL (if provided)
     app_key = identity_service.get_app_key_by_url(current_url)
     debug_data["app_key"] = app_key
 
-    # 3. Cargar Identity con Assignments Expandidos
+    # 3. Load Identity with Expanded Assignments
     identity_expanded = identity_service.get_identity_with_assignments(identity_id, user_email=user_email, app_key=app_key)
     if not identity_expanded:
         return debug_data
@@ -1888,15 +1891,15 @@ def get_debug_user_info(email, current_url=None):
     debug_data["assignments"] = identity_expanded.get("Assignments", [])
     debug_data["roles"] = identity_expanded.get("Role", [])
     debug_data["auth_method_id"] = auth_rows[0].get("ID")
-    # 4. Obtener Permisos filtrados por App Key (incluye Action Key)
-    # Si no hay app_key, los permisos no se pueden filtrar por app, pero los mostramos vacíos con aviso
+    # 4. Obtain Permissions filtered by App Key (includes Action Key)
+    # If there is no app_key, permissions cannot be filtered by app, but we show them empty with a notice
     if app_key:
         auth_info = identity_service.get_identity_permissions(identity_id, app_key, identity_row=identity_expanded, user_email=user_email)
         debug_data["permissions"] = auth_info.get("permissions", [])
         debug_data["data_mode"] = auth_info.get("data_mode")
         debug_data["data_mode_info"] = auth_info.get("data_mode_info")
     else:
-        debug_data["permissions_note"] = "No se detectó App Key para la URL, los permisos no se filtraron."
+        debug_data["permissions_note"] = "App Key not detected for the URL, permissions were not filtered."
 
     return debug_data
 
@@ -1906,62 +1909,62 @@ def get_debug_user_info(email, current_url=None):
 
 def verify_session(email=None, token=None):
     """
-    Motor de validación de vigencia de sesiones.
+    Session validity validation engine.
     
-    Objetivo:
-    - Comprobar la existencia y el estado 'Active' de una sesión en SeaTable.
-    - Utilizar una caché de validación para minimizar el impacto en la base de datos.
-    - Retornar el estado detallado de la sesión y metadatos básicos del usuario.
+    Objective:
+    - Check the existence and 'Active' status of a session in SeaTable.
+    - Use a validation cache to minimize impact on the database.
+    - Return detailed session status and basic user metadata.
     """
-    # Soporte para Bearer puro: Si no viene email, intentamos sacarlo del token
+    # Pure Bearer support: If no email is provided, we try to extract it from the token
     if not email and token:
         try:
-            # Decodificación ligera solo para sacar el email antes de la validación completa
+            # Lightweight decoding only to extract the email before full validation
             decoded_temp = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"], options={"verify_exp": False})
             email = decoded_temp.get("email")
             if not email:
-                return {"success": False, "message": "Token malformado: no contiene email"}
+                return {"success": False, "message": t('token_not_belong_user')} # Or more appropriate key
         except Exception:
-            return {"success": False, "message": "Token inválido o corrupto"}
+            return {"success": False, "message": t('invalid_token', error='corrupt')}
     """
-    Centro de validación de sesión (Lightweight).
-    - Usa caché de 15 minutos para evitar redundancia.
-    - 1 Query a Sessions: Valida existencia, status del token y status de Identidad (vía Link).
+    Session validation center (Lightweight).
+    - Uses 15-minute cache to avoid redundancy.
+    - 1 Query to Sessions: Validates existence, token status, and Identity status (via Link).
     """
     try:
         if not email or not token:
-            return {"success": False, "message": "Email y Token son requeridos"}
+            return {"success": False, "message": t('all_fields_required')}
 
-        # 0. Verificar Caché de Sesión
+        # 0. Check Session Cache
         now = time.time()
         cache_key = (email, token)
         if cache_key in _SESSION_VALIDATION_CACHE:
             ts, cached_res = _SESSION_VALIDATION_CACHE[cache_key]
             if now - ts < _SESSION_TTL:
-                # print(f"🚀 SESSION CACHE HIT para {email}")
+                # print(f"🚀 SESSION CACHE HIT for {email}")
                 return cached_res
 
-        # 1. Buscar token en Sessions (Paso de seguridad real-time pero con 1 consulta menos)
-        # Traemos 'Auth Method' para poder verificar el status real de la cuenta después
+        # 1. Search for token in Sessions (Real-time security step but with 1 less query)
+        # We bring 'Auth Method' to be able to verify the real status of the account later
         query = f"SELECT `_id`, `Status`, `Token`, `Auth Method` FROM `Sessions` WHERE `Token` = '{token}'"
         session_rows = seatable.sql_query(query, base_data="core_identity")
         
         if not session_rows:
-            return {"success": False, "message": "Sesión no encontrada en el servidor"}
+            return {"success": False, "message": t('session_not_found')}
 
         sess = session_rows[0]
         if sess.get("Status") == "Expired":
-            return {"success": False, "message": "Session has expired", "expired": True}
+            return {"success": False, "message": t('session_expired'), "expired": True}
         
-        # 2. Validar JWT y extraer Identity ID
+        # 2. Validate JWT and extract Identity ID
         try:
             decoded = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
             if decoded.get("email") != email:
-                return {"success": False, "message": "El token no pertenece a este usuario"}
+                return {"success": False, "message": t('token_not_belong_user')}
             
             identity_id = decoded.get("identity_id") or decoded.get("user_id")
         except jwt.ExpiredSignatureError:
-            # Marcar como Expired en DB
+            # Mark as Expired in DB
             seatable.perform_table_operation(
                 table_name="Sessions",
                 row_id=sess["_id"],
@@ -1969,11 +1972,11 @@ def verify_session(email=None, token=None):
                 type_batch="update_row",
                 base_data="core_identity"
             )
-            return {"success": False, "message": "Session has expired", "expired": True}
+            return {"success": False, "message": t('session_expired'), "expired": True}
         except Exception as e:
-            return {"success": False, "message": f"Token inválido: {str(e)}"}
+            return {"success": False, "message": t('invalid_token', error=str(e))}
 
-        # 3. Verificar Status REAL del usuario (Fresco de Auth Methods)
+        # 3. Verify REAL status of the user (Fresh from Auth Methods)
         # Auth Method link display value in Sessions is usually the ID literal
         auth_method_custom_id = sess.get("Auth Method")
         if isinstance(auth_method_custom_id, list) and len(auth_method_custom_id) > 0:
@@ -1981,8 +1984,8 @@ def verify_session(email=None, token=None):
         
         user_status = "Active"
         if auth_method_custom_id:
-             # El usuario indica que el Status está en la tabla Identity.
-             # Primero necesitamos el link a Identity desde Auth Methods
+             # The user indicates that the Status is in the Identity table.
+             # First we need the link to Identity from Auth Methods
              auth_info = seatable.sql_query_one(f"SELECT `Identity` FROM `Auth Methods` WHERE `ID` = '{auth_method_custom_id}'", base_data="core_identity")
              if auth_info:
                  if isinstance(auth_info, list) and len(auth_info) > 0:
@@ -2000,31 +2003,31 @@ def verify_session(email=None, token=None):
         
         if user_status and user_status != "Active":
             logger.warning(f"🚫 SESSION REJECTED: User {email} is {user_status}")
-            return {"success": False, "message": f"Tu cuenta está {user_status.lower()}.", "blocked": True}
+            return {"success": False, "message": t('account_blocked', status=user_status.lower()), "blocked": True}
 
-        # 4. Guardar en Caché antes de retornar
+        # 4. Save to Cache before returning
         result_success = {"success": True, "identity_id": identity_id, "email": email}
         _SESSION_VALIDATION_CACHE[cache_key] = (now, result_success)
         return result_success
 
     except Exception as e:
-        logger.error(f"Error en verify_session para {email}: {e}", exc_info=True)
-        return {"success": False, "message": str(e)}
+        logger.error(f"Error in verify_session for {email}: {e}", exc_info=True)
+        return {"status": False, "message": str(e)}
 
 def get_fallback_session(email=None):
     """
-    Lógica exclusiva para el flujo de LOGIN.
-    Busca una sesión activa basada en IP + Device Name + (opcional) Auth Method.
-    Valida el token encontrado y lo renueva si es necesario.
-    Retorna: { "token": str, "user": dict } o None.
+    Exclusive logic for the LOGIN flow.
+    Searches for an active session based on IP + Device Name + (optional) Auth Method.
+    Validates the found token and renews it if necessary.
+    Returns: { "token": str, "user": dict } or None.
     """
     try:
-        # Capturamos IP y UA escapando comillas para evitar errores SQL
+        # Capture IP and UA escaping quotes to avoid SQL errors
         ip_address = request.headers.get('X-Forwarded-For', request.remote_addr) or '127.0.0.1'
         if ',' in ip_address:
             ip_address = ip_address.split(',')[0].strip()
             
-        # Nueva limpieza: Eliminar puerto o identificadores extras (ej: 123.123.123.123:5000)
+        # New cleanup: Remove port or extra identifiers (e.g., 123.123.123.123:5000)
         if ':' in ip_address and ('.' in ip_address or ip_address.count(':') == 1):
              ip_address = ip_address.split(':')[0].strip()
         user_agent = request.headers.get('User-Agent', 'Unknown')
@@ -2032,9 +2035,9 @@ def get_fallback_session(email=None):
         escaped_ip = ip_address.replace("'", "''") if ip_address else ""
         escaped_ua = user_agent.replace("'", "''") if user_agent else "Unknown"
 
-        print(f"🔍 Buscando fallback de sesión para IP: {escaped_ip}, UA: {escaped_ua}, Email: {email}")
+        print(f"🔍 Searching for session fallback for IP: {escaped_ip}, UA: {escaped_ua}, Email: {email}")
         
-        # Si hay email, obtener su _id interno primero
+        # If email exists, get its internal _id first
         auth_method_id = None
         if email:
             escaped_email = email.replace("'", "''")
@@ -2044,7 +2047,7 @@ def get_fallback_session(email=None):
             else:
                 return None
 
-        # Construir query con IN para el link, que es la forma correcta en SeaTable para filtrar por row_id interno
+        # Construct query with IN for the link, which is the correct way in SeaTable to filter by internal row_id
         if auth_method_id:
             query = f"""
                 SELECT `Token`, `_id`, `Status` 
@@ -2061,29 +2064,29 @@ def get_fallback_session(email=None):
         session_rows = seatable.sql_query(query, base_data="core_identity")
 
         if not session_rows:
-            print("ℹ️ No se encontró sesión activa previa para este dispositivo/IP.")
+            print("ℹ️ No previous active session found for this device/IP.")
             return None
 
         sess = session_rows[0]
         token = sess.get("Token")
 
-        # Validar el token encontrado usando la lógica central de JWT
+        # Validate found token using central JWT logic
         try:
-            # Decodificamos solo para obtener el email si no lo tenemos (sin validar exp aquí)
+            # Decode only to get the email if we don't have it (without validating exp here)
             decoded = jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
             s_email = decoded.get("email")
             
             if email and s_email != email:
-                print(f"⚠️ El token encontrado pertenece a {s_email}, pero se buscaba para {email}")
+                print(f"⚠️ Found token belongs to {s_email}, but was searching for {email}")
                 return None
 
-            # Llamamos a verify_session para que use la misma lógica de validación
+            # Call verify_session to use the same validation logic
             res = verify_session(s_email, token)
             if res.get("success"):
-                logger.info(f"Fallback exitoso: Sesión recuperada para {s_email}")
+                logger.info(f"Successful fallback: Session recovered for {s_email}")
                 
-                # RECARGA: verify_session ya no devuelve 'user' por optimización (es lightweight)
-                # Lo cargamos aquí explícitamente para el flujo de login/fallback
+                # RELOAD: verify_session no longer returns 'user' for optimization (it's lightweight)
+                # We load it explicitly here for the login/fallback flow
                 user_ctx = _get_user_context(s_email)
                 
                 return {
@@ -2092,35 +2095,35 @@ def get_fallback_session(email=None):
                 }
             
         except Exception as e:
-            logger.warning(f"Token de fallback inválido o error: {e}")
+            logger.warning(f"Invalid fallback token or error: {e}")
             return None
 
         return None
 
     except Exception as e:
-        logger.error(f"Error en get_fallback_session: {e}", exc_info=True)
+        logger.error(f"Error in get_fallback_session: {e}", exc_info=True)
         return None
 
 def _clean_user_context_for_frontend(ctx):
-    """Limpia el contexto para no enviar IDs internos pesados si no es necesario"""
+    """Cleans context to avoid sending heavy internal IDs if not necessary"""
     if not ctx: return None
     return ctx
 
 def logout_session(token):
     """
-    Invalida administrativamente una sesión específica.
+    Administratively invalidates a specific session.
     
-    Objetivo:
-    - Cambiar el estado de la sesión a 'Expired' en la base de datos.
-    - Asegurar que el token JWT ya no sea aceptado en futuras peticiones.
+    Objective:
+    - Change session status to 'Expired' in the database.
+    - Ensure the JWT token is no longer accepted in future requests.
     """
     """
-    Marca una sesión específica como Expired en la base de datos.
+    Marks a specific session as Expired in the database.
     """
     try:
         if not token: return False
         
-        # Buscar el ID de la fila para el update
+        # Search for row ID for update
         query = f"SELECT `_id` FROM `Sessions` WHERE `Token` = '{token}'"
         res = seatable.sql_query(query, base_data="core_identity")
         if res:
@@ -2132,39 +2135,39 @@ def logout_session(token):
                 row_id=row_id,
                 base_data="core_identity"
             )
-            print(f"✅ Sesión invalidada en DB: {token[:15]}...")
+            print(f"✅ Session invalidated in DB: {token[:15]}...")
             return True
         return False
     except Exception as e:
-        print(f"❌ Error en logout_session: {e}")
+        print(f"❌ Error in logout_session: {e}")
         return False
 
 def close_sessions_logic(email, token=None, all_sessions=False, session_ids=None):
     """
-    Lógica programática para el cierre masivo o selectivo de sesiones.
+    Programmatic logic for massive or selective session closure.
     
-    Objetivo:
-    - Proveer una interfaz unificada para el cierre remoto de sesiones.
-    - Permitir al usuario cerrar todas sus sesiones excepto la actual, o seleccionar IDs específicos.
-    - Garantizar que solo se cierren sesiones que pertenezcan realmente al usuario solicitante.
+    Objective:
+    - Provide a unified interface for remote session closure.
+    - Allow the user to close all their sessions except the current one, or select specific IDs.
+    - Guarantee that only sessions truly belonging to the requesting user are closed.
     """
     """
-    Cierra sesiones de un usuario de forma segura.
-    Retorna: (success, message, closed_count)
+    Safely closes a user's sessions.
+    Returns: (success, message, closed_count)
     """
     try:
-        # 1. Validar el token de seguridad
+        # 1. Validate security token
         verify_res = verify_session(email, token)
         
-        # Si no es exitoso, solo permitimos continuar si el error es "Session has expired"
-        # porque el objetivo es justamente cerrar sesiones (incluyendo esta si fuera el caso)
+        # If not successful, only allow continuing if the error is "Session has expired"
+        # because the goal is precisely to close sessions (including this one if that were the case)
         if not verify_res.get("success"):
             if verify_res.get("expired"):
-                print(f"ℹ️ Procediendo con logout aunque la sesión actual ya expiró para {email}")
+                print(f"ℹ️ Proceeding with logout even though the current session already expired for {email}")
             else:
-                return False, f"Unauthorized: {verify_res.get('message', 'Invalid token')}", 0
+                return False, t('unauthorized', message=verify_res.get('message', 'Invalid token')), 0
 
-        # 2. Obtener el Auth Method ID asociado al email
+        # 2. Obtain Auth Method ID associated with the email
         escaped_email = email.lower().strip().replace("'", "''")
         auth_row = seatable.sql_query_one(
             f"SELECT _id, ID FROM `Auth Methods` WHERE Email = '{escaped_email}' AND `Auth Provider` = 'Email' ORDER BY `Last Email Sent` DESC",
@@ -2174,11 +2177,11 @@ def close_sessions_logic(email, token=None, all_sessions=False, session_ids=None
             auth_row = auth_row[0] if auth_row else None
 
         if not auth_row:
-            return False, "User not found", 0
+            return False, t('user_not_found'), 0
             
         auth_method_custom_id = auth_row.get("ID")
 
-        # 3. Determinar qué sesiones cerrar
+        # 3. Determine which sessions to close
         ids_to_expire = []
         if all_sessions:
             query = f"SELECT _id FROM `Sessions` WHERE `Auth Method` = '{auth_method_custom_id}' AND `Status` = 'Active'"
@@ -2186,7 +2189,7 @@ def close_sessions_logic(email, token=None, all_sessions=False, session_ids=None
             if sessions_res:
                 ids_to_expire = [s.get("_id") for s in sessions_res]
         elif session_ids:
-            # Sanitizar IDs
+            # Sanitize IDs
             clean_ids = [str(sid).replace("'", "''") for sid in session_ids]
             ids_str = "', '".join(clean_ids)
             query = f"SELECT _id FROM `Sessions` WHERE `_id` IN ('{ids_str}') AND `Auth Method` = '{auth_method_custom_id}' AND `Status` = 'Active'"
@@ -2197,9 +2200,9 @@ def close_sessions_logic(email, token=None, all_sessions=False, session_ids=None
             return False, "No sessions or 'all_sessions' flag provided", 0
 
         if not ids_to_expire:
-            return True, "No active sessions found to close", 0
+            return True, t('no_active_sessions_found'), 0
 
-        # 4. Marcar como Expired
+        # 4. Mark as Expired
         for row_id in ids_to_expire:
             seatable.perform_table_operation(
                 "Sessions",
@@ -2209,8 +2212,8 @@ def close_sessions_logic(email, token=None, all_sessions=False, session_ids=None
                 base_data="core_identity"
             )
 
-        return True, f"Successfully closed {len(ids_to_expire)} sessions", len(ids_to_expire)
+        return True, t('sessions_closed_success', count=len(ids_to_expire)), len(ids_to_expire)
 
     except Exception as e:
-        print(f"❌ Error en close_sessions_logic: {e}")
+        print(f"❌ Error in close_sessions_logic: {e}")
         return False, str(e), 0

@@ -1,28 +1,29 @@
 """
-Utilidades de Autenticación y Seguridad.
+Authentication and Security Utilities.
 
-Este módulo provee los mecanismos de protección de rutas (decoradores) y los ayudantes
-para recuperar el contexto del usuario autenticado de forma eficiente durante el
-ciclo de vida de una petición HTTP.
+This module provides route protection mechanisms (decorators) and helpers
+to efficiently retrieve the authenticated user's context during the
+HTTP request lifecycle.
 
-Objetivos clave:
-1. Implementar el decorador @login_required para la validación centralizada de JWT.
-2. Facilitar la recuperación del usuario actual ('g.current_user') con permisos RBAC.
-3. Abstraer la complejidad de la búsqueda combinada de identidades y métodos de acceso.
+Key Objectives:
+1. Implement @login_required decorator for centralized JWT validation.
+2. Facilitate current user retrieval ('g.current_user') with RBAC permissions.
+3. Abstract context retrieval complexity for identities and access methods.
 """
 
-from flask import session
+from flask import session, g
 from src.services.seatable_service import Seatable
+from src.utils.i18n import t
 
 def login_required(f):
     """
-    Decorador para requerir autenticación mandatoria mediante Token JWT.
+    Decorator to require mandatory authentication via JWT Token.
     
-    Objetivo:
-    - Interceptar peticiones para validar la presencia de un token Bearer.
-    - Comunicarse con el servicio de sesión para verificar la vigencia del token.
-    - Poblar el objeto global 'g' con los datos del usuario para uso en las rutas.
-    - Manejar automáticamente las respuestas 401 para peticiones no autorizadas.
+    Objective:
+    - Intercept requests to validate the presence of a Bearer token.
+    - Communicate with the session service to verify token validity.
+    - Populate global 'g' object with user data for use in routes.
+    - Automatically handle 401 responses for unauthorized requests.
     """
     from functools import wraps
     from flask import request, jsonify, g
@@ -30,12 +31,12 @@ def login_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 0. Permitir peticiones OPTIONS (CORS preflight) sin validar nada
-        # Retornamos 200 directamente para evitar que se ejecute la lógica de la ruta
+        # 0. Allow OPTIONS (CORS preflight) without validation
+        # We return 200 directly to avoid executing route logic
         if request.method == 'OPTIONS':
             return '', 200
 
-        # 1. Obtener Token (Prioridad: Authorization Header)
+        # 1. Get Token (Priority: Authorization Header)
         auth_header = request.headers.get('Authorization', '')
         token = None
         if auth_header.startswith('Bearer '):
@@ -49,21 +50,21 @@ def login_required(f):
         if not token:
             return jsonify({
                 'success': False, 
-                'message': 'Authentication token is required (Bearer Token)'
+                'message': t('auth_token_required')
             }), 401
 
-        # 2. Obtener Email (Opcional, se puede extraer del token si falta)
+        # 2. Get Email (Optional, can be extracted from token if missing)
         email = request.headers.get('X-User-Email') or request.args.get('email')
         if not email and request.is_json:
             email = request.json.get('email')
 
-        # 2. Verificar sesión (El email es opcional si el token es válido)
+        # 3. Verify session (Email is optional if token is valid)
         v_res = verify_session(email, token)
         if not v_res.get("success"):
             return jsonify(v_res), 401
 
-        # 3. Guardar en g para uso en la ruta
-        # Si verify_session extrajo el email del token, lo usamos
+        # 4. Save in g for route use
+        # If verify_session extracted email from token, use it
         final_email = email or v_res.get("email")
         g.current_user = v_res.get("user")
         g.current_token = token
@@ -75,16 +76,16 @@ def login_required(f):
 
 def get_current_user():
     """
-    Recupera la información completa del usuario autenticado en la sesión actual.
+    Retrieves complete authenticated user information for the current session.
     
-    Objetivo:
-    - Servir de puente entre la sesión de Flask y el contexto detallado de IdentityService.
-    - Cargar permisos y modos de datos atómicos para la aplicación activa.
-    - Implementar una caché interna por petición para evitar consultas redundantes a la DB.
+    Objective:
+    - Bridge between Flask session and detailed IdentityService context.
+    - Load permissions and atomic data modes for the active application.
+    - Implement per-request internal cache to avoid redundant DB queries.
     """
     from flask import g
     
-    # Si ya lo cargamos en esta misma petición, retornarlo
+    # If already loaded in this request, return it
     if 'current_user' in g:
         return g.current_user
 
@@ -92,7 +93,7 @@ def get_current_user():
         from src.services.seatable_service import seatable
         from src.services import identity_service
         
-        # Consolidamos Auth Methods e Identity en un solo JOIN
+        # Consolidate Auth Methods and Identity in a single JOIN
         row_auth_id = session.get('row_auth_methods')
         query = f"""
             SELECT * 
@@ -106,16 +107,16 @@ def get_current_user():
             g.current_user = None
             return None
 
-        # SeaTable JOIN devuelve campos con prefijos si hay colisión, 
-        # pero aquí los necesitamos separados como antes para mantener compatibilidad.
-        # Nota: sql_query suele aplanar si no hay colisión, o devolver objetos anidados.
-        # Para evitar problemas, filtramos o asignamos manualmente.
+        # SeaTable JOIN returns fields with prefixes if collision occurs, 
+        # but we need them separated as before to maintain compatibility.
+        # Note: sql_query usually flattens if no collision, or returns nested objects.
+        # To avoid issues, we filter or assign manually.
         user_row = combined_data[0]
         
-        # Obtener app_key basado en la URL actual (con lru_cache)
+        # Get app_key based on current URL (with lru_cache)
         app_key = identity_service.get_app_key_by_url()
         
-        # Check de permisos (con TTL cache y status real-time interno)
+        # Permission check (with TTL cache and real-time internal status)
         identity_row_id = user_row.get("Identity", [{}])[0].get("row_id") if isinstance(user_row.get("Identity"), list) else user_row.get("Identity")
         if not identity_row_id:
              identity_row_id = session.get('row_identity') # Fallback
@@ -123,7 +124,7 @@ def get_current_user():
         auth_data = identity_service.get_identity_permissions(identity_row_id, app_key, identity_row=user_row, user_email=user_row.get('Email'))
         
         res = {
-            "users": user_row, # La fila combinada suele contener ambos si no hay colisión de nombres
+            "users": user_row, # The combined row usually contains both if no name collision
             "authmethods": user_row,
             "permissions": auth_data.get("permissions", []),
             "data_mode": auth_data.get("data_mode", "own"),
