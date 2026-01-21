@@ -67,7 +67,7 @@ def validate_password_strength(password):
     
     return True, "Contraseña válida"
 
-def _get_user_context(email, provider=None, bypass_cache=False):
+def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row=None):
     """
     Recupera el perfil integral del usuario necesario para la sesión.
     
@@ -75,6 +75,7 @@ def _get_user_context(email, provider=None, bypass_cache=False):
     - Consultar el método de autenticación, la identidad (Profile) y el estado de la cuenta.
     - Resolver dinámicamente el App Key por URL y calcular permisos RBAC para esa app.
     - Implementar una capa de caché de 15 minutos para optimizar peticiones recurrentes.
+    - Permite inyectar 'initial_auth_row' para evitar la primera consulta redundante.
     """
     from src.services.identity_service import identity_service
     
@@ -108,20 +109,21 @@ def _get_user_context(email, provider=None, bypass_cache=False):
     logger.info(f"USER CONTEXT CACHE MISS para {email} [{app_key}] - Cargando de SeaTable...")
     
     escaped_email = email.replace("'", "''")
-    # 0. Obtener Auth Method e Identity ID
-    where_provider = ""
-    if provider:
-        where_provider = f" AND `Auth Provider` = '{provider}'"
-    
-    auth_rows = seatable.sql_query(
-        f"SELECT `Identity`, `Email`, `ID`, `_id`, `Profile Image URL` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'{where_provider} ORDER BY `Is Primary` DESC, `_id` DESC", 
-        base_data="core_identity"
-    )
-    
-    if not auth_rows:
-        return None
+    row_auth = initial_auth_row
 
-    row_auth = auth_rows[0]
+    if not row_auth:
+        where_provider = ""
+        if provider:
+            where_provider = f" AND `Auth Provider` = '{provider}'"
+        
+        auth_rows = seatable.sql_query(
+            f"SELECT `Identity`, `Email`, `ID`, `_id`, `Profile Image URL` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'{where_provider} ORDER BY `Is Primary` DESC, `_id` DESC", 
+            base_data="core_identity"
+        )
+        
+        if not auth_rows:
+            return None
+        row_auth = auth_rows[0]
     identity_links = row_auth.get("Identity", [])
     if not identity_links:
         logger.warning(f"Usuario {email} no tiene Identity vinculado.")
@@ -533,8 +535,8 @@ def insert_user_in_database(userinfo,auth_provider):
                 base_data="core_identity"
             )
 
-        # Retornar usuario actualizado
-        return seatable.sql_query_one(f"SELECT * FROM `{PORTAL_USERS_TABLE}` WHERE `_id` = '{auth_row_id}'", base_data="core_identity")[0]
+        # Retornar usuario actualizado/existente
+        return existing_user
 
 def _assign_default_role_to_identity(identity_row_id):
     """
@@ -1505,30 +1507,27 @@ def process_google_callback(code, state, expected_state):
             return {'success': False, 'error': 'userinfo_failed'}
         
         # Create or update user
-        user = insert_user_in_database(userinfo, "Google")
+        auth_row = insert_user_in_database(userinfo, "Google")
         
         # Sincronizar con Identity
-        if isinstance(user, list):
-            user = user[0]
+        if isinstance(auth_row, list):
+            auth_row = auth_row[0]
             
-        auth_methods = seatable.sql_query(f"SELECT * FROM `Auth Methods` WHERE `Email` = '{userinfo['email']}' AND `Auth Provider` = 'Google'", base_data="core_identity")
-        
-        if auth_methods:
-            row_auth = auth_methods[0]
-            identity_links = row_auth.get("Identity", [])
+        if auth_row:
+            identity_links = auth_row.get("Identity", [])
             if identity_links:
                 row_identity_id = identity_links[0].get("row_id")
                 
                 from flask import session
                 session.permanent = True
-                session['user_id'] = user.get('_id')
-                session['row_auth_methods'] = row_auth.get('_id')
+                session['user_id'] = auth_row.get('_id')
+                session['row_auth_methods'] = auth_row.get('_id')
                 session['row_identity'] = row_identity_id
                 session['vendor_email'] = userinfo['email']
                 
-                return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True)}
+                return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row)}
         
-        return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True)}
+        return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row)}
         
     except Exception as e:
         print(f"OAuth callback error: {e}")
@@ -1587,18 +1586,16 @@ def process_microsoft_callback(code, state, expected_state):
         }
         
         # Insertar usuario
-        user = insert_user_in_database(final_userinfo, "Microsoft")
+        auth_row = insert_user_in_database(final_userinfo, "Microsoft")
         
         # Normalizar user
-        if isinstance(user, list):
-            if len(user) > 0:
-                u = user[0]
-            else:
-                return {'success': False, 'error': 'user list empty'}
-        else:
-            u = user
+        if isinstance(auth_row, list):
+            auth_row = auth_row[0]
+
+        # Obtener contexto inyectando el resultado previo para ahorrar query
+        u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row)
         
-        return {'success': True, 'user': _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True)}
+        return {'success': True, 'user': u_final}
         
     except Exception as e:
         print(f"[MICROSOFT CALLBACK ERROR] {e}")
@@ -1607,6 +1604,14 @@ def process_microsoft_callback(code, state, expected_state):
         return {'success': False, 'error': 'oauth_failed'}
 
 def prepare_session_data(user):
+    """
+    Prepara el diccionario de datos de sesión para ser almacenado en Flask Session.
+    
+    Objetivo:
+    - Centralizar la estructura de datos que se guarda en la cookie de sesión.
+    - Resolver vínculos críticos (Identity, Collaborator) para tenerlos disponibles en cada petición.
+    - Asegurar que el 'vendor_email' sea siempre el correo primario del usuario.
+    """
     # Optimizamos: Si el objeto 'user' ya trae la identidad (link),
     # intentamos usar esos datos para evitar llamadas SQL repetitivas.
     
@@ -1740,10 +1745,11 @@ def change_password_service(user_email, current_password, new_password, user):
 
 def get_roles_from_identity(identity_row_id):
     """
-    Obtiene los roles de una identity.
+    Recupera los roles asociados a una identidad.
     
-    Args:
-        identity_row_id: _id de la fila en Identity
+    Objetivo:
+    - Obtener el campo 'Vendor ID' que funciona como referencia a los roles del usuario.
+    - Servir de base para la resolución de permisos en el flujo de sesión.
     """
 
     roles = seatable.sql_query_one(
@@ -1755,8 +1761,12 @@ def get_roles_from_identity(identity_row_id):
 
 def get_collaborator_info_from_identity(identity_row_id):
     """
-    Obtiene la información extendida de los colaboradores vinculados a una identity,
-    incluyendo el campo 'Seatable User'.
+    Obtiene la información detallada de los colaboradores vinculados a una identidad.
+    
+    Objetivo:
+    - Resolver la relación entre una Identidad y sus registros en la tabla Collaborators.
+    - Extraer el 'Seatable User' y el correo electrónico para uso en lógica de negocio y UI.
+    - Normalizar la respuesta para facilitar su consumo en el contexto del usuario.
     """
     row = seatable.sql_query_one(
         f"SELECT `Collaborator ID` FROM `Identity` WHERE `_id` = '{identity_row_id}'",
@@ -1796,8 +1806,14 @@ def get_collaborator_info_from_identity(identity_row_id):
     return result
 
 
-# Funcion con el Identity traer el Correo que le pertenece a ese Identity y que sea el "Is Primary"
 def get_email_primary_from_auth(identity_id):
+    """
+    Identifica el correo electrónico marcado como primario para una identidad específica.
+    
+    Objetivo:
+    - Asegurar que las comunicaciones y la identificación de sesión usen el correo principal.
+    - Manejar la lógica de 'Is Primary' en la tabla Auth Methods.
+    """
 
 
     row = seatable.sql_query_one(
@@ -1819,8 +1835,12 @@ def get_email_primary_from_auth(identity_id):
 
 def get_debug_user_info(email, current_url=None):
     """
-    Función de diagnóstico refinada que recolecta información completa de Core Identity
-    usando la nueva lógica de Assignments y filtrado por App Key.
+    Recolecta información exhaustiva de Core Identity para fines de diagnóstico técnico.
+    
+    Objetivo:
+    - Mapear la relación completa entre Identity, Auth Methods y Assignments.
+    - Mostrar qué App Key se está detectando y qué permisos resultan de esa app.
+    - Visualizar el estado de la cuenta y los metadatos de creación para depuración.
     """
     from src.services.identity_service import identity_service
     

@@ -48,6 +48,13 @@ class Seatable:
         self.initialized = True
 
     def base_auth(self, api_token=None):
+        """
+        Realiza la autenticación básica con la API de SeaTable.
+        
+        Objetivo:
+        - Inicializar el objeto Base de seatable_api con el token proporcionado.
+        - Establecer la conexión inicial necesaria para obtener los metadatos de la base.
+        """
         if api_token:
             self.api_token = api_token  # Actualiza el token si se proporciona uno nuevo
 
@@ -104,7 +111,7 @@ class Seatable:
         """
         max_retries = 3
         wait_seconds = 20
-        print(query)
+ 
         for attempt in range(1, max_retries + 1):
             try:
                 print(f"â³ Ejecutando query (intento {attempt}/{max_retries})")
@@ -248,6 +255,13 @@ class Seatable:
         return "âœ… Finalizado"
     
     def get_column_link_id(self, table_name, column_name, base_data=None):
+        """
+        Recupera el ID interno de una columna de tipo 'link' (enlace).
+        
+        Objetivo:
+        - Facilitar las operaciones de vinculación entre tablas al obtener el identificador técnico necesario.
+        - Consultar los metadatos de la tabla para extraer el link_id de la columna especificada.
+        """
         base = self.get_base(base_data)
 
         link_id = base.get_column_link_id(table_name, column_name)
@@ -300,6 +314,14 @@ class Seatable:
         return None
     
     def batch_query(self, table_name, rows_data, type_batch="", batch=50):
+        """
+        Ejecuta operaciones masivas (batch) en SeaTable con lógica de reintento.
+        
+        Objetivo:
+        - Procesar grandes volúmenes de datos dividiéndolos en lotes (batches) manejables.
+        - Implementar una robustez ante fallos de red o errores 500/502 del servidor.
+        - Soportar diversas operaciones: append, update, delete e insert de Big Data.
+        """
         base = self.get_base()
         offset = 0
         method_map = {
@@ -352,6 +374,13 @@ class Seatable:
 
 
     def insert_from_excel_or_csv_to_seatable(self, file, table_name, sheet_name):
+        """
+        Carga datos desde un archivo Excel o CSV directamente a una tabla de SeaTable.
+        
+        Objetivo:
+        - Automatizar la ingesta de datos externos transformándolos primero a DataFrame.
+        - Realizar la inserción masiva mediante el método batch_query.
+        """
         df = self.excel_or_csv_to_dataframe(file, sheet_name)
 
         """ collaborators = [
@@ -655,17 +684,12 @@ class Seatable:
     
     def _try_enhanced_linking(self, record, cfg, lookup_tables, alternative_ids_column, successful_group_mappings=None):
         """
-        Try enhanced linking with multiple TraackrIDs, ensuring all group members use the same successful ID
-
-        Args:
-            record: Record dictionary
-            cfg: Link configuration
-            lookup_tables: Lookup tables for references
-            alternative_ids_column: Column name containing alternative IDs
-            successful_group_mappings: Dictionary to track successful TraackrIDs by group
-
-        Returns:
-            tuple (row_id, successful_traackr_id) if successful, (None, None) otherwise
+        Intenta realizar una vinculación mejorada utilizando múltiples IDs alternativos (Traackr).
+        
+        Objetivo:
+        - Resolver relaciones complejas donde el ID principal puede no ser exacto.
+        - Asegurar que todos los miembros de un grupo utilicen el mismo ID exitoso.
+        - Optimizar la vinculación mediante una caché de mapeos grupales exitosos.
         """
         table_name = cfg["table_name"]
         original_traackr_id = record.get(cfg["other_column_name"], "")
@@ -769,15 +793,11 @@ class Seatable:
 
     def _try_enhanced_linking_talkwalker(self, record, cfg, lookup_tables):
         """
-        Try enhanced linking for TalkwalkerID - simplified version without groups
-
-        Args:
-            record: Record dictionary
-            cfg: Link configuration
-            lookup_tables: Lookup tables for references
-
-        Returns:
-            tuple (row_id, successful_talkwalker_id) if successful, (None, None) otherwise
+        Versión simplificada de vinculación mejorada para IDs de Talkwalker.
+        
+        Objetivo:
+        - Buscar coincidencias de IDs en tablas de referencia sin gestión de grupos.
+        - Manejar formatos de ID específicos de la plataforma Talkwalker.
         """
         table_name = cfg["table_name"]
         original_talkwalker_id = record.get(cfg["other_column_name"], "")
@@ -840,26 +860,31 @@ class Seatable:
 
     def set_network_priority_order(self, new_priority):
         """
-        Configura el orden de prioridad para las redes sociales.
-
-        Args:
-            new_priority (List[str]): Nueva lista de prioridad ordenada
-                                     (ej: ["instagram", "facebook", "tiktok", "youtube"])
+        Define el orden de prioridad global para el procesamiento de redes sociales.
+        
+        Objetivo:
+        - Establecer qué red social prevalece al consolidar datos multicanal.
+        - Permitir la reconfiguración dinámica del peso de cada plataforma (Instagram, FB, etc.).
         """
         self.network_priority_manager.set_priority_order(new_priority)
 
     def get_network_priority_order(self):
         """
-        Obtiene el orden actual de prioridad de las redes sociales.
-
-        Returns:
-            List[str]: Orden actual de prioridad
+        Recupera el orden de prioridad actual de las redes sociales.
+        
+        Objetivo:
+        - Consultar la configuración vigente para procesos de jerarquización de datos.
         """
         return self.network_priority_manager.get_priority_order()
     
     def upload_new_records_to_seatable(self, new_data, existing_data, table_name, key_columns=None, enable_link: bool = False, table_to_insert="", platform=None, custom_fn=None, alternative_ids_column=None, df_source=None):
         """
-        Identifica registros nuevos y los sube a Seatable.
+        Detecta y sube registros nuevos a SeaTable evitando duplicados.
+        
+        Objetivo:
+        - Comparar conjuntos de datos antiguos y nuevos basados en claves únicas.
+        - Realizar la inserción masiva de solo aquellas filas que no existen en el destino.
+        - Soportar vinculación automática (linking) y funciones de transformación personalizadas.
         """
         if platform:
             progress_reporter.add_log(platform, f"INICIANDO SUBIDA - Tabla: {table_name} - {len(new_data)} filas nuevas detectadas")
@@ -1048,7 +1073,11 @@ class Seatable:
 
     def excel_or_csv_to_dataframe(self, file_path, sheet_name=None):
         """
-        Lee un archivo CSV o Excel y lo retorna como dataframe, limpia las columnas nan y inf por None.
+        Carga un archivo físico (Excel o CSV) en un objeto DataFrame de Pandas.
+        
+        Objetivo:
+        - Normalizar la lectura de diferentes formatos de archivo.
+        - Limpiar valores nulos (NaN) o infinitos para asegurar la compatibilidad con SeaTable.
         """
         # Detectar la extensiÃ³n del archivo
         _, ext = os.path.splitext(file_path.lower())
@@ -1070,18 +1099,19 @@ class Seatable:
 
     def create_payload_insert(self, dataframe):
         """
-        Lee un dataframe y genera una lista de diccionarios para inserciones:
-        [{<columna>: <valor>, ...}, ...]
+        Transforma un DataFrame en un formato de carga (payload) para inserción.
+        
+        Objetivo:
+        - Convertir filas de DataFrame en una lista de diccionarios compatibles con seatable_api.
         """
         return dataframe.to_dict(orient='records')
 
     def create_payload_update(self, dataframe, unique_key):
         """
-        Lee un dataframe y genera una lista de diccionarios con la estructura:
-        {
-            "row_id": <valor_de_unique_key>,
-            "row": {<columna>: <>, ...}  # sin la columna unique_key
-        }
+        Transforma un DataFrame en un formato de carga (payload) para actualización.
+        
+        Objetivo:
+        - Estructurar los datos con 'row_id' y los campos a actualizar individualmente.
         """
         payload_list = []
         for _, row in dataframe.iterrows():
@@ -1099,8 +1129,11 @@ class Seatable:
     
     def delete_rows_seatable(self, new_data, existing_data, table_name, tab, key_columns, condition=None, platform=None):
         """
-        Elimina de SeatTable las filas que aparecen en existing_data y no en new_data,
-        salvo aquellas cuyo Contract Count tenga un valor (no vacÃ­o, no '0').
+        Gestiona la eliminación lógica o física de registros obsoletos.
+        
+        Objetivo:
+        - Identificar filas en SeaTable que ya no están presentes en el origen de datos.
+        - Aplicar condiciones de seguridad (ej: no borrar si hay contratos activos) antes de eliminar.
         """
 
         if platform:
@@ -1168,6 +1201,13 @@ class Seatable:
                 progress_reporter.add_log(platform, f"ACTUALIZACIÃ“N COMPLETADA - Tabla: {table_name} - {len(rows_to_update)} filas marcadas como Inactive")
     
     def update_rows_seatable(self, df, prev_data, table_name, FIELDS_TO_UPDATE, unique_id="MetaId", unique_id_prev=None, platform=None):
+        """
+        Actualiza registros existentes en SeaTable comparando cambios campo a campo.
+        
+        Objetivo:
+        - Sincronizar solo los campos que han cambiado para minimizar el tráfico de red.
+        - Manejar el mapeo de claves únicas entre el origen y el destino.
+        """
         unique_id_prev = unique_id_prev or unique_id
 
         # Filtrar solo las columnas que necesitamos actualizar
@@ -1234,6 +1274,13 @@ class Seatable:
 
 
     def crud(self, df, prev_data, columns_to_update, tab, enable_link, key_columns, condition, table_name, table_to_insert=None, platform="", delete=True, custom_fn=None, insert_only=False, add_key=None, alternative_ids_column=None, df_source=None):
+        """
+        Orquestador principal de operaciones de sincronización (Create, Update, Delete).
+        
+        Objetivo:
+        - Coordinar los flujos de inserción, actualización y borrado en una sola llamada lógica.
+        - Proveer una interfaz de alto nivel para procesos de sincronización de datos complejos.
+        """
         if insert_only != True:
             if True == delete:
                 self.delete_rows_seatable(

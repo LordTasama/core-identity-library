@@ -28,6 +28,9 @@ class IdentityService:
     en un contexto de seguridad utilizable por las aplicaciones clientes.
     """
     def __init__(self):
+        """
+        Inicializa el servicio de identidad con conexión a SeaTable y configuración de caché.
+        """
         self.seatable = seatable
         # Cache para permisos: { (identity_id, app_key): (timestamp, data) }
         self._permissions_cache = {}
@@ -37,7 +40,13 @@ class IdentityService:
         self._apps_cache_time = 0
 
     def _get_all_apps_cached(self):
-        """Obtiene todas las aplicaciones con cache de 24 horas (si CACHED_APPS=True)."""
+        """
+        Recupera la lista de todas las aplicaciones registradas, con soporte para caché persistente.
+        
+        Objetivo:
+        - Minimizar las llamadas a la base de datos para obtener metadatos estáticos de aplicaciones.
+        - Refrescar automáticamente la lista cada 24 horas para reflejar nuevas apps registradas.
+        """
         from config import Config
         now = time.time()
         

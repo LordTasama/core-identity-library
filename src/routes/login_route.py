@@ -689,7 +689,12 @@ def logout():
 @auth_bp.route('/debug/user/<email>')
 def debug_user(email):
     """
-    Diagnostic route to check user identity, roles, assignments and permissions.
+    Ruta de diagnóstico para verificar la identidad, roles, asignaciones y permisos de un usuario.
+    
+    Objetivo:
+    - Facilitar la depuración técnica al mostrar el estado crudo del usuario en el sistema.
+    - Validar la resolución de App Key y el cálculo de permisos para la URL actual.
+    - Proveer visibilidad sobre la jerarquía del equipo y los roles vinculados.
     """
     from src.services.login_service import get_debug_user_info
     try:
