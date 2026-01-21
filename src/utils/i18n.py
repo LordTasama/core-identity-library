@@ -45,6 +45,8 @@ TRANSLATIONS = {
         'auth_token_required': 'Authentication token is required (Bearer Token)',
         'app_not_found': 'Application not found for URL: {url}',
         'identity_inactive': 'Identity {id} is inactive.',
+        'no_app_permissions': 'You do not have permissions to access this application.',
+        'account_status_blocked': 'Your account is {status}. Please contact support.',
     },
     'es': {
         'all_fields_required': 'Todos los campos son obligatorios',
@@ -90,6 +92,8 @@ TRANSLATIONS = {
         'auth_token_required': 'El token de autenticación es obligatorio (Bearer Token)',
         'app_not_found': 'Aplicación no encontrada para la URL: {url}',
         'identity_inactive': 'Identidad {id} está inactiva.',
+        'no_app_permissions': 'No tienes permisos para acceder a esta aplicación.',
+        'account_status_blocked': 'Tu cuenta está {status}. Por favor, contacta con soporte.',
     }
 }
 

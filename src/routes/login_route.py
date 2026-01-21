@@ -710,8 +710,8 @@ def debug_user(email):
 # ============================================================================
 # USER INFO ROUTES
 # ============================================================================
-@login_required
 @auth_bp.route('/verify-session', methods=['POST'])
+@login_required
 def verify_session_route():
     """
     Validates if a session is valid in a light and fast way.

@@ -98,12 +98,10 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
             has_perms = len(cached_data.get("permissions", [])) > 0
             
             if not (has_roles or has_perms):
-                allowed_apps = cached_data.get("apps", [])
-                allowed_apps_names = [a.get("appName") for a in allowed_apps if a.get("appName")]
                 return {
                     "success": False,
-                    "message": f"You do not have permissions to access this application. Authorized apps: {', '.join(allowed_apps_names) if allowed_apps_names else 'none'}",
-                    "apps": allowed_apps
+                    "message": t('no_app_permissions'),
+                    "apps": cached_data.get("apps", [])
                 }
 
             cached_data["success"] = True
@@ -148,7 +146,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         print(f"🛑 IDENTITY BLOCKED: User {email} has status {identity_status}")
         return {
             "success": False,
-            "message": f"Your account is {identity_status.lower()}. Please contact support.",
+            "message": t('account_status_blocked', status=identity_status.lower()),
             "apps": []
         }
 
@@ -172,14 +170,13 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     if not (has_roles or has_perms):
         print(f"🛑 ACCESS DENIED: User {email} unauthorized for App {app_key or 'None'}")
         
-        # Cargar solo las apps autorizadas para informar al usuario
+        # Keep loading allowed apps data for the frontend, but keep message clean
         temp_identity = identity_service.get_identity_with_assignments(identity_id, user_email=email, app_key="___forbidden___")
         allowed_apps = temp_identity.get("apps", [])
-        allowed_apps_names = [a.get("appName") for a in allowed_apps if a.get("appName")]
         
         return {
             "success": False,
-            "message": f"You do not have permissions to access this application. Authorized apps: {', '.join(allowed_apps_names) if allowed_apps_names else 'none'}",
+            "message": t('no_app_permissions'),
             "apps": allowed_apps
         }
 
