@@ -490,7 +490,7 @@ def callback():
                     <script>
                         const authData = {json.dumps(auth_data_json)};
                         if (window.opener) {{
-                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, window.location.origin);
+                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
                             window.close();
                         }} else {{
                             // Si no hay opener, mostramos el error en pantalla o redirigimos
@@ -522,7 +522,7 @@ def callback():
                     
                     if (window.opener) {{
                         // Si se abrió en un popup, enviamos los datos al padre y cerramos
-                        window.opener.postMessage({{ type: 'OAUTH_SUCCESS', payload: authData }}, window.location.origin);
+                        window.opener.postMessage({{ type: 'OAUTH_SUCCESS', payload: authData }}, "*");
                         window.close();
                     }} else {{
                         // Si fue redirección normal, vamos a /home
@@ -594,7 +594,7 @@ def microsoft_callback():
                     <script>
                         const authData = {json.dumps(auth_data_json)};
                         if (window.opener) {{
-                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, window.location.origin);
+                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
                             window.close();
                         }} else {{
                             document.body.innerHTML = "<h2>Acceso Denegado</h2><p>" + authData.message + "</p>";
@@ -625,7 +625,7 @@ def microsoft_callback():
                     
                     if (window.opener) {{
                         // Comunicar con la ventana padre y cerrar el popup
-                        window.opener.postMessage({{ type: 'OAUTH_SUCCESS', payload: authData }}, window.location.origin);
+                        window.opener.postMessage({{ type: 'OAUTH_SUCCESS', payload: authData }}, "*");
                         window.close();
                     }} else {{
                         // Redirección estándar si no hay ventana padre
