@@ -26,16 +26,23 @@ export default function SocialAuthButtons({
 
     useEffect(() => {
         const handleMessage = (event) => {
-            // Get API origin to allow cross-origin messages from the authorized backend
-            let apiOrigin;
+            // Derive base domain from API URL (e.g., prismgrp.com)
+            let apiBaseDomain;
             try {
-                apiOrigin = new URL(apiBaseUrl).origin;
-            } catch (e) {
-                console.error("Invalid apiBaseUrl:", apiBaseUrl);
-            }
+                const apiHostname = new URL(apiBaseUrl).hostname;
+                const parts = apiHostname.split('.');
+                if (parts.length >= 2) {
+                    apiBaseDomain = parts.slice(-2).join('.');
+                }
+            } catch (e) { }
 
-            // Check if origin matches current window or the API origin
-            const isAllowedOrigin = event.origin === window.location.origin || (apiOrigin && event.origin === apiOrigin);
+            // Check if origin matches current window, the exact API origin, or any subdomain of the API's base domain
+            const isFromAllowedSubdomain = apiBaseDomain && (
+                event.origin.endsWith('.' + apiBaseDomain) ||
+                event.origin.endsWith('://' + apiBaseDomain)
+            );
+
+            const isAllowedOrigin = event.origin === window.location.origin || (apiOrigin && event.origin === apiOrigin) || isFromAllowedSubdomain;
 
             if (!isAllowedOrigin) return;
 
