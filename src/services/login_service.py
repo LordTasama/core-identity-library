@@ -27,7 +27,7 @@ from src.utils.i18n import t
 from flask import request
 import string
 from src.utils.logger import logger
-
+import requests
 
 # ============================================================================
 # USER MANAGEMENT FUNCTIONS
