@@ -127,9 +127,26 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
             return None
         row_auth = auth_rows[0]
     identity_links = row_auth.get("Identity", [])
+    
+    # 0.1 Handle Link format (Objects from append/get vs Strings from SQL query)
+    # If links are strings, we re-fetch the Auth Method row via get_row to get actual row_ids
+    if identity_links and isinstance(identity_links[0], str):
+        auth_row_id = row_auth.get('_id')
+        if auth_row_id:
+            logger.debug(f"Identity links are strings for {email}, re-fetching via get_row to resolve IDs...")
+            fresh_auth = seatable.get_row("Auth Methods", auth_row_id, base_data="core_identity")
+            if fresh_auth:
+                row_auth = fresh_auth
+                identity_links = row_auth.get("Identity", [])
+
     identity_id = None
     if identity_links:
-        identity_id = identity_links[0].get("row_id")
+        if isinstance(identity_links[0], dict):
+            identity_id = identity_links[0].get("row_id")
+        else:
+            # Fallback: if it's a string, it might be the ID if it was inserted as such, 
+            # or the display value. We try using it as is.
+            identity_id = identity_links[0]
     
     # 0.2 Resilience: If identity is missing in the object, we try to re-fetch the row from SeaTable
     # This happens in new registrations where SeaTable might not have propagated the link yet
@@ -137,7 +154,8 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         logger.info(f"Identity link missing for {email}, re-fetching fresh row from DB...")
         fresh_rows = seatable.sql_query(f"SELECT `Identity` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", base_data="core_identity")
         if fresh_rows and fresh_rows[0].get("Identity"):
-            identity_id = fresh_rows[0].get("Identity")[0].get("row_id")
+            id_link = fresh_rows[0].get("Identity")[0]
+            identity_id = id_link.get("row_id") if isinstance(id_link, dict) else id_link
             
     if not identity_id:
         logger.warning(f"User {email} has no linked Identity even after re-fetch.")
@@ -493,6 +511,15 @@ def insert_user_in_database(userinfo, auth_provider, app_key=None):
         
         # Get Identity link
         identity_links = existing_user.get(IDENTITY_LINK_COL, [])
+        
+        # Resilience: If identity link is a string (from SQL), re-fetch via get_row to get REAL _id
+        if identity_links and isinstance(identity_links[0], str):
+            logger.debug(f"Identity link is string for {email} in insert_user, re-fetching via get_row...")
+            refetched_auth = seatable.get_row(PORTAL_USERS_TABLE, auth_row_id, base_data="core_identity")
+            if refetched_auth:
+                existing_user = refetched_auth
+                identity_links = existing_user.get(IDENTITY_LINK_COL, [])
+
         identity_row_id = None
         if identity_links:
             identity_row_id = identity_links[0].get('row_id') if isinstance(identity_links[0], dict) else identity_links[0]
@@ -1664,8 +1691,32 @@ def prepare_session_data(user):
             'vendor_email': user.get('Email')
         }
 
-    identity_row_id = identity_links[0].get('row_id')
-    identity_display = identity_links[0].get('display_value')
+    # Identificar Identity row_id y display value
+    identity_row_id = None
+    identity_display = None
+    
+    if identity_links:
+        link = identity_links[0]
+        if isinstance(link, dict):
+            identity_row_id = link.get('row_id')
+            identity_display = link.get('display_value')
+        else:
+            # Si es un string (display value), intentamos usarlo como display
+            # Nota: sin el row_id real, algunas liquidaciones posteriores podrían fallar,
+            # pero al menos no crashea aquí.
+            identity_display = link
+            identity_row_id = link # Fallback arriesgado
+            
+            # Si tenemos el ID de Auth Method, intentamos un re-fetch para obtener el row_id real
+            auth_row_id = user.get('_id')
+            if auth_row_id:
+                base = seatable.get_base("core_identity")
+                fresh_user = base.get_row("Auth Methods", auth_row_id)
+                if fresh_user and fresh_user.get("Identity"):
+                    fresh_link = fresh_user.get("Identity")[0]
+                    if isinstance(fresh_link, dict):
+                        identity_row_id = fresh_link.get("row_id")
+                        identity_display = fresh_link.get("display_value")
 
     # Roles (No longer obtained from Identity.Role, handled via Assignments and Permissions)
     roles_list = []

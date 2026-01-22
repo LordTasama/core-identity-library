@@ -192,8 +192,18 @@ class Seatable:
                 break
                 
             offset += batch
-
         return all_data
+
+    def get_row(self, table_name, row_id, base_data=None):
+        """
+        Retrieves a single row by its internal _id, returning links as objects.
+        """
+        try:
+            base = self.get_base(base_data)
+            return base.get_row(table_name, row_id)
+        except Exception as e:
+            print(f"â Œ Error getting row {row_id} from {table_name}: {e}")
+            return None
 
     
     def perform_table_operation(self, table_name, row_data=None, type_batch="", row_id="",base_data=None):

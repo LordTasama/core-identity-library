@@ -859,20 +859,29 @@ def get_app_colors_route():
                 "message": "Application not detected for this URL"
             }), 200 # Retornamos 200 con nulls para no romper el frontend
             
-        all_apps = identity_service._get_all_apps_cached()
+        all_apps = identity_service._get_all_apps_cached() or []
         app_meta = next((a for a in all_apps if a.get("App Key") == app_key), {})
         
         return jsonify({
             "success": True,
             "appKey": app_key,
-            "appName": app_meta.get("App Name"),
-            "primaryColor": app_meta.get("Primary Color"),
-            "backgroundColor": app_meta.get("Background Color")
+            "appName": app_meta.get("App Name") or "Default App",
+            "primaryColor": app_meta.get("Primary Color") or "#000000",
+            "backgroundColor": app_meta.get("Background Color") or "#ffffff"
         }), 200
     except Exception as e:
         from src.utils.logger import logger
         logger.error(f"Error en colors-app: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        # En lugar de 500, retornamos éxito: falso pero con status 200 para que el front no muera
+        return jsonify({
+            "success": False, 
+            "message": str(e),
+            "appKey": None,
+            "primaryColor": "#000000",
+            "backgroundColor": "#ffffff"
+        }), 200
 
 
 

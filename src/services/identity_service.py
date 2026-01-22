@@ -61,6 +61,9 @@ class IdentityService:
 
         apps = self.seatable.sql_query("SELECT * FROM `Applications`", base_data="core_identity")
         
+        if apps is None:
+            apps = []
+
         if Config.CACHED_APPS:
             self._apps_cache = apps
             self._apps_cache_time = now
