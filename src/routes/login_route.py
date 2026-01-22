@@ -41,6 +41,40 @@ from config import Config
 
 auth_bp = Blueprint('auth', __name__)
 
+def _make_oauth_error_response(error_code, message=None, apps=None):
+    """
+    Generates an HTML response that communicates an OAuth error to the opener window
+    and closes the current window/popup.
+    
+    Objective:
+    - Ensure that any error in the OAuth flow (Google/Microsoft) correctly notifies 
+      the frontend and closes the popup.
+    """
+    auth_data_json = {
+        "success": False,
+        "message": message or (t(error_code) if error_code in ['user_not_found', 'oauth_failed'] else error_code),
+        "error": error_code,
+        "apps": apps or [],
+        "code": 403
+    }
+    return make_response(f"""
+    <html>
+        <body>
+            <script>
+                const authData = {json.dumps(auth_data_json)};
+                if (window.opener) {{
+                    window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
+                    window.close();
+                }} else {{
+                    // If there is no opener, show error on screen
+                    document.body.innerHTML = "<h2>" + {json.dumps(t('access_denied'))} + "</h2><p>" + authData.message + "</p>";
+                }}
+            </script>
+        </body>
+    </html>
+    """)
+
+
 
 # ============================================================================
 # OAUTH & LOGIN ROUTES
@@ -120,7 +154,9 @@ def login():
             else:
                 return jsonify({'success': False, 'message': result.get('error')}), 400
 
-        oauth_data = get_google_oauth_url()
+        from src.services.identity_service import identity_service
+        app_key = identity_service.get_app_key_by_url()
+        oauth_data = get_google_oauth_url(app_key=app_key)
         response = jsonify({'auth_url': oauth_data['auth_url']})
         response.set_cookie('oauth_state', oauth_data['state'], max_age=600, secure=False, httponly=True, samesite='Lax')
         return response
@@ -192,11 +228,17 @@ def login():
             else:
                 return jsonify({'success': False, 'message': result.get('error')}), 400
 
-        oauth_data = get_microsoft_oauth_url()
+        from src.services.identity_service import identity_service
+        app_key = identity_service.get_app_key_by_url()
+        oauth_data = get_microsoft_oauth_url(app_key=app_key)
         response = jsonify({'auth_url': oauth_data['auth_url']})
         response.set_cookie('oauth_state', oauth_data['state'], max_age=600, secure=False, httponly=True, samesite='Lax')
         print(f"[MICROSOFT] Set oauth_state cookie: {oauth_data['state']}")
         return response
+
+
+
+
     
     else:
         return jsonify({'success': False, 'message': t('provider_not_supported')}), 400
@@ -453,10 +495,10 @@ def callback():
         print(f"Available cookies: {list(request.cookies.keys())}")
         
         if error:
-            return redirect(f'/?error={error}')
+            return _make_oauth_error_response(error)
         
         if not code:
-            return redirect('/?error=no_code')
+            return _make_oauth_error_response('no_code')
         
         expected_state = request.cookies.get('oauth_state')
         print(f"Expected state from cookie: {expected_state}")
@@ -464,13 +506,12 @@ def callback():
         
         result = process_google_callback(code, state, expected_state)
         
-        if not result.get('success'):
-            error = result.get('error', 'oauth_failed')
-            return redirect(f'/?error={error}')
-        
+        if not result.get('success') or not result.get('user'):
+            error_code = result.get('error', 'oauth_failed')
+            if not result.get('user'): error_code = 'user_not_found'
+            return _make_oauth_error_response(error_code)
+
         user = result.get('user')
-        if not user:
-            return redirect('/?error=user_not_found')
 
 
 
@@ -478,28 +519,11 @@ def callback():
         user_ctx = user # result.get('user') is already the cleaned context
         
         if user_ctx and not user_ctx.get("success"):
-            auth_data_json = {
-                "success": False,
-                "message": user_ctx.get("message"),
-                "apps": user_ctx.get("apps", []),
-                "code": 403
-            }
-            response_redirect = make_response(f"""
-            <html>
-                <body>
-                    <script>
-                        const authData = {json.dumps(auth_data_json)};
-                        if (window.opener) {{
-                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
-                            window.close();
-                        }} else {{
-                            // If there is no opener, show error on screen or redirect
-                            document.body.innerHTML = "<h2>" + {json.dumps(t('access_denied'))} + "</h2><p>" + authData.message + "</p>";
-                        }}
-                    </script>
-                </body>
-            </html>
-            """)
+            response_redirect = _make_oauth_error_response(
+                error_code="access_denied",
+                message=user_ctx.get("message"),
+                apps=user_ctx.get("apps", [])
+            )
             response_redirect.set_cookie('oauth_state', '', expires=0)
             return response_redirect
 
@@ -540,7 +564,7 @@ def callback():
         print(f"OAuth callback error: {e}")
         import traceback
         traceback.print_exc()
-        return redirect('/?error=oauth_failed')
+        return _make_oauth_error_response('oauth_failed')
 
 
 @auth_bp.route('/microsoft/callback')
@@ -561,48 +585,31 @@ def microsoft_callback():
         print(f"[MICROSOFT CALLBACK] code: {code}, state: {state}, error: {error}")
 
         if error:
-            return redirect(f'/?error={error}')
+            return _make_oauth_error_response(error)
 
         if not code:
-            return redirect('/?error=no_code')
-
+            return _make_oauth_error_response('no_code')
+        
         expected_state = request.cookies.get('oauth_state')
         print(f"[MICROSOFT] Expected state: {expected_state}, Received: {state}")
 
         result = process_microsoft_callback(code, state, expected_state)
         
-        if not result.get('success'):
-            error = result.get('error', 'oauth_failed')
-            return redirect(f'/?error={error}')
-        
+        if not result.get('success') or not result.get('user'):
+            error_code = result.get('error', 'oauth_failed')
+            if not result.get('user'): error_code = 'user_not_found'
+            return _make_oauth_error_response(error_code)
+
         user = result.get('user')
-        if not user:
-            return redirect('/?error=user_not_found')
 
         user_ctx = user 
         
         if user_ctx and not user_ctx.get("success"):
-            auth_data_json = {
-                "success": False,
-                "message": user_ctx.get("message"),
-                "apps": user_ctx.get("apps", []),
-                "code": 403
-            }
-            response_redirect = make_response(f"""
-            <html>
-                <body>
-                    <script>
-                        const authData = {json.dumps(auth_data_json)};
-                        if (window.opener) {{
-                            window.opener.postMessage({{ type: 'OAUTH_ERROR', payload: authData }}, "*");
-                            window.close();
-                        }} else {{
-                            document.body.innerHTML = "<h2>" + {json.dumps(t('access_denied'))} + "</h2><p>" + authData.message + "</p>";
-                        }}
-                    </script>
-                </body>
-            </html>
-            """)
+            response_redirect = _make_oauth_error_response(
+                error_code="access_denied",
+                message=user_ctx.get("message"),
+                apps=user_ctx.get("apps", [])
+            )
             response_redirect.set_cookie('oauth_state', '', expires=0)
             return response_redirect
 
@@ -643,7 +650,7 @@ def microsoft_callback():
         print(f"[MICROSOFT CALLBACK ERROR] {e}")
         import traceback
         traceback.print_exc()
-        return redirect('/?error=oauth_failed')
+        return _make_oauth_error_response('oauth_failed')
 
 
 # ============================================================================

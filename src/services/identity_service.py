@@ -123,7 +123,7 @@ class IdentityService:
         
         # Historical fallback for local development (requested by the user)
         if current_url and ("localhost" in current_url or "127.0.0.1" in current_url):
-            override_url = "https://eprcrm.prismgrp.com"
+            override_url = "https://insights.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 

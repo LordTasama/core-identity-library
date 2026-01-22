@@ -27,6 +27,7 @@ from src.utils.i18n import t
 from flask import request
 import string
 from src.utils.logger import logger
+from src.utils.post_email_util import send_email
 import requests
 
 # ============================================================================
@@ -126,11 +127,21 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
             return None
         row_auth = auth_rows[0]
     identity_links = row_auth.get("Identity", [])
-    if not identity_links:
-        logger.warning(f"User {email} has no linked Identity.")
+    identity_id = None
+    if identity_links:
+        identity_id = identity_links[0].get("row_id")
+    
+    # 0.2 Resilience: If identity is missing in the object, we try to re-fetch the row from SeaTable
+    # This happens in new registrations where SeaTable might not have propagated the link yet
+    if not identity_id:
+        logger.info(f"Identity link missing for {email}, re-fetching fresh row from DB...")
+        fresh_rows = seatable.sql_query(f"SELECT `Identity` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", base_data="core_identity")
+        if fresh_rows and fresh_rows[0].get("Identity"):
+            identity_id = fresh_rows[0].get("Identity")[0].get("row_id")
+            
+    if not identity_id:
+        logger.warning(f"User {email} has no linked Identity even after re-fetch.")
         return None
-        
-    identity_id = identity_links[0].get("row_id")
     
     # 0.5 Verificar Status en la tabla Identity (Indicado por el usuario)
     identity_row = seatable.sql_query_one(f"SELECT `Status` FROM `Identity` WHERE `_id` = '{identity_id}'", base_data="core_identity")
@@ -354,7 +365,7 @@ def create_session(user_context, temp_device=False):
         logger.error(f"Error creating session for {user_context.get('email', 'unknown')}: {e}", exc_info=True)
         return None
 
-def insert_user_in_database(userinfo,auth_provider):
+def insert_user_in_database(userinfo, auth_provider, app_key=None):
     """
     Synchronizes and persists user information in the SeaTable database.
     
@@ -463,12 +474,15 @@ def insert_user_in_database(userinfo,auth_provider):
         auth_row_id = auth_created.get('_id')
 
         # 2.3) Assign Default Role to Identity
-        _assign_default_role_to_identity(identity_row_id)
+        _assign_default_role_to_identity(identity_row_id, app_key=app_key)
+
 
         # 2.4) Reverse Link: Identity -> Auth Methods
         _link_identity_to_auth(identity_row_id, auth_row_id)
 
-        return auth_created
+        # 2.5) Fetch FRESH row before returning to ensure links are present
+        fresh_user = seatable.sql_query_one(f"SELECT * FROM `{PORTAL_USERS_TABLE}` WHERE `_id` = '{auth_row_id}'", base_data="core_identity")
+        return fresh_user if fresh_user else auth_created
 
     else:
         # ==================================================
@@ -504,7 +518,10 @@ def insert_user_in_database(userinfo,auth_provider):
             )
             
             # Assign Role
-            _assign_default_role_to_identity(identity_row_id)
+            _assign_default_role_to_identity(identity_row_id, app_key=app_key)
+
+
+
             
             # Reverse link
             _link_identity_to_auth(identity_row_id, auth_row_id)
@@ -535,10 +552,10 @@ def insert_user_in_database(userinfo,auth_provider):
                 base_data="core_identity"
             )
 
-        # Return updated/existing user
-        return existing_user
+        # Return FRESH row to ensure identity links are not stale
+        return fresh_user if fresh_user else existing_user
 
-def _assign_default_role_to_identity(identity_row_id):
+def _assign_default_role_to_identity(identity_row_id, app_key=None):
     """
     Automatically assigns the most restrictive role available for the current App.
     
@@ -549,8 +566,12 @@ def _assign_default_role_to_identity(identity_row_id):
     """
     from src.services.identity_service import identity_service
     try:
-        # 1. Obtain app_key dynamically based on URL
-        app_key = identity_service.get_app_key_by_url()
+        # 1. Obtain app_key dynamically based on URL if not provided
+        if not app_key:
+            app_key = identity_service.get_app_key_by_url()
+
+
+
         if not app_key:
             logger.warning("Could not determine app_key for role auto-assignment. Aborting.")
             return
@@ -1287,16 +1308,15 @@ def reset_password_with_token(token, new_password):
 # OAUTH FUNCTIONS
 # ============================================================================
 
-def get_google_oauth_url():
+def get_google_oauth_url(app_key=None):
     """
     Constructs the authorization URL for Google login.
-    
-    Objective:
-    - Generate a secure state token to prevent CSRF attacks.
-    - Configure necessary scopes (openid, email, profile) to retrieve identity.
-    - Define the redirect_uri based on global system configuration.
     """
-    state = secrets.token_urlsafe(32)
+    random_state = secrets.token_urlsafe(32)
+    state = f"{random_state}"
+    if app_key:
+        state = f"{random_state}___{app_key}"
+    
     print(f"Generated OAuth state: {state}")
     
     # For OAuth, we use the domain configured in .env because it must match Google's whitelist
@@ -1319,17 +1339,17 @@ def get_google_oauth_url():
     return {'auth_url': auth_url, 'state': state}
 
 
-def get_microsoft_oauth_url():
+def get_microsoft_oauth_url(app_key=None):
     """
     Constructs the authorization URL for Microsoft login.
-    
-    Objective:
-    - Configure Microsoft Azure AD OAuth2 flow.
-    - Request profile read permissions (User.Read) and email.
-    - Manage session state using a unique random token.
+    Manage session state using a unique random token.
     """
-    state = secrets.token_urlsafe(32)
-    print(f"[MICROSOFT] Generated OAuth state: {state}")
+    random_state = secrets.token_urlsafe(32)
+    state = f"{random_state}"
+    if app_key:
+        state = f"{random_state}___{app_key}"
+    
+    print(f"Generated Microsoft OAuth state: {state}")
     
     # For OAuth, we use the domain configured in .env because it must match Microsoft's whitelist
     domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
@@ -1462,17 +1482,24 @@ def register_manual_user(userinfo):
 def process_google_callback(code, state, expected_state):
     """
     Processes the Google return after successful user authorization.
-    
-    Objective:
-    - Validate flow integrity by comparing states (CSRF Protection).
-    - Exchange the authorization code for a Google Access Token.
-    - Retrieve and normalize the user profile for SeaTable synchronization.
-    - Establish the initial Flask session and return the identity context.
     """
     try:
+        # Extract app_key from state if present
+        app_key = None
+        if state and "___" in state:
+            state_parts = state.split("___")
+            state = state_parts[0]
+            if len(state_parts) > 1:
+                app_key = state_parts[1]
+
+        # Extract app_key from expected_state if it was stored with it
+        if expected_state and "___" in expected_state:
+            expected_state = expected_state.split("___")[0]
+
         if state != expected_state:
             print(f"State mismatch: received {state}, expected {expected_state}")
             return {'success': False, 'error': 'state_mismatch'}
+
         
         # Exchange code for token
         domain = Config.URL_REDIRECT_CALLBACK.rstrip('/')
@@ -1507,7 +1534,7 @@ def process_google_callback(code, state, expected_state):
             return {'success': False, 'error': 'userinfo_failed'}
         
         # Create or update user
-        auth_row = insert_user_in_database(userinfo, "Google")
+        auth_row = insert_user_in_database(userinfo, "Google", app_key=app_key)
         
         # Synchronize with Identity
         if isinstance(auth_row, list):
@@ -1539,13 +1566,20 @@ def process_google_callback(code, state, expected_state):
 def process_microsoft_callback(code, state, expected_state):
     """
     Processes the Microsoft return after user authorization.
-    
-    Objective:
-    - Authenticate the flow by exchanging codes for Microsoft Graph tokens.
-    - Synchronize the user profile (Azure AD) with the identity database.
-    - Manage session persistence and the transition back to the app.
     """
     try:
+        # Extract app_key from state if present
+        app_key = None
+        if state and "___" in state:
+            state_parts = state.split("___")
+            state = state_parts[0]
+            if len(state_parts) > 1:
+                app_key = state_parts[1]
+
+        # Extract app_key from expected_state if it was stored with it
+        if expected_state and "___" in expected_state:
+            expected_state = expected_state.split("___")[0]
+
         if state != expected_state:
             return {'success': False, 'error': 'state_mismatch'}
         
@@ -1586,7 +1620,12 @@ def process_microsoft_callback(code, state, expected_state):
         }
         
         # Insert user
-        auth_row = insert_user_in_database(final_userinfo, "Microsoft")
+        auth_row = insert_user_in_database(final_userinfo, "Microsoft", app_key=app_key)
+
+
+
+
+
         
         # Normalize user
         if isinstance(auth_row, list):
