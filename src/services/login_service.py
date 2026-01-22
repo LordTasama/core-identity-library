@@ -113,45 +113,54 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     escaped_email = email.replace("'", "''")
     row_auth = initial_auth_row
 
+    # 1. Resolver Auth Method (con IDs reales para los Links)
     if not row_auth:
         where_provider = ""
         if provider:
             where_provider = f" AND `Auth Provider` = '{provider}'"
         
         auth_rows = seatable.sql_query(
-            f"SELECT `Identity`, `Email`, `ID`, `_id`, `Profile Image URL` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'{where_provider} ORDER BY `Is Primary` DESC, `_id` DESC", 
+            f"SELECT `_id` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'{where_provider} ORDER BY `Is Primary` DESC, `_id` DESC", 
             base_data="core_identity"
         )
         
         if not auth_rows:
-            return None
-        row_auth = auth_rows[0]
+            logger.warning(f"No Auth Methods found for {email} with provider {provider}")
+            # Intento final sin provider por si acaso
+            auth_rows = seatable.sql_query(f"SELECT `_id` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", base_data="core_identity")
+            if not auth_rows:
+                return None
+        
+        # Obtenemos la fila completa con get_row para tener objetos en Identity
+        row_auth = seatable.get_row("Auth Methods", auth_rows[0].get("_id"), base_data="core_identity")
+
+    if not row_auth:
+        return None
+
+    auth_row_id = row_auth.get("_id")
     identity_links = row_auth.get("Identity", [])
     
-    # 0.1 Handle Link format (Objects from append/get vs Strings from SQL query)
-    # If links are strings, we re-fetch the Auth Method row via get_row to get actual row_ids
-    if identity_links and isinstance(identity_links[0], str):
-        auth_row_id = row_auth.get('_id')
-        if auth_row_id:
-            logger.debug(f"Identity links are strings for {email}, re-fetching via get_row to resolve IDs...")
-            fresh_auth = seatable.get_row("Auth Methods", auth_row_id, base_data="core_identity")
-            if fresh_auth:
-                row_auth = fresh_auth
-                identity_links = row_auth.get("Identity", [])
+    # Asegurar que identity_links sea una lista de objetos, si son strings re-solicitamos
+    if identity_links and isinstance(identity_links[0], str) and auth_row_id:
+        logger.debug(f"Identity links are strings, re-fetching via get_row for {email}")
+        row_auth = seatable.get_row("Auth Methods", auth_row_id, base_data="core_identity")
+        identity_links = row_auth.get("Identity", [])
 
     identity_id = None
-    if identity_links:
-        if isinstance(identity_links[0], dict):
-            identity_id = identity_links[0].get("row_id")
+    if identity_links and isinstance(identity_links, list) and len(identity_links) > 0:
+        link = identity_links[0]
+        if isinstance(link, dict):
+            identity_id = link.get("row_id")
         else:
-            # Fallback: if it's a string, it might be the ID if it was inserted as such, 
-            # or the display value. We try using it as is.
-            identity_id = identity_links[0]
+            # Si es string, es el display name, necesitamos buscarlo o re-solicitarlo
+            # Pero ya lo hicimos con get_row arriba. Si sigue siendo string, 
+            # es porque SeaTable no devolvió el objeto (raro) o el link está roto.
+            identity_id = str(link)
     
-    # 0.2 Resilience: If identity is missing in the object, we try to re-fetch the row from SeaTable
-    # This happens in new registrations where SeaTable might not have propagated the link yet
+    # 0.2 Resilience: Si después de todo no hay identity_id, buscamos desesperadamente
     if not identity_id:
         logger.info(f"Identity link missing for {email}, re-fetching fresh row from DB...")
+        # Volvemos a intentar con SQL pero solo como último recurso
         fresh_rows = seatable.sql_query(f"SELECT `Identity` FROM `Auth Methods` WHERE `Email` = '{escaped_email}'", base_data="core_identity")
         if fresh_rows and fresh_rows[0].get("Identity"):
             id_link = fresh_rows[0].get("Identity")[0]
@@ -498,8 +507,8 @@ def insert_user_in_database(userinfo, auth_provider, app_key=None):
         # 2.4) Reverse Link: Identity -> Auth Methods
         _link_identity_to_auth(identity_row_id, auth_row_id)
 
-        # 2.5) Fetch FRESH row before returning to ensure links are present
-        fresh_user = seatable.sql_query_one(f"SELECT * FROM `{PORTAL_USERS_TABLE}` WHERE `_id` = '{auth_row_id}'", base_data="core_identity")
+        # 2.5) Fetch FRESH row before returning to ensure links are present and returned as objects (not strings)
+        fresh_user = seatable.get_row(PORTAL_USERS_TABLE, auth_row_id, base_data="core_identity")
         return fresh_user if fresh_user else auth_created
 
     else:
@@ -579,7 +588,8 @@ def insert_user_in_database(userinfo, auth_provider, app_key=None):
                 base_data="core_identity"
             )
 
-        # Return FRESH row to ensure identity links are not stale
+        # Return FRESH row to ensure identity links are not stale and are returned as objects (not strings)
+        fresh_user = seatable.get_row(PORTAL_USERS_TABLE, auth_row_id, base_data="core_identity")
         return fresh_user if fresh_user else existing_user
 
 def _assign_default_role_to_identity(identity_row_id, app_key=None):
@@ -1563,25 +1573,38 @@ def process_google_callback(code, state, expected_state):
         # Create or update user
         auth_row = insert_user_in_database(userinfo, "Google", app_key=app_key)
         
-        # Synchronize with Identity
-        if isinstance(auth_row, list):
-            auth_row = auth_row[0]
-            
         if auth_row:
+            # Asegurar que auth_row sea un dict
+            if isinstance(auth_row, list):
+                auth_row = auth_row[0]
+            
+            # Obtener ID de identidad de forma resiliente para la sesión
+            row_identity_id = None
             identity_links = auth_row.get("Identity", [])
             if identity_links:
-                row_identity_id = identity_links[0].get("row_id")
-                
-                from flask import session
-                session.permanent = True
-                session['user_id'] = auth_row.get('_id')
-                session['row_auth_methods'] = auth_row.get('_id')
-                session['row_identity'] = row_identity_id
-                session['vendor_email'] = userinfo['email']
-                
-                return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row)}
+                link = identity_links[0]
+                if isinstance(link, dict):
+                    row_identity_id = link.get("row_id")
+                else:
+                    # Es un string, intentamos resolverlo vía get_row si tenemos el ID
+                    auth_id = auth_row.get("_id")
+                    if auth_id:
+                        fresh_auth = seatable.get_row("Auth Methods", auth_id, base_data="core_identity")
+                        if fresh_auth and fresh_auth.get("Identity"):
+                            row_identity_id = fresh_auth.get("Identity")[0].get("row_id")
+
+            from flask import session
+            session.permanent = True
+            session['user_id'] = auth_row.get('_id')
+            session['row_auth_methods'] = auth_row.get('_id')
+            session['row_identity'] = row_identity_id
+            session['vendor_email'] = userinfo['email']
+            
+            # El contexto final se encarga de todo lo pesado
+            u_final = _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row)
+            return {'success': True, 'user': u_final}
         
-        return {'success': True, 'user': _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row)}
+        return {'success': False, 'error': 'user_not_found'}
         
     except Exception as e:
         print(f"OAuth callback error: {e}")
@@ -1649,19 +1672,37 @@ def process_microsoft_callback(code, state, expected_state):
         # Insert user
         auth_row = insert_user_in_database(final_userinfo, "Microsoft", app_key=app_key)
 
-
-
-
-
         
-        # Normalize user
-        if isinstance(auth_row, list):
-            auth_row = auth_row[0]
+        if auth_row:
+            if isinstance(auth_row, list):
+                auth_row = auth_row[0]
 
-        # Obtain context injecting the previous result to save a query
-        u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row)
-        
-        return {'success': True, 'user': u_final}
+            # Obtener ID de identidad de forma resiliente para la sesión
+            row_identity_id = None
+            identity_links = auth_row.get("Identity", []) # Assuming IDENTITY_LINK_COL is "Identity"
+            if identity_links:
+                link = identity_links[0]
+                if isinstance(link, dict):
+                    row_identity_id = link.get("row_id")
+                else:
+                    auth_id = auth_row.get("_id")
+                    if auth_id:
+                        fresh_auth = seatable.get_row("Auth Methods", auth_id, base_data="core_identity") # Assuming PORTAL_USERS_TABLE is "Auth Methods"
+                        if fresh_auth and fresh_auth.get("Identity"): # Assuming IDENTITY_LINK_COL is "Identity"
+                            row_identity_id = fresh_auth.get("Identity")[0].get("row_id")
+
+            from flask import session
+            session.permanent = True
+            session['user_id'] = auth_row.get('_id')
+            session['row_auth_methods'] = auth_row.get('_id')
+            session['row_identity'] = row_identity_id
+            session['vendor_email'] = final_userinfo['email']
+
+            # Obtain context injecting the previous result to save a query
+            u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row)
+            return {'success': True, 'user': u_final}
+            
+        return {'success': False, 'error': 'user_not_found'}
         
     except Exception as e:
         print(f"[MICROSOFT CALLBACK ERROR] {e}")
