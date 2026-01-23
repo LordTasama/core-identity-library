@@ -239,6 +239,15 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     identity_data["permissions"] = auth_data.get("permissions", [])
     identity_data["dataMode"] = auth_data.get("data_mode", "deny")
     identity_data["dataModeInfo"] = auth_data.get("data_mode_info", {})
+    
+    # NUEVO: Si dataMode es "team", usar los emails de collaborator_info
+    if identity_data["dataMode"] == "team" and "collaborator_info" in identity_data:
+        collab_emails = [c.get("email") for c in identity_data["collaborator_info"] if c.get("email")]
+        if collab_emails:
+            identity_data["dataModeInfo"]["members"] = collab_emails
+            identity_data["dataModeInfo"]["managerEmail"] = email
+            print(f"✅ Team mode: Updated dataModeInfo with {len(collab_emails)} collaborators from collaborator_info")
+    
     identity_data["appKey"] = app_key
     
     # Get visual info of the current app (Colors)
@@ -1762,11 +1771,12 @@ def prepare_session_data(user):
     # Roles (No longer obtained from Identity.Role, handled via Assignments and Permissions)
     roles_list = []
 
-    # Collaborator Info
-    collaborator_info = get_collaborator_info_from_identity(identity_row_id)
-    
-    # Primary Email
+
+    # Primary Email (obtener primero para pasarlo a get_collaborator_info_from_identity)
     email_primary = get_email_primary_from_auth(identity_display)
+    
+    # Collaborator Info (ahora recibe el email del usuario)
+    collaborator_info = get_collaborator_info_from_identity(identity_row_id, user_email=email_primary or user.get('Email'))
 
     session_data = {
         'user_id': user.get('_id'),
@@ -1890,15 +1900,21 @@ def get_roles_from_identity(identity_row_id):
 
 
 
-def get_collaborator_info_from_identity(identity_row_id):
+def get_collaborator_info_from_identity(identity_row_id, user_email=None):
     """
     Obtains detailed information on collaborators linked to an identity.
     
     Objective:
     - Resolve the relationship between an Identity and its records in the Collaborators table.
     - Extract the 'Seatable User' and email for use in business logic and UI.
+    - NUEVO: También incluir personas que tienen al usuario como su manager (Manager Emails).
     - Normalize the response to facilitate its consumption in the user's context.
+    
+    Args:
+        identity_row_id: ID de la identidad
+        user_email: Email del usuario (opcional, se usa para buscar Manager Emails)
     """
+    
     row = seatable.sql_query_one(
         f"SELECT `Collaborator ID` FROM `Identity` WHERE `_id` = '{identity_row_id}'",
         base_data="core_identity"
@@ -1911,28 +1927,69 @@ def get_collaborator_info_from_identity(identity_row_id):
     if isinstance(row, list):
         row = row[0] if row else None
 
-    links = (row or {}).get("Collaborator ID") or []
-    if not isinstance(links, list) or len(links) == 0:
-        return []
-
-    row_ids = [x.get("row_id") for x in links if isinstance(x, dict) and x.get("row_id")]
-    if not row_ids:
-        return []
-
-    # Query the Collaborators table for additional details
-    ids_str = "', '".join(row_ids)
-    collab_details = seatable.sql_query(
-        f"SELECT `_id`, `Seatable User`, `Email address` FROM `Collaborators` WHERE `_id` IN ('{ids_str}')",
-        base_data="core_identity"
-    )
-
     result = []
-    for detail in collab_details:
-        result.append({
-            "row_id": detail.get("_id"),
-            "email": detail.get("Email address"),
-            "seatable_user": detail.get("Seatable User")
-        })
+    
+    # Procesar colaboradores directos (si existen)
+    links = (row or {}).get("Collaborator ID") or []
+    if isinstance(links, list) and len(links) > 0:
+        row_ids = [x.get("row_id") for x in links if isinstance(x, dict) and x.get("row_id")]
+        
+        if row_ids:
+            # Query the Collaborators table for additional details
+            ids_str = "', '".join(row_ids)
+            collab_details = seatable.sql_query(
+                f"SELECT `_id`, `Seatable User`, `Email address` FROM `Collaborators` WHERE `_id` IN ('{ids_str}')",
+                base_data="core_identity"
+            )
+
+            for detail in collab_details:
+                email = detail.get("Email address")
+                result.append({
+                    "row_id": detail.get("_id"),
+                    "email": email,
+                    "seatable_user": detail.get("Seatable User")
+                })
+                # Si no se pasó user_email como parámetro, intentar obtenerlo de los colaboradores
+                if email and not user_email:
+                    user_email = email
+
+    # NUEVO: Buscar Manager Emails (personas que tienen al usuario como manager)
+    # Usando calculate_team_hierarchy para obtener TODA la jerarquía recursiva
+    print("----------------------------------------------------------------")
+    print(f"🔍 Buscando jerarquía completa para: {user_email}")
+    if user_email:
+        # Obtener todos los colaboradores para calcular la jerarquía
+        all_collabs = seatable.sql_query(
+            "SELECT `Email address`, `Manager Email` FROM `Collaborators` WHERE `Email address` IS NOT NULL",
+            base_data="core_identity"
+        )
+        
+        # Calcular la jerarquía completa (recursiva)
+        from src.utils.team_util import calculate_team_hierarchy
+        hierarchy = calculate_team_hierarchy(user_email, all_collabs)
+        
+        team_members = hierarchy.get("members", [])
+        print(f"✅ Jerarquía calculada: {len(team_members)} miembro(s) en total")
+        
+        if team_members:
+            # Obtener los detalles de todos los miembros del equipo
+            # Crear una consulta para buscar por emails
+            emails_str = "', '".join(team_members)
+            team_details = seatable.sql_query(
+                f"SELECT `_id`, `Email address`, `Seatable User` FROM `Collaborators` WHERE `Email address` IN ('{emails_str}')",
+                base_data="core_identity"
+            )
+            
+            # Agregar al resultado (evitando duplicados)
+            for person in team_details:
+                person_id = person.get("_id")
+                if not any(r["row_id"] == person_id for r in result):
+                    result.append({
+                        "row_id": person_id,
+                        "email": person.get("Email address"),
+                        "seatable_user": person.get("Seatable User")
+                    })
+                    print(f"   ➕ Agregado: {person.get('Email address')}")
 
     return result
 

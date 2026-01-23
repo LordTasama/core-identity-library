@@ -126,7 +126,7 @@ class IdentityService:
         
         # Historical fallback for local development (requested by the user)
         if current_url and ("localhost" in current_url or "127.0.0.1" in current_url):
-            override_url = "https://insights.prismgrp.com"
+            override_url = "https://eprcrm.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
@@ -325,8 +325,8 @@ class IdentityService:
         # --- NEW: If mode is TEAM, calculate hierarchy ---
         # OPTIMIZATION: Only calculate hierarchy if the app is EPR CRM (https://eprcrm.prismgrp.com)
         app_url = request.host_url.rstrip('/')
-        is_crm_app = "eprcrm.prismgrp.com" in app_url
-        
+        is_crm_app = "eprcrm.prismgrp.com" in app_url or "localhost" in app_url or "127.0.0.1" in app_url
+
         logger.debug(f"[get_identity_permissions] final_data_mode: {final_data_mode}, user_email: {user_email}, is_crm: {is_crm_app}")
         if final_data_mode == "team" and user_email and is_crm_app:
             logger.info(f"CALCULATING team hierarchy for permissions: {user_email}")
@@ -367,26 +367,7 @@ class IdentityService:
         if isinstance(identity, list) and len(identity) > 0:
             identity = identity[0]
             
-        # --- NEW: Fetch Collaborator Info ---
-        collaborator_links = identity.get("Collaborator ID") or []
-        collaborator_info = []
-        if collaborator_links:
-            collab_row_ids = [c.get("row_id") for c in collaborator_links if isinstance(c, dict) and c.get("row_id")]
-            if collab_row_ids:
-                ids_str = "', '".join(collab_row_ids)
-                collab_details = self.seatable.sql_query(
-                    f"SELECT `_id`, `Seatable User`, `Email address` FROM `Collaborators` WHERE `_id` IN ('{ids_str}')",
-                    base_data="core_identity"
-                )
-                for detail in collab_details:
-                    collaborator_info.append({
-                        "row_id": detail.get("_id"),
-                        "email": detail.get("Email address"),
-                        "seatable_user": detail.get("Seatable User")
-                    })
-        
-        identity["collaborator_info"] = collaborator_info
-        identity.pop("Collaborator ID", None) # Clear original link field
+            
         # Use identity email if user_email not provided
         if not user_email:
             # Try to find primary email for this identity in Auth Methods
@@ -400,6 +381,13 @@ class IdentityService:
                 auth_rows_any = self.seatable.sql_query(query_email_any, base_data="core_identity")
                 if auth_rows_any and len(auth_rows_any) > 0:
                     user_email = auth_rows_any[0].get("Email")
+        
+        # --- Fetch Collaborator Info usando la función centralizada ---
+        from src.services.login_service import get_collaborator_info_from_identity
+        collaborator_info = get_collaborator_info_from_identity(identity_id, user_email=user_email)
+        
+        identity["collaborator_info"] = collaborator_info
+        identity.pop("Collaborator ID", None) # Clear original link field
 
         # Variable to collect unique App Keys (for the 'apps' field of the context)
         unique_app_keys = set()
@@ -584,7 +572,7 @@ class IdentityService:
             
             # OPTIMIZATION: Only calculate hierarchy if the app is EPR CRM
             app_url = request.host_url.rstrip('/')
-            is_crm_app = "eprcrm.prismgrp.com" in app_url
+            is_crm_app = "eprcrm.prismgrp.com" in app_url or "localhost" in app_url or "127.0.0.1" in app_url
             
             logger.debug(f"[get_identity_with_assignments] is_team: {is_team}, user_email: {user_email}, is_crm: {is_crm_app}")
             if is_team and user_email and is_crm_app:
