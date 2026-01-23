@@ -4,6 +4,7 @@
  * Descripción: Gestiona el formulario de cambio de contraseña, validando que las nuevas contraseñas coincidan y comunicándose con la API de autenticación.
  */
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
@@ -40,6 +41,9 @@ export default function ChangePassword({
     const [success, setSuccess] = useState(false);
     const [localError, setLocalError] = useState('');
     const [localSuccess, setLocalSuccess] = useState('');
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     if (isAppInfoLoading) return null;
 
@@ -132,35 +136,62 @@ export default function ChangePassword({
 
                 <div className="cil-space-y-2">
                     <label className="cil-text-sm cil-font-medium">{t.oldPassword}</label>
-                    <input
-                        type="password"
-                        value={formData.oldPassword}
-                        onChange={(e) => updateField('oldPassword', e.target.value)}
-                        required
-                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                    />
+                    <div className="cil-relative">
+                        <input
+                            type={showOldPassword ? "text" : "password"}
+                            value={formData.oldPassword}
+                            onChange={(e) => updateField('oldPassword', e.target.value)}
+                            required
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                        />
+                        <button
+                            type="button"
+                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                            onClick={() => setShowOldPassword(!showOldPassword)}
+                        >
+                            {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="cil-space-y-2">
                     <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
-                    <input
-                        type="password"
-                        value={formData.newPassword}
-                        onChange={(e) => updateField('newPassword', e.target.value)}
-                        required
-                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                    />
+                    <div className="cil-relative">
+                        <input
+                            type={showNewPassword ? "text" : "password"}
+                            value={formData.newPassword}
+                            onChange={(e) => updateField('newPassword', e.target.value)}
+                            required
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                        />
+                        <button
+                            type="button"
+                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                            {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="cil-space-y-2">
                     <label className="cil-text-sm cil-font-medium">{t.confirmNewPassword || t.confirmPassword}</label>
-                    <input
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => updateField('confirmPassword', e.target.value)}
-                        required
-                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                    />
+                    <div className="cil-relative">
+                        <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={(e) => updateField('confirmPassword', e.target.value)}
+                            required
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                        />
+                        <button
+                            type="button"
+                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 <button

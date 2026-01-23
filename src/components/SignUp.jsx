@@ -4,6 +4,7 @@
  * Descripción: Gestiona el formulario de registro de usuario, validando datos básicos y comunicándose con el endpoint de registro de la API.
  */
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import SocialAuthButtons from './SocialAuthButtons';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
@@ -30,6 +31,8 @@ export default function SignUp({
     const { post } = useAuthApi(apiBaseUrl, apiToken);
     const [isLoading, setIsLoading] = useState(false);
     const [localError, setLocalError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -185,24 +188,42 @@ export default function SignUp({
 
                     <div className="cil-space-y-2">
                         <label className="cil-text-sm cil-font-medium">{t.password}</label>
-                        <input
-                            type="password"
-                            value={formData.password}
-                            onChange={(e) => updateField('password', e.target.value)}
-                            required
-                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                        />
+                        <div className="cil-relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={formData.password}
+                                onChange={(e) => updateField('password', e.target.value)}
+                                required
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                            />
+                            <button
+                                type="button"
+                                className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="cil-space-y-2">
                         <label className="cil-text-sm cil-font-medium">{t.confirmPassword}</label>
-                        <input
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={(e) => updateField('confirmPassword', e.target.value)}
-                            required
-                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                        />
+                        <div className="cil-relative">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={formData.confirmPassword}
+                                onChange={(e) => updateField('confirmPassword', e.target.value)}
+                                required
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                            />
+                            <button
+                                type="button"
+                                className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <button

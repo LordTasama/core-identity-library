@@ -4,6 +4,7 @@
  * Descripción: Proporciona la interfaz de inicio de sesión, integrando botones de autenticación social y validando las credenciales con la API.
  */
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import SocialAuthButtons from './SocialAuthButtons';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
@@ -30,6 +31,7 @@ export default function Login({
     const { post } = useAuthApi(apiBaseUrl, apiToken);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [localError, setLocalError] = useState('');
 
@@ -154,17 +156,26 @@ export default function Login({
                         <label htmlFor="auth-password" className="cil-text-sm cil-font-medium cil-leading-none">
                             {t.password}
                         </label>
-                        <input
-                            id="auth-password"
-                            type="password"
-                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                            value={password}
-                            onChange={(e) => {
-                                setPassword(e.target.value);
-                                if (localError) setLocalError('');
-                            }}
-                            required
-                        />
+                        <div className="cil-relative">
+                            <input
+                                id="auth-password"
+                                type={showPassword ? "text" : "password"}
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                                value={password}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (localError) setLocalError('');
+                                }}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="cil-flex cil-justify-end">

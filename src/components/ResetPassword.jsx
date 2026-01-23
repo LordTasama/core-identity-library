@@ -4,6 +4,7 @@
  * Descripción: Maneja el flujo de restablecimiento de contraseña, permitiendo también cerrar sesiones activas tras un cambio exitoso.
  */
 import { useState, useEffect, useRef } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
@@ -40,6 +41,8 @@ export default function ResetPassword({
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isResending, setIsResending] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [success, setSuccess] = useState(false);
     const [activeSessions, setActiveSessions] = useState([]);
     const [isLoggingOutSession, setIsLoggingOutSession] = useState(false);
@@ -333,25 +336,43 @@ export default function ResetPassword({
 
                 <div className="cil-space-y-2">
                     <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
-                    <input
-                        type="password"
-                        value={formData.newPassword}
-                        onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                        required
-                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                        placeholder={t.min8Chars}
-                    />
+                    <div className="cil-relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            value={formData.newPassword}
+                            onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                            required
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                            placeholder={t.min8Chars}
+                        />
+                        <button
+                            type="button"
+                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="cil-space-y-2">
                     <label className="cil-text-sm cil-font-medium">{t.confirmPassword}</label>
-                    <input
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        required
-                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
-                    />
+                    <div className="cil-relative">
+                        <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            required
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                        />
+                        <button
+                            type="button"
+                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 <button
