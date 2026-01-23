@@ -40,9 +40,16 @@ npm install lucide-react react-icons @tanstack/react-query
 ```
 
 ## 2.2 Configuración de Estilos (Tailwind CSS)
-La librería utiliza **Tailwind CSS** para su sistema de diseño.
-- **Versión**: Requiere Tailwind CSS v3.0+.
-- **Herencia de Tipografía**: La librería **no impone una fuente específica**. Heredará automáticamente la tipografía definida en el `body` o contenedor de la aplicación host. Esto garantiza que los componentes se integren visualmente de forma nativa con cualquier diseño previo.
+La librería utiliza **Tailwind CSS v3** para su sistema de diseño.
+
+### A. Aislamiento de Estilos (Prefijo `cil-`)
+Para garantizar que la librería sea "Safe-to-Use" en cualquier proyecto (incluso aquellos que no usan Tailwind o usan una versión distinta), todos los estilos internos están aislados mediante el prefijo **`cil-`** (Core Identity Library).
+
+*   **Sin Conflictos**: Las clases de la librería (ej: `cil-flex`, `cil-bg-white`) nunca entrarán en conflicto con las clases de su aplicación principal (ej: `flex`, `bg-white`).
+*   **Encapsulamiento**: No necesita modificar la configuración de Tailwind de su proyecto para que la librería se vea bien; basta con importar el archivo CSS compilado.
+
+### B. Herencia de Tipografía
+La librería **no impone una fuente específica**. Heredará automáticamente la tipografía definida en el `body` o contenedor de la aplicación host. Esto garantiza que los componentes se integren visualmente de forma nativa con cualquier diseño previo.
 
 ---
 
@@ -150,6 +157,13 @@ module.exports = {
   }
 }
 ```
+
+---
+
+# 9. Nota sobre Tailwind CSS v4
+Aunque Tailwind v4 introduce cambios significativos como la directiva `@source` para escanear `node_modules`, esta librería está optimizada para **v3**. 
+
+Si su proyecto usa Tailwind v4, la recomendación sigue siendo la misma: **Importe el `style.css` compilado**. Esto garantiza el máximo rendimiento y evita que su proceso de build tenga que procesar de nuevo todos los estilos de la librería, aprovechando el aislamiento del prefijo `cil-`.
 
 ---
 
