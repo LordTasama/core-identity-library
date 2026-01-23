@@ -10,8 +10,8 @@ export default function FormError({ message }) {
     if (!message) return null;
 
     return (
-        <div className="flex items-center gap-2 p-3 text-sm text-red-700 bg-red-50 border border-red-100 rounded-md animate-in fade-in slide-in-from-top-1 duration-200">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+        <div className="cil-flex cil-items-center cil-gap-2 cil-p-3 cil-text-sm cil-text-red-700 cil-bg-red-50 cil-border cil-border-red-100 cil-rounded-md cil-animate-in cil-fade-in cil-slide-in-from-top-1 cil-duration-200">
+            <AlertCircle className="cil-w-4 cil-h-4 cil-flex-shrink-0" />
             <p>{message}</p>
         </div>
     );

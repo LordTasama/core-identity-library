@@ -120,52 +120,52 @@ export default function ChangePassword({
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border" style={cardStyle}>
-            <div className="space-y-1 mb-6 text-center">
-                <h2 className="text-2xl font-semibold">{t.changePassword}</h2>
-                <p className="text-sm text-gray-500">{t.changePasswordSubtitle}</p>
+        <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
+            <div className="cil-space-y-1 cil-mb-6 cil-text-center">
+                <h2 className="cil-text-2xl cil-font-semibold">{t.changePassword}</h2>
+                <p className="cil-text-sm cil-text-gray-500">{t.changePasswordSubtitle}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="cil-space-y-4">
                 <FormError message={localError} />
                 <FormSuccess message={localSuccess} />
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t.oldPassword}</label>
+                <div className="cil-space-y-2">
+                    <label className="cil-text-sm cil-font-medium">{t.oldPassword}</label>
                     <input
                         type="password"
                         value={formData.oldPassword}
                         onChange={(e) => updateField('oldPassword', e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t.newPassword}</label>
+                <div className="cil-space-y-2">
+                    <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
                     <input
                         type="password"
                         value={formData.newPassword}
                         onChange={(e) => updateField('newPassword', e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t.confirmNewPassword || t.confirmPassword}</label>
+                <div className="cil-space-y-2">
+                    <label className="cil-text-sm cil-font-medium">{t.confirmNewPassword || t.confirmPassword}</label>
                     <input
                         type="password"
                         value={formData.confirmPassword}
                         onChange={(e) => updateField('confirmPassword', e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                     />
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+                    className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-50"
                     style={primaryButtonStyle}
                     disabled={isLoading}
                 >
@@ -176,7 +176,7 @@ export default function ChangePassword({
                     <button
                         type="button"
                         onClick={() => onNavigate('login')}
-                        className="w-full text-sm font-medium hover:underline text-center"
+                        className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center"
                         style={primaryTextStyle}
                     >
                         {t.backToLogin}

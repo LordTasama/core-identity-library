@@ -8,6 +8,8 @@ import {
     WaitingConfirmation,
     AppGrid,
     UserMenu,
+    UserProfile,
+    ChangePassword,
     useAuthApi
 } from '../src/index';
 import '../src/styles/identity-layer.css';
@@ -20,7 +22,7 @@ function App() {
     // Initialize state from localStorage (ONLY Email and Token as requested)
     const [userEmail, setUserEmail] = useState(() => localStorage.getItem('demo_user_email') || '');
     const [authToken, setAuthToken] = useState(() => localStorage.getItem('demo_auth_token') || '');
-
+    const [apiToken, setApiToken] = useState(() => import.meta.env.VITE_API_TOKEN || '');
     // Volatile state (Not persisted in localStorage)
     const [userFullName, setUserFullName] = useState('');
     const [userApps, setUserApps] = useState([]);
@@ -29,7 +31,7 @@ function App() {
     const [waitSeconds, setWaitSeconds] = useState(0);
     const [isLoadingSession, setIsLoadingSession] = useState(false);
 
-    const apiBaseUrl = 'http://127.0.0.1:5001/api/auth';
+    const apiBaseUrl = 'http://127.0.0.1:5009/api/auth';
     const { verifySession: apiVerify, getUserContext: apiGetContext, logout: apiLogout } = useAuthApi(apiBaseUrl);
 
     // Context Loading Logic
@@ -161,8 +163,8 @@ function App() {
     const renderView = () => {
         if (isLoadingSession) {
             return (
-                <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-600">Syncing session...</p>
+                <div className="cil-flex cil-justify-center cil-items-center cil-h-64">
+                    <p className="cil-text-gray-600">Syncing session...</p>
                 </div>
             );
         }
@@ -175,7 +177,8 @@ function App() {
             primaryColor: '#0ea5e9',
             lang: lang,
             email: userEmail,
-            authToken: authToken
+            authToken: authToken,
+            apiToken: apiToken
         };
 
         switch (view) {
@@ -198,15 +201,16 @@ function App() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-            <div className="mb-8 text-center text-gray-800">
-                <h1 className="text-3xl font-bold mb-1">Library Demo</h1>
-                <p className="text-gray-600 text-sm mb-4">Demo: Only persists Email and Token</p>
+        <div className="cil-min-h-screen cil-bg-gray-100 cil-flex cil-flex-col cil-items-center cil-justify-center cil-p-4">
+            <div className="cil-mb-8 cil-text-center cil-text-gray-800">
+                <h1 className="cil-text-3xl cil-font-bold cil-mb-1">Library Demo</h1>
+                <p className="cil-text-gray-600 cil-text-sm cil-mb-4">Demo: Only persists Email and Token</p>
 
-                <div className="flex justify-center items-center gap-4 mb-6">
+                <div className="cil-flex cil-justify-center cil-items-center cil-gap-4 cil-mb-6">
                     <AppGrid apps={userApps} primaryColor="#0ea5e9" customLabels={{ vendor_portal: 'Vendor' }} />
                     {authToken && (
                         <UserMenu
+                            apiToken={apiToken}
                             user={{ email: userEmail, "Full Name": userFullName }}
                             primaryColor="#0ea5e9"
                             lang={lang}
@@ -221,26 +225,26 @@ function App() {
                 </div>
 
                 {userEmail && (
-                    <div className="mt-2 text-xs font-mono bg-blue-50 text-blue-700 px-3 py-1 rounded-full inline-flex items-center gap-2">
+                    <div className="cil-mt-2 cil-text-xs cil-font-mono cil-bg-blue-50 cil-text-blue-700 cil-px-3 cil-py-1 cil-rounded-full cil-inline-flex cil-items-center cil-gap-2">
                         <span>User: {userEmail}</span>
-                        <button onClick={handleLogoutDemo} className="underline font-bold">Clear storage</button>
+                        <button onClick={handleLogoutDemo} className="cil-underline cil-font-bold">Clear storage</button>
                     </div>
                 )}
 
-                <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                <div className="cil-mt-4 cil-flex cil-flex-wrap cil-gap-2 cil-justify-center">
                     {['login', 'signup', 'forgot-password', 'reset-password', 'change-password', 'profile', 'email-verification', 'waiting-confirmation'].map(v => (
-                        <button key={v} onClick={() => { setWaitSeconds(v.includes('wait') ? 151 : 0); setView(v); }} className={`px-3 py-1 text-xs rounded border transition-colors ${view === v ? 'bg-blue-600 text-white border-blue-600' : 'bg-white hover:bg-gray-50'}`}>
+                        <button key={v} onClick={() => { setWaitSeconds(v.includes('wait') ? 151 : 0); setView(v); }} className={`cil-px-3 cil-py-1 cil-text-xs cil-rounded cil-border cil-transition-colors ${view === v ? 'cil-bg-blue-600 cil-text-white cil-border-blue-600' : 'cil-bg-white cil-hover:bg-gray-50'}`}>
                             {v}
                         </button>
                     ))}
                 </div>
 
-                <div className="mt-4 flex gap-6 justify-center items-center border-t pt-4">
-                    <div className="flex gap-4">
-                        <label className="flex items-center gap-2 text-sm font-medium">
+                <div className="cil-mt-4 cil-flex cil-gap-6 cil-justify-center cil-items-center cil-border-t cil-pt-4">
+                    <div className="cil-flex cil-gap-4">
+                        <label className="cil-flex cil-items-center cil-gap-2 cil-text-sm cil-font-medium">
                             <input type="radio" name="lang" value="en" checked={lang === 'en'} onChange={() => setLang('en')} /> English
                         </label>
-                        <label className="flex items-center gap-2 text-sm font-medium">
+                        <label className="cil-flex cil-items-center cil-gap-2 cil-text-sm cil-font-medium">
                             <input type="radio" name="lang" value="es" checked={lang === 'es'} onChange={() => setLang('es')} /> Español
                         </label>
                     </div>
@@ -248,7 +252,7 @@ function App() {
                     {authToken && (
                         <button
                             onClick={() => verifySession(authToken)}
-                            className="px-3 py-1 text-xs font-bold rounded bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors"
+                            className="cil-px-3 cil-py-1 cil-text-xs cil-font-bold cil-rounded cil-bg-green-50 cil-text-green-700 cil-border cil-border-green-200 cil-hover:bg-green-100 cil-transition-colors"
                         >
                             ⚡ Verify Session (Fast)
                         </button>
@@ -256,7 +260,7 @@ function App() {
                 </div>
             </div>
 
-            <div className="w-full max-w-md">
+            <div className={`cil-w-full cil-transition-all cil-duration-500 ${view === 'profile' ? 'cil-max-w-5xl' : 'cil-max-w-md'}`}>
                 {renderView()}
             </div>
         </div>

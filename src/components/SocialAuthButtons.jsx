@@ -105,25 +105,25 @@ export default function SocialAuthButtons({
     const buttonStyle = primaryColor ? { borderColor: primaryColor, color: primaryColor } : {};
 
     return (
-        <div className="space-y-3">
+        <div className="cil-space-y-3">
             <button
                 type="button"
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+                className="cil-w-full cil-flex cil-items-center cil-justify-center cil-gap-2 cil-px-4 cil-py-2 cil-border cil-rounded-md cil-hover:bg-gray-50 cil-transition-colors"
                 style={buttonStyle}
                 onClick={() => handleSocialLogin('Google')}
                 data-testid="button-google-login"
             >
-                <SiGoogle className="h-4 w-4" />
+                <SiGoogle className="cil-h-4 cil-w-4" />
                 <span>{t.continueWith} Google</span>
             </button>
             <button
                 type="button"
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+                className="cil-w-full cil-flex cil-items-center cil-justify-center cil-gap-2 cil-px-4 cil-py-2 cil-border cil-rounded-md cil-hover:bg-gray-50 cil-transition-colors"
                 style={buttonStyle}
                 onClick={() => handleSocialLogin('Microsoft')}
                 data-testid="button-microsoft-login"
             >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="cil-h-4 cil-w-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" />
                 </svg>
                 <span>{t.continueWith} Microsoft</span>

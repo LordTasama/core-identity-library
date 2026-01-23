@@ -87,52 +87,52 @@ export default function ForgotPassword({
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border" style={cardStyle}>
-            <div className="space-y-1 mb-6 text-center">
-                <h2 className="text-2xl font-semibold">{t.forgotPassword}</h2>
-                <p className="text-sm text-gray-500">
+        <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
+            <div className="cil-space-y-1 cil-mb-6 cil-text-center">
+                <h2 className="cil-text-2xl cil-font-semibold">{t.forgotPassword}</h2>
+                <p className="cil-text-sm cil-text-gray-500">
                     {sent ? t.checkEmail : t.resetPasswordInstructions}
                 </p>
             </div>
 
             {sent ? (
-                <div className="text-center space-y-6 py-4">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
-                        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="cil-text-center cil-space-y-6 cil-py-4">
+                    <div className="cil-w-16 cil-h-16 cil-mx-auto cil-rounded-full cil-bg-blue-50 cil-flex cil-items-center cil-justify-center">
+                        <svg className="cil-w-8 cil-h-8 cil-text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="cil-text-sm cil-text-gray-500">
                         {t.verifyEmailMessage}
                     </p>
-                    <div className="space-y-3">
+                    <div className="cil-space-y-3">
                         <button
                             onClick={() => onNavigate && onNavigate('reset-password')}
-                            className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors"
+                            className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors"
                             style={primaryButtonStyle}
                         >
                             {t.enterCodeAndPassword}
                         </button>
                         <button
                             onClick={() => onNavigate && onNavigate('login')}
-                            className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-gray-200 hover:bg-gray-50"
+                            className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-border cil-border-gray-200 cil-hover:bg-gray-50"
                         >
                             {t.backToLogin}
                         </button>
                     </div>
                 </div>
             ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="cil-space-y-4">
                     <FormError message={localError} />
-                    <div className="space-y-2">
-                        <label htmlFor="auth-forgot-email" className="text-sm font-medium">
+                    <div className="cil-space-y-2">
+                        <label htmlFor="auth-forgot-email" className="cil-text-sm cil-font-medium">
                             {t.email}
                         </label>
                         <input
                             id="auth-forgot-email"
                             type="email"
                             placeholder="user@example.com"
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                             value={email}
                             onChange={(e) => {
                                 setEmail(e.target.value);
@@ -143,7 +143,7 @@ export default function ForgotPassword({
                     </div>
                     <button
                         type="submit"
-                        className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+                        className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-50"
                         style={primaryButtonStyle}
                         disabled={isLoading}
                     >
@@ -153,7 +153,7 @@ export default function ForgotPassword({
                     <button
                         type="button"
                         onClick={() => onNavigate && onNavigate('login')}
-                        className="w-full text-sm font-medium hover:underline text-center"
+                        className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center"
                         style={primaryTextStyle}
                     >
                         {t.backToLogin}

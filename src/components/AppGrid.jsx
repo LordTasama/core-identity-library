@@ -66,11 +66,11 @@ export default function AppGrid({
     };
 
     return (
-        <div className="relative inline-block text-left" ref={containerRef}>
+        <div className="cil-relative cil-inline-block cil-text-left" ref={containerRef}>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-center p-2 rounded-full transition-all duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                className="cil-flex cil-items-center cil-justify-center cil-p-2 cil-rounded-full cil-transition-all cil-duration-200 cil-hover:bg-gray-100 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                 style={{
                     color: primaryColor,
                     borderColor: primaryColor
@@ -78,7 +78,7 @@ export default function AppGrid({
                 aria-label="App Grid"
             >
                 <TbGridDots
-                    className="w-6 h-6"
+                    className="cil-w-6 cil-h-6"
                     style={{
                         color: primaryColor,
                         stroke: primaryColor,
@@ -89,26 +89,26 @@ export default function AppGrid({
 
             {isOpen && (
                 <div
-                    className="absolute right-0 mt-3 w-80 origin-top-right rounded-[2rem] bg-gray-100/90 backdrop-blur-md p-2 shadow-2xl border border-gray-200/50 z-50 transform transition-all duration-300 ease-out"
+                    className="cil-absolute cil-right-0 cil-mt-3 cil-w-80 cil-origin-top-right cil-rounded-[2rem] cil-bg-gray-100/90 cil-backdrop-blur-md cil-p-2 cil-shadow-2xl cil-border cil-border-gray-200/50 cil-z-50 cil-transform cil-transition-all cil-duration-300 cil-ease-out"
                 >
                     <div
-                        className="rounded-[1.5rem] p-4 shadow-sm"
+                        className="cil-rounded-[1.5rem] cil-p-4 cil-shadow-sm"
                         style={{ backgroundColor }}
                     >
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="cil-grid cil-grid-cols-3 cil-gap-3">
                             {apps.map((app) => (
                                 <button
                                     key={app.appKey}
                                     onClick={() => handleAppClick(app)}
-                                    className="group relative flex flex-col items-center p-2 rounded-2xl hover:bg-gray-50 transition-all duration-200"
+                                    className="cil-group cil-relative cil-flex cil-flex-col cil-items-center cil-p-2 cil-rounded-2xl cil-hover:bg-gray-50 cil-transition-all cil-duration-200"
                                 >
                                     <div
-                                        className="w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm text-white text-2xl font-bold mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all duration-300"
+                                        className="cil-w-14 cil-h-14 cil-flex cil-items-center cil-justify-center cil-rounded-2xl cil-shadow-sm cil-text-white cil-text-2xl cil-font-bold cil-mb-2 cil-group-hover:shadow-lg cil-group-hover:scale-105 cil-transition-all cil-duration-300"
                                         style={{ backgroundColor: getRandomColor(app.appKey) }}
                                     >
                                         {getAppInitial(app.appKey)}
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-700 uppercase tracking-wider text-center truncate w-full px-1">
+                                    <span className="cil-text-[10px] cil-font-bold cil-text-gray-700 cil-uppercase cil-tracking-wider cil-text-center cil-truncate cil-w-full cil-px-1">
                                         {customLabels[app.appKey]
                                             ? customLabels[app.appKey]
                                             : (app.appKey.replace(/_/g, ' ').length > 9
@@ -117,15 +117,15 @@ export default function AppGrid({
                                     </span>
 
                                     {/* Tooltip */}
-                                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-xl">
+                                    <div className="cil-absolute cil--bottom-10 cil-left-1/2 cil--translate-x-1/2 cil-px-2 cil-py-1 cil-bg-gray-900 cil-text-white cil-text-[10px] cil-rounded cil-opacity-0 cil-group-hover:opacity-100 cil-transition-opacity cil-pointer-events-none cil-whitespace-nowrap cil-z-[60] cil-shadow-xl">
                                         {app.appName}
-                                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 border-x-4 border-x-transparent border-b-4 border-b-gray-900"></div>
+                                        <div className="cil-absolute cil--top-1 cil-left-1/2 cil--translate-x-1/2 cil-border-x-4 cil-border-x-transparent cil-border-b-4 cil-border-b-gray-900"></div>
                                     </div>
                                 </button>
                             ))}
 
                             {apps.length === 0 && (
-                                <div className="col-span-3 py-12 text-center text-gray-400 text-sm">
+                                <div className="cil-col-span-3 cil-py-12 cil-text-center cil-text-gray-400 cil-text-sm">
                                     {t.noApps}
                                 </div>
                             )}

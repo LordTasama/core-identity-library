@@ -11,10 +11,10 @@ export default function AuthError({ lang = 'en' }) {
     const t = translations[lang] || translations.en;
 
     return (
-        <div className="flex items-center justify-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-800 space-x-4 max-w-md mx-auto my-10">
-            <AlertTriangle className="w-8 h-8 flex-shrink-0" />
+        <div className="cil-flex cil-items-center cil-justify-center cil-p-8 cil-bg-red-50 cil-border cil-border-red-200 cil-rounded-lg cil-text-red-800 cil-space-x-4 cil-max-w-md cil-mx-auto cil-my-10">
+            <AlertTriangle className="cil-w-8 cil-h-8 cil-flex-shrink-0" />
             <div>
-                <h3 className="font-bold text-lg">{t.authErrorTitle}</h3>
+                <h3 className="cil-font-bold cil-text-lg">{t.authErrorTitle}</h3>
                 <p className="text-sm">
                     {t.authErrorMessage}
                 </p>

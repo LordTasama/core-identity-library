@@ -243,43 +243,43 @@ export default function ResetPassword({
 
     if (success) {
         return (
-            <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border" style={cardStyle}>
-                <div className="text-center mb-6">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-green-50 flex items-center justify-center text-green-500 mb-4">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
+                <div className="cil-text-center cil-mb-6">
+                    <div className="cil-w-16 cil-h-16 cil-mx-auto cil-rounded-full cil-bg-green-50 cil-flex cil-items-center cil-justify-center cil-text-green-500 cil-mb-4">
+                        <svg className="cil-w-8 cil-h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-semibold">{t.resetSuccessTitle}</h2>
-                    <p className="text-sm text-gray-500">{t.resetSuccessSubtitle}</p>
+                    <h2 className="cil-text-2xl cil-font-semibold">{t.resetSuccessTitle}</h2>
+                    <p className="cil-text-sm cil-text-gray-500">{t.resetSuccessSubtitle}</p>
                 </div>
 
                 <FormSuccess message={localSuccess} />
                 <FormError message={localError} />
 
                 {activeSessions.length > 0 && (
-                    <div className="mt-8 space-y-4 border-t pt-6">
-                        <div className="text-left">
-                            <h3 className="text-lg font-medium">{t.activeSessions}</h3>
-                            <p className="text-xs text-gray-500">{t.sessionsSubtitle}</p>
+                    <div className="cil-mt-8 cil-space-y-4 cil-border-t cil-pt-6">
+                        <div className="cil-text-left">
+                            <h3 className="cil-text-lg cil-font-medium">{t.activeSessions}</h3>
+                            <p className="cil-text-xs cil-text-gray-500">{t.sessionsSubtitle}</p>
                         </div>
 
-                        <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                        <div className="cil-space-y-3 cil-max-h-60 cil-overflow-y-auto cil-pr-1">
                             {activeSessions.map((session) => (
-                                <div key={session._id} className="p-3 border rounded-md text-xs bg-gray-50 flex justify-between items-center">
-                                    <div className="space-y-1">
-                                        <div className="font-semibold text-gray-700 truncate max-w-[180px]" title={session['Device Name']}>
+                                <div key={session._id} className="cil-p-3 cil-border cil-rounded-md cil-text-xs cil-bg-gray-50 cil-flex cil-justify-between cil-items-center">
+                                    <div className="cil-space-y-1">
+                                        <div className="cil-font-semibold cil-text-gray-700 cil-truncate cil-max-w-[180px]" title={session['Device Name']}>
                                             {session['Device Name']?.split(' ')[0] || t.deviceName}
                                         </div>
-                                        <div className="text-gray-500">{session.IP}</div>
+                                        <div className="cil-text-gray-500">{session.IP}</div>
                                         {session['Expiration Date'] && (
-                                            <div className="text-gray-400 italic">{t.expiry}: {new Date(session['Expiration Date']).toLocaleDateString()}</div>
+                                            <div className="cil-text-gray-400 cil-italic">{t.expiry}: {new Date(session['Expiration Date']).toLocaleDateString()}</div>
                                         )}
                                     </div>
                                     <button
                                         onClick={() => handleLogoutSessions(false, [session._id])}
                                         disabled={isLoggingOutSession}
-                                        className="px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                        className="cil-px-2 cil-py-1 cil-text-red-600 cil-hover:bg-red-50 cil-rounded cil-transition-colors"
                                     >
                                         {t.logoutThisSession}
                                     </button>
@@ -290,17 +290,17 @@ export default function ResetPassword({
                         <button
                             onClick={() => handleLogoutSessions(true)}
                             disabled={isLoggingOutSession}
-                            className="w-full py-2 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors font-medium"
+                            className="cil-w-full cil-py-2 cil-text-sm cil-text-red-600 cil-border cil-border-red-200 cil-rounded-md cil-hover:bg-red-50 cil-transition-colors cil-font-medium"
                         >
                             {isLoggingOutSession ? t.loggingOut : t.logoutAllSessions}
                         </button>
                     </div>
                 )}
 
-                <div className="mt-8 pt-6 border-t">
+                <div className="cil-mt-8 cil-pt-6 cil-border-t">
                     <button
                         onClick={() => onNavigate && onNavigate('login')}
-                        className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors"
+                        className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors"
                         style={primaryButtonStyle}
                     >
                         {t.goToLogin}
@@ -311,70 +311,70 @@ export default function ResetPassword({
     }
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border" style={cardStyle}>
-            <div className="space-y-1 mb-6 text-center">
-                <h2 className="text-2xl font-semibold">{t.resetPasswordTitle}</h2>
-                <p className="text-sm text-gray-500">{statusMessage}</p>
+        <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
+            <div className="cil-space-y-1 cil-mb-6 cil-text-center">
+                <h2 className="cil-text-2xl cil-font-semibold">{t.resetPasswordTitle}</h2>
+                <p className="cil-text-sm cil-text-gray-500">{statusMessage}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="cil-space-y-4">
                 <FormError message={localError} />
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t.verificationCode}</label>
+                <div className="cil-space-y-2">
+                    <label className="cil-text-sm cil-font-medium">{t.verificationCode}</label>
                     <input
                         type="text"
                         value={formData.token}
                         onChange={(e) => setFormData({ ...formData, token: e.target.value })}
                         required
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 font-mono tracking-widest text-center"
+                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-font-mono cil-tracking-widest cil-text-center"
                         placeholder="XXXXXX"
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t.newPassword}</label>
+                <div className="cil-space-y-2">
+                    <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
                     <input
                         type="password"
                         value={formData.newPassword}
                         onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                         required
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                         placeholder={t.min8Chars}
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t.confirmPassword}</label>
+                <div className="cil-space-y-2">
+                    <label className="cil-text-sm cil-font-medium">{t.confirmPassword}</label>
                     <input
                         type="password"
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                         required
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                     />
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+                    className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-50"
                     style={primaryButtonStyle}
                     disabled={isLoading || !formData.token}
                 >
                     {isLoading ? t.resetting : t.resetPasswordTitle}
                 </button>
 
-                <div className="pt-2 text-center space-y-3">
+                <div className="cil-pt-2 cil-text-center cil-space-y-3">
                     {countdown > 0 ? (
-                        <div className="text-xs text-gray-500 font-mono">
+                        <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
                             {t.resendCodeIn}
-                            <span className="font-bold">{formatTime(countdown)}</span>
+                            <span className="cil-font-bold">{formatTime(countdown)}</span>
                         </div>
                     ) : (
                         <button
                             type="button"
                             onClick={handleResendCode}
                             disabled={isResending || !userEmail}
-                            className="text-sm font-medium hover:underline"
+                            className="cil-text-sm cil-font-medium cil-hover:underline"
                             style={primaryTextStyle}
                         >
                             {isResending ? t.loading : t.resendCode}
@@ -384,7 +384,7 @@ export default function ResetPassword({
                     <button
                         type="button"
                         onClick={() => onNavigate && onNavigate('login')}
-                        className="w-full text-sm font-medium hover:underline text-center text-gray-500"
+                        className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500"
                     >
                         {t.backToLogin}
                     </button>

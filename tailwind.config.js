@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+    prefix: 'cil-',
     content: [
         "./src/**/*.{js,ts,jsx,tsx}",
         "./demo/**/*.{js,ts,jsx,tsx}",

@@ -116,13 +116,13 @@ export default function SignUp({
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border" style={cardStyle}>
-            <div className="space-y-1 mb-6 text-center">
-                <h2 className="text-2xl font-semibold">{t.createAccount}</h2>
-                <p className="text-sm text-gray-500">{t.createAccountSubtitle}</p>
+        <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
+            <div className="cil-space-y-1 cil-mb-6 cil-text-center">
+                <h2 className="cil-text-2xl cil-font-semibold">{t.createAccount}</h2>
+                <p className="cil-text-sm cil-text-gray-500">{t.createAccountSubtitle}</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="cil-space-y-4">
                 <SocialAuthButtons
                     apiBaseUrl={apiBaseUrl}
                     user={user}
@@ -137,77 +137,77 @@ export default function SignUp({
                     texts={customTexts}
                 />
 
-                <div className="relative py-2">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200"></div>
+                <div className="cil-relative cil-py-2">
+                    <div className="cil-absolute cil-inset-0 cil-flex cil-items-center">
+                        <div className="cil-w-full cil-border-t cil-border-gray-200"></div>
                     </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="px-2 text-gray-500" style={cardStyle}>
+                    <div className="cil-relative cil-flex cil-justify-center cil-text-xs cil-uppercase">
+                        <span className="cil-px-2 cil-text-gray-500" style={cardStyle}>
                             {t.or}
                         </span>
                     </div>
                 </div>
 
-                <form onSubmit={handleSignUp} className="space-y-4">
+                <form onSubmit={handleSignUp} className="cil-space-y-4">
                     <FormError message={localError} />
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">{t.firstName}</label>
+                    <div className="cil-grid cil-grid-cols-2 cil-gap-4">
+                        <div className="cil-space-y-2">
+                            <label className="cil-text-sm cil-font-medium">{t.firstName}</label>
                             <input
                                 value={formData.firstName}
                                 onChange={(e) => updateField('firstName', e.target.value)}
                                 required
-                                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">{t.lastName}</label>
+                        <div className="cil-space-y-2">
+                            <label className="cil-text-sm cil-font-medium">{t.lastName}</label>
                             <input
                                 value={formData.lastName}
                                 onChange={(e) => updateField('lastName', e.target.value)}
                                 required
-                                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">{t.email}</label>
+                    <div className="cil-space-y-2">
+                        <label className="cil-text-sm cil-font-medium">{t.email}</label>
                         <input
                             type="email"
                             value={formData.email}
                             onChange={(e) => updateField('email', e.target.value)}
                             required
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">{t.password}</label>
+                    <div className="cil-space-y-2">
+                        <label className="cil-text-sm cil-font-medium">{t.password}</label>
                         <input
                             type="password"
                             value={formData.password}
                             onChange={(e) => updateField('password', e.target.value)}
                             required
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">{t.confirmPassword}</label>
+                    <div className="cil-space-y-2">
+                        <label className="cil-text-sm cil-font-medium">{t.confirmPassword}</label>
                         <input
                             type="password"
                             value={formData.confirmPassword}
                             onChange={(e) => updateField('confirmPassword', e.target.value)}
                             required
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+                        className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-50"
                         style={primaryButtonStyle}
                         disabled={isLoading}
                     >
@@ -216,13 +216,13 @@ export default function SignUp({
                 </form>
             </div>
 
-            <div className="mt-6 text-center">
-                <p className="text-sm text-gray-500">
+            <div className="cil-mt-6 cil-text-center">
+                <p className="cil-text-sm cil-text-gray-500">
                     {t.alreadyHaveAccount}{' '}
                     <button
                         type="button"
                         onClick={() => onNavigate && onNavigate('login')}
-                        className="font-medium hover:underline"
+                        className="cil-font-medium cil-hover:underline"
                         style={primaryTextStyle}
                     >
                         {t.login}

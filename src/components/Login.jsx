@@ -98,13 +98,13 @@ export default function Login({
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border" style={cardStyle}>
-            <div className="space-y-1 mb-6">
-                <h2 className="text-2xl font-semibold">{t.login}</h2>
-                <p className="text-sm text-gray-500">{t.loginSubtitle}</p>
+        <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
+            <div className="cil-space-y-1 cil-mb-6">
+                <h2 className="cil-text-2xl cil-font-semibold">{t.login}</h2>
+                <p className="cil-text-sm cil-text-gray-500">{t.loginSubtitle}</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="cil-space-y-4">
                 <SocialAuthButtons
                     apiBaseUrl={apiBaseUrl}
                     user={user}
@@ -119,29 +119,29 @@ export default function Login({
                     texts={customTexts}
                 />
 
-                <div className="relative py-2">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200"></div>
+                <div className="cil-relative cil-py-2">
+                    <div className="cil-absolute cil-inset-0 cil-flex cil-items-center">
+                        <div className="cil-w-full cil-border-t cil-border-gray-200"></div>
                     </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="px-2 text-gray-500" style={cardStyle}>
+                    <div className="cil-relative cil-flex cil-justify-center cil-text-xs cil-uppercase">
+                        <span className="cil-px-2 cil-text-gray-500" style={cardStyle}>
                             {t.or}
                         </span>
                     </div>
                 </div>
 
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleLogin} className="cil-space-y-4">
                     <FormError message={localError} />
 
-                    <div className="space-y-2">
-                        <label htmlFor="auth-email" className="text-sm font-medium leading-none">
+                    <div className="cil-space-y-2">
+                        <label htmlFor="auth-email" className="cil-text-sm cil-font-medium cil-leading-none">
                             {t.email}
                         </label>
                         <input
                             id="auth-email"
                             type="email"
                             placeholder="user@example.com"
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                             value={email}
                             onChange={(e) => {
                                 setEmail(e.target.value);
@@ -150,14 +150,14 @@ export default function Login({
                             required
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label htmlFor="auth-password" className="text-sm font-medium leading-none">
+                    <div className="cil-space-y-2">
+                        <label htmlFor="auth-password" className="cil-text-sm cil-font-medium cil-leading-none">
                             {t.password}
                         </label>
                         <input
                             id="auth-password"
                             type="password"
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value);
@@ -167,11 +167,11 @@ export default function Login({
                         />
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="cil-flex cil-justify-end">
                         <button
                             type="button"
                             onClick={() => onNavigate && onNavigate('forgot-password')}
-                            className="text-sm hover:underline"
+                            className="cil-text-sm cil-hover:underline"
                             style={primaryTextStyle}
                         >
                             {t.forgotPassword}
@@ -180,7 +180,7 @@ export default function Login({
 
                     <button
                         type="submit"
-                        className="w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50"
+                        className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-50"
                         style={primaryButtonStyle}
                         disabled={isLoading}
                     >
@@ -189,13 +189,13 @@ export default function Login({
                 </form>
             </div>
 
-            <div className="mt-6 flex justify-center">
-                <p className="text-sm text-gray-500">
+            <div className="cil-mt-6 cil-flex cil-justify-center">
+                <p className="cil-text-sm cil-text-gray-500">
                     {t.dontHaveAccount}{' '}
                     <button
                         type="button"
                         onClick={() => onNavigate && onNavigate('signup')}
-                        className="font-medium hover:underline"
+                        className="cil-font-medium cil-hover:underline"
                         style={primaryTextStyle}
                     >
                         {t.signUp}
