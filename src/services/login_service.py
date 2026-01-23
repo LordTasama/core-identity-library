@@ -45,7 +45,7 @@ _CONTEXT_TTL = 900        # 15 minutes
 
 # Global cache for session validation
 _SESSION_VALIDATION_CACHE = {} # { (email, token): (timestamp, data) }
-_SESSION_TTL = 900             # 15 minutes
+_SESSION_TTL = 15              # 15 seconds (pseudo real-time)
 
 import re
 
