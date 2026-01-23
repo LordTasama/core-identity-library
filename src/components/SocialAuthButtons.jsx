@@ -59,11 +59,11 @@ export default function SocialAuthButtons({
                     });
                 }
             } else if (event.data.type === "OAUTH_ERROR") {
-                const { message, apps } = event.data.payload;
+                const { message } = event.data.payload;
                 console.error("OAuth Login Error:", message);
 
                 if (onError) {
-                    onError(message, apps);
+                    onError(message);
                 }
             }
         };
