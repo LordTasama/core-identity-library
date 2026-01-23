@@ -1,6 +1,6 @@
 {
     "name": "core-identity-library",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "description": "Customizable authentication UI components for React + Tailwind",
     "type": "module",
     "main": "./dist/core-identity-library.umd.cjs",
