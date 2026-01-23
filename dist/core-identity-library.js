@@ -1,4 +1,4 @@
-import he, { useEffect as me, useState as k, useRef as Re } from "react";
+import pe, { useEffect as me, useState as C, useRef as Re } from "react";
 import { AlertTriangle as Fr, AlertCircle as lr, CheckCircle as $r, User as cr, KeyRound as Vr, LogOut as dr, Loader2 as Ze, Sparkles as er, Mail as zr, Key as rr, Settings as sr, Monitor as tr, Smartphone as Wr, Tablet as Ur } from "lucide-react";
 var Ve = { exports: {} }, Se = {};
 /**
@@ -14,15 +14,15 @@ var or;
 function Yr() {
   if (or) return Se;
   or = 1;
-  var s = he, d = Symbol.for("react.element"), l = Symbol.for("react.fragment"), y = Object.prototype.hasOwnProperty, g = s.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner, u = { key: !0, ref: !0, __self: !0, __source: !0 };
-  function p(b, m, L) {
+  var s = pe, d = Symbol.for("react.element"), l = Symbol.for("react.fragment"), y = Object.prototype.hasOwnProperty, g = s.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner, u = { key: !0, ref: !0, __self: !0, __source: !0 };
+  function h(v, m, L) {
     var o, j = {}, n = null, t = null;
     L !== void 0 && (n = "" + L), m.key !== void 0 && (n = "" + m.key), m.ref !== void 0 && (t = m.ref);
     for (o in m) y.call(m, o) && !u.hasOwnProperty(o) && (j[o] = m[o]);
-    if (b && b.defaultProps) for (o in m = b.defaultProps, m) j[o] === void 0 && (j[o] = m[o]);
-    return { $$typeof: d, type: b, key: n, ref: t, props: j, _owner: g.current };
+    if (v && v.defaultProps) for (o in m = v.defaultProps, m) j[o] === void 0 && (j[o] = m[o]);
+    return { $$typeof: d, type: v, key: n, ref: t, props: j, _owner: g.current };
   }
-  return Se.Fragment = l, Se.jsx = p, Se.jsxs = p, Se;
+  return Se.Fragment = l, Se.jsx = h, Se.jsxs = h, Se;
 }
 var Ee = {};
 /**
@@ -37,54 +37,54 @@ var Ee = {};
 var nr;
 function Hr() {
   return nr || (nr = 1, process.env.NODE_ENV !== "production" && function() {
-    var s = he, d = Symbol.for("react.element"), l = Symbol.for("react.portal"), y = Symbol.for("react.fragment"), g = Symbol.for("react.strict_mode"), u = Symbol.for("react.profiler"), p = Symbol.for("react.provider"), b = Symbol.for("react.context"), m = Symbol.for("react.forward_ref"), L = Symbol.for("react.suspense"), o = Symbol.for("react.suspense_list"), j = Symbol.for("react.memo"), n = Symbol.for("react.lazy"), t = Symbol.for("react.offscreen"), c = Symbol.iterator, P = "@@iterator";
+    var s = pe, d = Symbol.for("react.element"), l = Symbol.for("react.portal"), y = Symbol.for("react.fragment"), g = Symbol.for("react.strict_mode"), u = Symbol.for("react.profiler"), h = Symbol.for("react.provider"), v = Symbol.for("react.context"), m = Symbol.for("react.forward_ref"), L = Symbol.for("react.suspense"), o = Symbol.for("react.suspense_list"), j = Symbol.for("react.memo"), n = Symbol.for("react.lazy"), t = Symbol.for("react.offscreen"), c = Symbol.iterator, E = "@@iterator";
     function f(r) {
       if (r === null || typeof r != "object")
         return null;
-      var a = c && r[c] || r[P];
+      var a = c && r[c] || r[E];
       return typeof a == "function" ? a : null;
     }
     var N = s.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-    function h(r) {
+    function p(r) {
       {
-        for (var a = arguments.length, x = new Array(a > 1 ? a - 1 : 0), E = 1; E < a; E++)
-          x[E - 1] = arguments[E];
-        T("error", r, x);
+        for (var a = arguments.length, x = new Array(a > 1 ? a - 1 : 0), S = 1; S < a; S++)
+          x[S - 1] = arguments[S];
+        I("error", r, x);
       }
     }
-    function T(r, a, x) {
+    function I(r, a, x) {
       {
-        var E = N.ReactDebugCurrentFrame, H = E.getStackAddendum();
-        H !== "" && (a += "%s", x = x.concat([H]));
-        var B = x.map(function(W) {
-          return String(W);
+        var S = N.ReactDebugCurrentFrame, Y = S.getStackAddendum();
+        Y !== "" && (a += "%s", x = x.concat([Y]));
+        var q = x.map(function(F) {
+          return String(F);
         });
-        B.unshift("Warning: " + a), Function.prototype.apply.call(console[r], console, B);
+        q.unshift("Warning: " + a), Function.prototype.apply.call(console[r], console, q);
       }
     }
-    var i = !1, S = !1, M = !1, C = !1, q = !1, V;
-    V = Symbol.for("react.module.reference");
-    function Y(r) {
-      return !!(typeof r == "string" || typeof r == "function" || r === y || r === u || q || r === g || r === L || r === o || C || r === t || i || S || M || typeof r == "object" && r !== null && (r.$$typeof === n || r.$$typeof === j || r.$$typeof === p || r.$$typeof === b || r.$$typeof === m || // This needs to include all possible module reference object
+    var i = !1, _ = !1, A = !1, k = !1, z = !1, $;
+    $ = Symbol.for("react.module.reference");
+    function B(r) {
+      return !!(typeof r == "string" || typeof r == "function" || r === y || r === u || z || r === g || r === L || r === o || k || r === t || i || _ || A || typeof r == "object" && r !== null && (r.$$typeof === n || r.$$typeof === j || r.$$typeof === h || r.$$typeof === v || r.$$typeof === m || // This needs to include all possible module reference object
       // types supported by any Flight configuration anywhere since
       // we don't know which Flight build this will end up being used
       // with.
-      r.$$typeof === V || r.getModuleId !== void 0));
+      r.$$typeof === $ || r.getModuleId !== void 0));
     }
-    function z(r, a, x) {
-      var E = r.displayName;
-      if (E)
-        return E;
-      var H = a.displayName || a.name || "";
-      return H !== "" ? x + "(" + H + ")" : x;
+    function D(r, a, x) {
+      var S = r.displayName;
+      if (S)
+        return S;
+      var Y = a.displayName || a.name || "";
+      return Y !== "" ? x + "(" + Y + ")" : x;
     }
-    function G(r) {
+    function O(r) {
       return r.displayName || "Context";
     }
-    function F(r) {
+    function b(r) {
       if (r == null)
         return null;
-      if (typeof r.tag == "number" && h("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), typeof r == "function")
+      if (typeof r.tag == "number" && p("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), typeof r == "function")
         return r.displayName || r.name || null;
       if (typeof r == "string")
         return r;
@@ -104,21 +104,21 @@ function Hr() {
       }
       if (typeof r == "object")
         switch (r.$$typeof) {
-          case b:
+          case v:
             var a = r;
-            return G(a) + ".Consumer";
-          case p:
+            return O(a) + ".Consumer";
+          case h:
             var x = r;
-            return G(x._context) + ".Provider";
+            return O(x._context) + ".Provider";
           case m:
-            return z(r, r.render, "ForwardRef");
+            return D(r, r.render, "ForwardRef");
           case j:
-            var E = r.displayName || null;
-            return E !== null ? E : F(r.type) || "Memo";
+            var S = r.displayName || null;
+            return S !== null ? S : b(r.type) || "Memo";
           case n: {
-            var H = r, B = H._payload, W = H._init;
+            var Y = r, q = Y._payload, F = Y._init;
             try {
-              return F(W(B));
+              return b(F(q));
             } catch {
               return null;
             }
@@ -126,18 +126,18 @@ function Hr() {
         }
       return null;
     }
-    var v = Object.assign, D = 0, O, w, R, X, de, ue, ie;
-    function I() {
+    var w = Object.assign, K = 0, ne, W, U, X, de, ue, ie;
+    function M() {
     }
-    I.__reactDisabledLog = !0;
-    function se() {
+    M.__reactDisabledLog = !0;
+    function re() {
       {
-        if (D === 0) {
-          O = console.log, w = console.info, R = console.warn, X = console.error, de = console.group, ue = console.groupCollapsed, ie = console.groupEnd;
+        if (K === 0) {
+          ne = console.log, W = console.info, U = console.warn, X = console.error, de = console.group, ue = console.groupCollapsed, ie = console.groupEnd;
           var r = {
             configurable: !0,
             enumerable: !0,
-            value: I,
+            value: M,
             writable: !0
           };
           Object.defineProperties(console, {
@@ -150,200 +150,200 @@ function Hr() {
             groupEnd: r
           });
         }
-        D++;
+        K++;
       }
     }
-    function ee() {
+    function Z() {
       {
-        if (D--, D === 0) {
+        if (K--, K === 0) {
           var r = {
             configurable: !0,
             enumerable: !0,
             writable: !0
           };
           Object.defineProperties(console, {
-            log: v({}, r, {
-              value: O
+            log: w({}, r, {
+              value: ne
             }),
-            info: v({}, r, {
-              value: w
+            info: w({}, r, {
+              value: W
             }),
-            warn: v({}, r, {
-              value: R
+            warn: w({}, r, {
+              value: U
             }),
-            error: v({}, r, {
+            error: w({}, r, {
               value: X
             }),
-            group: v({}, r, {
+            group: w({}, r, {
               value: de
             }),
-            groupCollapsed: v({}, r, {
+            groupCollapsed: w({}, r, {
               value: ue
             }),
-            groupEnd: v({}, r, {
+            groupEnd: w({}, r, {
               value: ie
             })
           });
         }
-        D < 0 && h("disabledDepth fell below zero. This is a bug in React. Please file an issue.");
+        K < 0 && p("disabledDepth fell below zero. This is a bug in React. Please file an issue.");
       }
     }
-    var re = N.ReactCurrentDispatcher, pe;
-    function K(r, a, x) {
+    var ee = N.ReactCurrentDispatcher, he;
+    function H(r, a, x) {
       {
-        if (pe === void 0)
+        if (he === void 0)
           try {
             throw Error();
-          } catch (H) {
-            var E = H.stack.trim().match(/\n( *(at )?)/);
-            pe = E && E[1] || "";
+          } catch (Y) {
+            var S = Y.stack.trim().match(/\n( *(at )?)/);
+            he = S && S[1] || "";
           }
         return `
-` + pe + r;
+` + he + r;
       }
     }
-    var J = !1, te;
+    var G = !1, se;
     {
       var Pe = typeof WeakMap == "function" ? WeakMap : Map;
-      te = new Pe();
+      se = new Pe();
     }
     function ke(r, a) {
-      if (!r || J)
+      if (!r || G)
         return "";
       {
-        var x = te.get(r);
+        var x = se.get(r);
         if (x !== void 0)
           return x;
       }
-      var E;
-      J = !0;
-      var H = Error.prepareStackTrace;
+      var S;
+      G = !0;
+      var Y = Error.prepareStackTrace;
       Error.prepareStackTrace = void 0;
-      var B;
-      B = re.current, re.current = null, se();
+      var q;
+      q = ee.current, ee.current = null, re();
       try {
         if (a) {
-          var W = function() {
+          var F = function() {
             throw Error();
           };
-          if (Object.defineProperty(W.prototype, "props", {
+          if (Object.defineProperty(F.prototype, "props", {
             set: function() {
               throw Error();
             }
           }), typeof Reflect == "object" && Reflect.construct) {
             try {
-              Reflect.construct(W, []);
+              Reflect.construct(F, []);
             } catch (ae) {
-              E = ae;
+              S = ae;
             }
-            Reflect.construct(r, [], W);
+            Reflect.construct(r, [], F);
           } else {
             try {
-              W.call();
+              F.call();
             } catch (ae) {
-              E = ae;
+              S = ae;
             }
-            r.call(W.prototype);
+            r.call(F.prototype);
           }
         } else {
           try {
             throw Error();
           } catch (ae) {
-            E = ae;
+            S = ae;
           }
           r();
         }
       } catch (ae) {
-        if (ae && E && typeof ae.stack == "string") {
-          for (var $ = ae.stack.split(`
-`), ne = E.stack.split(`
-`), Q = $.length - 1, Z = ne.length - 1; Q >= 1 && Z >= 0 && $[Q] !== ne[Z]; )
-            Z--;
-          for (; Q >= 1 && Z >= 0; Q--, Z--)
-            if ($[Q] !== ne[Z]) {
-              if (Q !== 1 || Z !== 1)
+        if (ae && S && typeof ae.stack == "string") {
+          for (var T = ae.stack.split(`
+`), oe = S.stack.split(`
+`), J = T.length - 1, Q = oe.length - 1; J >= 1 && Q >= 0 && T[J] !== oe[Q]; )
+            Q--;
+          for (; J >= 1 && Q >= 0; J--, Q--)
+            if (T[J] !== oe[Q]) {
+              if (J !== 1 || Q !== 1)
                 do
-                  if (Q--, Z--, Z < 0 || $[Q] !== ne[Z]) {
+                  if (J--, Q--, Q < 0 || T[J] !== oe[Q]) {
                     var ce = `
-` + $[Q].replace(" at new ", " at ");
-                    return r.displayName && ce.includes("<anonymous>") && (ce = ce.replace("<anonymous>", r.displayName)), typeof r == "function" && te.set(r, ce), ce;
+` + T[J].replace(" at new ", " at ");
+                    return r.displayName && ce.includes("<anonymous>") && (ce = ce.replace("<anonymous>", r.displayName)), typeof r == "function" && se.set(r, ce), ce;
                   }
-                while (Q >= 1 && Z >= 0);
+                while (J >= 1 && Q >= 0);
               break;
             }
         }
       } finally {
-        J = !1, re.current = B, ee(), Error.prepareStackTrace = H;
+        G = !1, ee.current = q, Z(), Error.prepareStackTrace = Y;
       }
-      var Ce = r ? r.displayName || r.name : "", we = Ce ? K(Ce) : "";
-      return typeof r == "function" && te.set(r, we), we;
+      var Ce = r ? r.displayName || r.name : "", we = Ce ? H(Ce) : "";
+      return typeof r == "function" && se.set(r, we), we;
     }
     function Oe(r, a, x) {
       return ke(r, !1);
     }
-    function A(r) {
+    function R(r) {
       var a = r.prototype;
       return !!(a && a.isReactComponent);
     }
-    function _(r, a, x) {
+    function P(r, a, x) {
       if (r == null)
         return "";
       if (typeof r == "function")
-        return ke(r, A(r));
+        return ke(r, R(r));
       if (typeof r == "string")
-        return K(r);
+        return H(r);
       switch (r) {
         case L:
-          return K("Suspense");
+          return H("Suspense");
         case o:
-          return K("SuspenseList");
+          return H("SuspenseList");
       }
       if (typeof r == "object")
         switch (r.$$typeof) {
           case m:
             return Oe(r.render);
           case j:
-            return _(r.type, a, x);
+            return P(r.type, a, x);
           case n: {
-            var E = r, H = E._payload, B = E._init;
+            var S = r, Y = S._payload, q = S._init;
             try {
-              return _(B(H), a, x);
+              return P(q(Y), a, x);
             } catch {
             }
           }
         }
       return "";
     }
-    var U = Object.prototype.hasOwnProperty, oe = {}, _e = N.ReactDebugCurrentFrame;
+    var V = Object.prototype.hasOwnProperty, te = {}, _e = N.ReactDebugCurrentFrame;
     function Le(r) {
       if (r) {
-        var a = r._owner, x = _(r.type, r._source, a ? a.type : null);
+        var a = r._owner, x = P(r.type, r._source, a ? a.type : null);
         _e.setExtraStackFrame(x);
       } else
         _e.setExtraStackFrame(null);
     }
-    function pr(r, a, x, E, H) {
+    function hr(r, a, x, S, Y) {
       {
-        var B = Function.call.bind(U);
-        for (var W in r)
-          if (B(r, W)) {
-            var $ = void 0;
+        var q = Function.call.bind(V);
+        for (var F in r)
+          if (q(r, F)) {
+            var T = void 0;
             try {
-              if (typeof r[W] != "function") {
-                var ne = Error((E || "React class") + ": " + x + " type `" + W + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof r[W] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.");
-                throw ne.name = "Invariant Violation", ne;
+              if (typeof r[F] != "function") {
+                var oe = Error((S || "React class") + ": " + x + " type `" + F + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof r[F] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.");
+                throw oe.name = "Invariant Violation", oe;
               }
-              $ = r[W](a, W, E, x, null, "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED");
-            } catch (Q) {
-              $ = Q;
+              T = r[F](a, F, S, x, null, "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED");
+            } catch (J) {
+              T = J;
             }
-            $ && !($ instanceof Error) && (Le(H), h("%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", E || "React class", x, W, typeof $), Le(null)), $ instanceof Error && !($.message in oe) && (oe[$.message] = !0, Le(H), h("Failed %s type: %s", x, $.message), Le(null));
+            T && !(T instanceof Error) && (Le(Y), p("%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", S || "React class", x, F, typeof T), Le(null)), T instanceof Error && !(T.message in te) && (te[T.message] = !0, Le(Y), p("Failed %s type: %s", x, T.message), Le(null));
           }
       }
     }
-    var hr = Array.isArray;
+    var pr = Array.isArray;
     function Me(r) {
-      return hr(r);
+      return pr(r);
     }
     function yr(r) {
       {
@@ -363,7 +363,7 @@ function Hr() {
     }
     function We(r) {
       if (br(r))
-        return h("The provided key is an unsupported type %s. This value must be coerced to a string before before using it here.", yr(r)), ze(r);
+        return p("The provided key is an unsupported type %s. This value must be coerced to a string before before using it here.", yr(r)), ze(r);
     }
     var Ue = N.ReactCurrentOwner, vr = {
       key: !0,
@@ -372,7 +372,7 @@ function Hr() {
       __source: !0
     }, Ye, He;
     function wr(r) {
-      if (U.call(r, "ref")) {
+      if (V.call(r, "ref")) {
         var a = Object.getOwnPropertyDescriptor(r, "ref").get;
         if (a && a.isReactWarning)
           return !1;
@@ -380,7 +380,7 @@ function Hr() {
       return r.ref !== void 0;
     }
     function jr(r) {
-      if (U.call(r, "key")) {
+      if (V.call(r, "key")) {
         var a = Object.getOwnPropertyDescriptor(r, "key").get;
         if (a && a.isReactWarning)
           return !1;
@@ -393,7 +393,7 @@ function Hr() {
     function Cr(r, a) {
       {
         var x = function() {
-          Ye || (Ye = !0, h("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", a));
+          Ye || (Ye = !0, p("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", a));
         };
         x.isReactWarning = !0, Object.defineProperty(r, "key", {
           get: x,
@@ -404,7 +404,7 @@ function Hr() {
     function kr(r, a) {
       {
         var x = function() {
-          He || (He = !0, h("%s: `ref` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", a));
+          He || (He = !0, p("%s: `ref` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", a));
         };
         x.isReactWarning = !0, Object.defineProperty(r, "ref", {
           get: x,
@@ -412,57 +412,57 @@ function Hr() {
         });
       }
     }
-    var Sr = function(r, a, x, E, H, B, W) {
-      var $ = {
+    var Sr = function(r, a, x, S, Y, q, F) {
+      var T = {
         // This tag allows us to uniquely identify this as a React Element
         $$typeof: d,
         // Built-in properties that belong on the element
         type: r,
         key: a,
         ref: x,
-        props: W,
+        props: F,
         // Record the component responsible for creating this element.
-        _owner: B
+        _owner: q
       };
-      return $._store = {}, Object.defineProperty($._store, "validated", {
+      return T._store = {}, Object.defineProperty(T._store, "validated", {
         configurable: !1,
         enumerable: !1,
         writable: !0,
         value: !1
-      }), Object.defineProperty($, "_self", {
+      }), Object.defineProperty(T, "_self", {
         configurable: !1,
         enumerable: !1,
         writable: !1,
-        value: E
-      }), Object.defineProperty($, "_source", {
+        value: S
+      }), Object.defineProperty(T, "_source", {
         configurable: !1,
         enumerable: !1,
         writable: !1,
-        value: H
-      }), Object.freeze && (Object.freeze($.props), Object.freeze($)), $;
+        value: Y
+      }), Object.freeze && (Object.freeze(T.props), Object.freeze(T)), T;
     };
-    function Er(r, a, x, E, H) {
+    function Er(r, a, x, S, Y) {
       {
-        var B, W = {}, $ = null, ne = null;
-        x !== void 0 && (We(x), $ = "" + x), jr(a) && (We(a.key), $ = "" + a.key), wr(a) && (ne = a.ref, Nr(a, H));
-        for (B in a)
-          U.call(a, B) && !vr.hasOwnProperty(B) && (W[B] = a[B]);
+        var q, F = {}, T = null, oe = null;
+        x !== void 0 && (We(x), T = "" + x), jr(a) && (We(a.key), T = "" + a.key), wr(a) && (oe = a.ref, Nr(a, Y));
+        for (q in a)
+          V.call(a, q) && !vr.hasOwnProperty(q) && (F[q] = a[q]);
         if (r && r.defaultProps) {
-          var Q = r.defaultProps;
-          for (B in Q)
-            W[B] === void 0 && (W[B] = Q[B]);
+          var J = r.defaultProps;
+          for (q in J)
+            F[q] === void 0 && (F[q] = J[q]);
         }
-        if ($ || ne) {
-          var Z = typeof r == "function" ? r.displayName || r.name || "Unknown" : r;
-          $ && Cr(W, Z), ne && kr(W, Z);
+        if (T || oe) {
+          var Q = typeof r == "function" ? r.displayName || r.name || "Unknown" : r;
+          T && Cr(F, Q), oe && kr(F, Q);
         }
-        return Sr(r, $, ne, H, E, Ue.current, W);
+        return Sr(r, T, oe, Y, S, Ue.current, F);
       }
     }
     var Ie = N.ReactCurrentOwner, qe = N.ReactDebugCurrentFrame;
     function Ne(r) {
       if (r) {
-        var a = r._owner, x = _(r.type, r._source, a ? a.type : null);
+        var a = r._owner, x = P(r.type, r._source, a ? a.type : null);
         qe.setExtraStackFrame(x);
       } else
         qe.setExtraStackFrame(null);
@@ -472,10 +472,10 @@ function Hr() {
     function De(r) {
       return typeof r == "object" && r !== null && r.$$typeof === d;
     }
-    function Ke() {
+    function Be() {
       {
         if (Ie.current) {
-          var r = F(Ie.current.type);
+          var r = b(Ie.current.type);
           if (r)
             return `
 
@@ -487,10 +487,10 @@ Check the render method of \`` + r + "`.";
     function Pr(r) {
       return "";
     }
-    var Be = {};
+    var Ke = {};
     function _r(r) {
       {
-        var a = Ke();
+        var a = Be();
         if (!a) {
           var x = typeof r == "string" ? r : r.displayName || r.name;
           x && (a = `
@@ -506,11 +506,11 @@ Check the top-level render call using <` + x + ">.");
           return;
         r._store.validated = !0;
         var x = _r(a);
-        if (Be[x])
+        if (Ke[x])
           return;
-        Be[x] = !0;
-        var E = "";
-        r && r._owner && r._owner !== Ie.current && (E = " It was passed a child from " + F(r._owner.type) + "."), Ne(r), h('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', x, E), Ne(null);
+        Ke[x] = !0;
+        var S = "";
+        r && r._owner && r._owner !== Ie.current && (S = " It was passed a child from " + b(r._owner.type) + "."), Ne(r), p('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', x, S), Ne(null);
       }
     }
     function Ge(r, a) {
@@ -519,16 +519,16 @@ Check the top-level render call using <` + x + ">.");
           return;
         if (Me(r))
           for (var x = 0; x < r.length; x++) {
-            var E = r[x];
-            De(E) && Xe(E, a);
+            var S = r[x];
+            De(S) && Xe(S, a);
           }
         else if (De(r))
           r._store && (r._store.validated = !0);
         else if (r) {
-          var H = f(r);
-          if (typeof H == "function" && H !== r.entries)
-            for (var B = H.call(r), W; !(W = B.next()).done; )
-              De(W.value) && Xe(W.value, a);
+          var Y = f(r);
+          if (typeof Y == "function" && Y !== r.entries)
+            for (var q = Y.call(r), F; !(F = q.next()).done; )
+              De(F.value) && Xe(F.value, a);
         }
       }
     }
@@ -547,63 +547,63 @@ Check the top-level render call using <` + x + ">.");
         else
           return;
         if (x) {
-          var E = F(a);
-          pr(x, r.props, "prop", E, r);
+          var S = b(a);
+          hr(x, r.props, "prop", S, r);
         } else if (a.PropTypes !== void 0 && !Te) {
           Te = !0;
-          var H = F(a);
-          h("Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?", H || "Unknown");
+          var Y = b(a);
+          p("Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?", Y || "Unknown");
         }
-        typeof a.getDefaultProps == "function" && !a.getDefaultProps.isReactClassApproved && h("getDefaultProps is only used on classic React.createClass definitions. Use a static property named `defaultProps` instead.");
+        typeof a.getDefaultProps == "function" && !a.getDefaultProps.isReactClassApproved && p("getDefaultProps is only used on classic React.createClass definitions. Use a static property named `defaultProps` instead.");
       }
     }
     function Rr(r) {
       {
         for (var a = Object.keys(r.props), x = 0; x < a.length; x++) {
-          var E = a[x];
-          if (E !== "children" && E !== "key") {
-            Ne(r), h("Invalid prop `%s` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.", E), Ne(null);
+          var S = a[x];
+          if (S !== "children" && S !== "key") {
+            Ne(r), p("Invalid prop `%s` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.", S), Ne(null);
             break;
           }
         }
-        r.ref !== null && (Ne(r), h("Invalid attribute `ref` supplied to `React.Fragment`."), Ne(null));
+        r.ref !== null && (Ne(r), p("Invalid attribute `ref` supplied to `React.Fragment`."), Ne(null));
       }
     }
     var Je = {};
-    function Qe(r, a, x, E, H, B) {
+    function Qe(r, a, x, S, Y, q) {
       {
-        var W = Y(r);
-        if (!W) {
-          var $ = "";
-          (r === void 0 || typeof r == "object" && r !== null && Object.keys(r).length === 0) && ($ += " You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.");
-          var ne = Pr();
-          ne ? $ += ne : $ += Ke();
-          var Q;
-          r === null ? Q = "null" : Me(r) ? Q = "array" : r !== void 0 && r.$$typeof === d ? (Q = "<" + (F(r.type) || "Unknown") + " />", $ = " Did you accidentally export a JSX literal instead of a component?") : Q = typeof r, h("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", Q, $);
+        var F = B(r);
+        if (!F) {
+          var T = "";
+          (r === void 0 || typeof r == "object" && r !== null && Object.keys(r).length === 0) && (T += " You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.");
+          var oe = Pr();
+          oe ? T += oe : T += Be();
+          var J;
+          r === null ? J = "null" : Me(r) ? J = "array" : r !== void 0 && r.$$typeof === d ? (J = "<" + (b(r.type) || "Unknown") + " />", T = " Did you accidentally export a JSX literal instead of a component?") : J = typeof r, p("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", J, T);
         }
-        var Z = Er(r, a, x, H, B);
-        if (Z == null)
-          return Z;
-        if (W) {
+        var Q = Er(r, a, x, Y, q);
+        if (Q == null)
+          return Q;
+        if (F) {
           var ce = a.children;
           if (ce !== void 0)
-            if (E)
+            if (S)
               if (Me(ce)) {
                 for (var Ce = 0; Ce < ce.length; Ce++)
                   Ge(ce[Ce], r);
                 Object.freeze && Object.freeze(ce);
               } else
-                h("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
+                p("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
             else
               Ge(ce, r);
         }
-        if (U.call(a, "key")) {
-          var we = F(r), ae = Object.keys(a).filter(function(Dr) {
+        if (V.call(a, "key")) {
+          var we = b(r), ae = Object.keys(a).filter(function(Dr) {
             return Dr !== "key";
           }), Fe = ae.length > 0 ? "{key: someKey, " + ae.join(": ..., ") + ": ...}" : "{key: someKey}";
           if (!Je[we + Fe]) {
             var Tr = ae.length > 0 ? "{" + ae.join(": ..., ") + ": ...}" : "{}";
-            h(`A props object containing a "key" prop is being spread into JSX:
+            p(`A props object containing a "key" prop is being spread into JSX:
   let props = %s;
   <%s {...props} />
 React keys must be passed directly to JSX without using spread:
@@ -611,7 +611,7 @@ React keys must be passed directly to JSX without using spread:
   <%s key={someKey} {...props} />`, Fe, we, Tr, we), Je[we + Fe] = !0;
           }
         }
-        return r === y ? Rr(Z) : Lr(Z), Z;
+        return r === y ? Rr(Q) : Lr(Q), Q;
       }
     }
     function Ar(r, a, x) {
@@ -631,7 +631,7 @@ var e = Ve.exports, ur = {
   className: void 0,
   style: void 0,
   attr: void 0
-}, ar = he.createContext && he.createContext(ur), be = function() {
+}, ar = pe.createContext && pe.createContext(ur), be = function() {
   return be = Object.assign || function(s) {
     for (var d, l = 1, y = arguments.length; l < y; l++) {
       d = arguments[l];
@@ -648,40 +648,40 @@ var e = Ve.exports, ur = {
 };
 function fr(s) {
   return s && s.map(function(d, l) {
-    return he.createElement(d.tag, be({
+    return pe.createElement(d.tag, be({
       key: l
     }, d.attr), fr(d.child));
   });
 }
 function mr(s) {
   return function(d) {
-    return he.createElement(Kr, be({
+    return pe.createElement(Br, be({
       attr: be({}, s.attr)
     }, d), fr(s.child));
   };
 }
-function Kr(s) {
+function Br(s) {
   var d = function(l) {
-    var y = s.attr, g = s.size, u = s.title, p = qr(s, ["attr", "size", "title"]), b = g || l.size || "1em", m;
-    return l.className && (m = l.className), s.className && (m = (m ? m + " " : "") + s.className), he.createElement("svg", be({
+    var y = s.attr, g = s.size, u = s.title, h = qr(s, ["attr", "size", "title"]), v = g || l.size || "1em", m;
+    return l.className && (m = l.className), s.className && (m = (m ? m + " " : "") + s.className), pe.createElement("svg", be({
       stroke: "currentColor",
       fill: "currentColor",
       strokeWidth: "0"
-    }, l.attr, y, p, {
+    }, l.attr, y, h, {
       className: m,
       style: be(be({
         color: s.color || l.color
       }, l.style), s.style),
-      height: b,
-      width: b,
+      height: v,
+      width: v,
       xmlns: "http://www.w3.org/2000/svg"
-    }), u && he.createElement("title", null, u), s.children);
+    }), u && pe.createElement("title", null, u), s.children);
   };
-  return ar !== void 0 ? he.createElement(ar.Consumer, null, function(l) {
+  return ar !== void 0 ? pe.createElement(ar.Consumer, null, function(l) {
     return d(l);
   }) : d(ur);
 }
-function Br(s) {
+function Kr(s) {
   return mr({ attr: { role: "img", viewBox: "0 0 24 24" }, child: [{ tag: "title", attr: {}, child: [] }, { tag: "path", attr: { d: "M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" } }] })(s);
 }
 const le = {
@@ -858,7 +858,7 @@ function ve(s) {
 }
 function ge(s, d) {
   const { isAuthorized: l } = ve(d), y = async (n, t = {}) => {
-    const { token: c, ...P } = t;
+    const { token: c, ...E } = t;
     try {
       const f = {
         "Content-Type": "application/json",
@@ -868,25 +868,25 @@ function ge(s, d) {
       };
       c && (f.Authorization = `Bearer ${c}`);
       const N = await fetch(`${s}${n}`, {
-        ...P,
+        ...E,
         headers: f,
         credentials: "include"
       });
-      let h;
-      const T = N.headers.get("content-type");
-      if (T && T.includes("application/json"))
+      let p;
+      const I = N.headers.get("content-type");
+      if (I && I.includes("application/json"))
         try {
-          h = await N.json();
+          p = await N.json();
         } catch (i) {
-          console.error("Failed to parse JSON response", i), h = { message: await N.text() };
+          console.error("Failed to parse JSON response", i), p = { message: await N.text() };
         }
       else
-        h = { message: await N.text() };
+        p = { message: await N.text() };
       if (!N.ok) {
-        const i = new Error(h.message || h.error || `Error ${N.status}`);
-        throw i.status = N.status, i.data = h, i;
+        const i = new Error(p.message || p.error || `Error ${N.status}`);
+        throw i.status = N.status, i.data = p, i;
       }
-      return h;
+      return p;
     } catch (f) {
       if (f.name === "TypeError" && (f.message.includes("Failed to fetch") || f.message.includes("NetworkError"))) {
         const N = new Error("Connection Error");
@@ -923,37 +923,37 @@ function gr({
   onSuccess: y,
   onError: g,
   lang: u = "en",
-  apiToken: p,
-  texts: b = {}
+  apiToken: h,
+  texts: v = {}
 }) {
   var t;
-  const m = { ...le[u], ...b }, { post: L } = ge(s, p), o = ((t = d.app_info) == null ? void 0 : t.primaryColor) || l;
+  const m = { ...le[u], ...v }, { post: L } = ge(s, h), o = ((t = d.app_info) == null ? void 0 : t.primaryColor) || l;
   me(() => {
-    const c = (P) => {
+    const c = (E) => {
       let f, N;
       try {
         const i = new URL(s);
         f = i.origin;
-        const S = i.hostname.split(".");
-        S.length >= 2 && (N = S.slice(-2).join("."));
+        const _ = i.hostname.split(".");
+        _.length >= 2 && (N = _.slice(-2).join("."));
       } catch {
       }
-      const h = N && P.origin.endsWith(N) || f && P.origin === f;
-      if (P.origin === window.location.origin || h) {
-        if (P.data.type === "OAUTH_SUCCESS") {
-          const { token: i, handshake_code: S, user: M } = P.data.payload;
-          console.log("OAuth Login Successful:", M), y && y({
+      const p = N && E.origin.endsWith(N) || f && E.origin === f;
+      if (E.origin === window.location.origin || p) {
+        if (E.data.type === "OAUTH_SUCCESS") {
+          const { token: i, handshake_code: _, user: A } = E.data.payload;
+          console.log("OAuth Login Successful:", A), y && y({
             success: !0,
             token: i,
-            handshake_code: S,
-            user: M,
-            email: M == null ? void 0 : M.email,
+            handshake_code: _,
+            user: A,
+            email: A == null ? void 0 : A.email,
             // Ensure compatibility with existing success handlers
             provider: "Social"
           });
-        } else if (P.data.type === "OAUTH_ERROR") {
-          const { message: i, apps: S } = P.data.payload;
-          console.error("OAuth Login Error:", i), g && g(i, S);
+        } else if (E.data.type === "OAUTH_ERROR") {
+          const { message: i } = E.data.payload;
+          console.error("OAuth Login Error:", i), g && g(i);
         }
       }
     };
@@ -963,21 +963,21 @@ function gr({
     L("/login", {
       provider: c,
       frontend_origin: window.location.origin
-    }).then((P) => {
-      const f = P.auth_url || P.redirect_url;
+    }).then((E) => {
+      const f = E.auth_url || E.redirect_url;
       if (f) {
-        const T = window.screen.width / 2 - 300, i = window.screen.height / 2 - 700 / 2;
+        const I = window.screen.width / 2 - 300, i = window.screen.height / 2 - 700 / 2;
         window.open(
           f,
           "login_popup",
-          `width=600,height=700,left=${T},top=${i},status=no,resizable=yes,scrollbars=yes`
+          `width=600,height=700,left=${I},top=${i},status=no,resizable=yes,scrollbars=yes`
         );
       } else {
-        const N = P.error || P.message || (u === "es" ? "Error al iniciar sesión social" : "Social login error");
+        const N = E.error || E.message || (u === "es" ? "Error al iniciar sesión social" : "Social login error");
         g && g(N);
       }
-    }).catch((P) => {
-      console.error("⚠️ Social Auth Error:", P), g && g(P.message || "Error");
+    }).catch((E) => {
+      console.error("⚠️ Social Auth Error:", E), g && g(E.message || "Error");
     });
   }, n = o ? { borderColor: o, color: o } : {};
   return /* @__PURE__ */ e.jsxs("div", { className: "space-y-3", children: [
@@ -990,7 +990,7 @@ function gr({
         onClick: () => j("Google"),
         "data-testid": "button-google-login",
         children: [
-          /* @__PURE__ */ e.jsx(Br, { className: "h-4 w-4" }),
+          /* @__PURE__ */ e.jsx(Kr, { className: "h-4 w-4" }),
           /* @__PURE__ */ e.jsxs("span", { children: [
             m.continueWith,
             " Google"
@@ -1020,7 +1020,7 @@ function gr({
 let fe = null, $e = null;
 function xe(s, d, l, y, g) {
   var m, L, o, j;
-  const { getAppColors: u } = ge(s, d), [p, b] = k({
+  const { getAppColors: u } = ge(s, d), [h, v] = C({
     primaryColor: ((m = l == null ? void 0 : l.app_info) == null ? void 0 : m.primaryColor) || ((L = l == null ? void 0 : l.app_info) == null ? void 0 : L.primary_color) || (fe == null ? void 0 : fe.primaryColor) || y,
     backgroundColor: ((o = l == null ? void 0 : l.app_info) == null ? void 0 : o.backgroundColor) || ((j = l == null ? void 0 : l.app_info) == null ? void 0 : j.background_color) || (fe == null ? void 0 : fe.backgroundColor) || g,
     isLoading: !fe && !(l != null && l.app_info) && !!(s && d)
@@ -1028,7 +1028,7 @@ function xe(s, d, l, y, g) {
   return me(() => {
     if (l != null && l.app_info) {
       const n = l.app_info.primaryColor || l.app_info.primary_color, t = l.app_info.backgroundColor || l.app_info.background_color;
-      if ((n || t) && (b((c) => ({
+      if ((n || t) && (v((c) => ({
         primaryColor: n || c.primaryColor,
         backgroundColor: t || c.backgroundColor,
         isLoading: !1
@@ -1036,7 +1036,7 @@ function xe(s, d, l, y, g) {
         return;
     }
     if (fe && !(l != null && l.app_info)) {
-      b({
+      v({
         primaryColor: fe.primaryColor,
         backgroundColor: fe.backgroundColor,
         isLoading: !1
@@ -1044,14 +1044,14 @@ function xe(s, d, l, y, g) {
       return;
     }
     s && d ? (async () => {
-      $e || ($e = u().catch((P) => (console.error("Failed to fetch app colors:", P), null)));
+      $e || ($e = u().catch((E) => (console.error("Failed to fetch app colors:", E), null)));
       const t = await $e, c = {
         primaryColor: (t == null ? void 0 : t.primaryColor) || (t == null ? void 0 : t.primary_color) || y,
         backgroundColor: (t == null ? void 0 : t.backgroundColor) || (t == null ? void 0 : t.background_color) || g
       };
-      fe = c, b({ ...c, isLoading: !1 });
-    })() : b((n) => ({ ...n, isLoading: !1 }));
-  }, [l == null ? void 0 : l.app_info, y, g, s, d]), p;
+      fe = c, v({ ...c, isLoading: !1 });
+    })() : v((n) => ({ ...n, isLoading: !1 }));
+  }, [l == null ? void 0 : l.app_info, y, g, s, d]), h;
 }
 function je({ lang: s = "en" }) {
   const d = le[s] || le.en;
@@ -1076,46 +1076,45 @@ function es({
   backgroundColor: y = "#ffffff",
   onSuccess: g,
   onError: u,
-  onNavigate: p,
-  apiToken: b,
+  onNavigate: h,
+  apiToken: v,
   lang: m = "en",
   texts: L = {}
 }) {
-  const o = { ...le[m], ...L }, { isAuthorized: j } = ve(b), { primaryColor: n, backgroundColor: t, isLoading: c } = xe(s, b, d, l, y), { post: P } = ge(s, b), [f, N] = k(""), [h, T] = k(""), [i, S] = k(!1), [M, C] = k(""), [q, V] = k([]);
+  const o = { ...le[m], ...L }, { isAuthorized: j } = ve(v), { primaryColor: n, backgroundColor: t, isLoading: c } = xe(s, v, d, l, y), { post: E } = ge(s, v), [f, N] = C(""), [p, I] = C(""), [i, _] = C(!1), [A, k] = C("");
   if (c) return null;
   if (!j)
     return /* @__PURE__ */ e.jsx(je, { lang: m });
-  const Y = (D) => {
-    g && g(D);
-  }, z = async (D) => {
-    var O;
-    D.preventDefault(), S(!0), C(""), V([]);
+  const z = (b) => {
+    g && g(b);
+  }, $ = async (b) => {
+    b.preventDefault(), _(!0), k("");
     try {
-      const w = await P("/login", {
+      const w = await E("/login", {
         provider: "Email",
         email: f,
-        password: h
+        password: p
       });
       if (w.success)
-        Y({ ...w, email: f });
+        z({ ...w, email: f });
       else {
-        const R = w.message || w.error || o.unknownError;
-        C(R), w.apps && V(w.apps), u && u(R), S(!1);
+        const K = w.message || w.error || o.unknownError;
+        k(K), u && u(K), _(!1);
       }
     } catch (w) {
       console.error("⚠️ Login Error:", w);
-      let R = w.message;
-      w.isConnectionError ? R = o.connectionError : w.status >= 500 ? R = o.serverError : (!R || R === "Error " + w.status) && (R = o.unknownError), C(R), (O = w.data) != null && O.apps && V(w.data.apps), u && u(R), S(!1);
+      let K = w.message;
+      w.isConnectionError ? K = o.connectionError : w.status >= 500 ? K = o.serverError : (!K || K === "Error " + w.status) && (K = o.unknownError), k(K), u && u(K), _(!1);
     }
-  }, G = {
+  }, B = {
     backgroundColor: n,
     color: "#ffffff"
-  }, F = {
+  }, D = {
     backgroundColor: t
-  }, v = {
+  }, O = {
     color: n
   };
-  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: F, children: [
+  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: D, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: o.login }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: o.loginSubtitle })
@@ -1127,38 +1126,21 @@ function es({
           apiBaseUrl: s,
           user: d,
           primaryColor: n,
-          onSuccess: Y,
-          onError: (D, O) => {
-            C(D), O && V(O), u && u(D);
+          onSuccess: z,
+          onError: (b) => {
+            k(b), u && u(b);
           },
           lang: m,
-          apiToken: b,
+          apiToken: v,
           texts: L
         }
       ),
       /* @__PURE__ */ e.jsxs("div", { className: "relative py-2", children: [
         /* @__PURE__ */ e.jsx("div", { className: "absolute inset-0 flex items-center", children: /* @__PURE__ */ e.jsx("div", { className: "w-full border-t border-gray-200" }) }),
-        /* @__PURE__ */ e.jsx("div", { className: "relative flex justify-center text-xs uppercase", children: /* @__PURE__ */ e.jsx("span", { className: "px-2 text-gray-500", style: F, children: o.or }) })
+        /* @__PURE__ */ e.jsx("div", { className: "relative flex justify-center text-xs uppercase", children: /* @__PURE__ */ e.jsx("span", { className: "px-2 text-gray-500", style: D, children: o.or }) })
       ] }),
-      /* @__PURE__ */ e.jsxs("form", { onSubmit: z, className: "space-y-4", children: [
-        /* @__PURE__ */ e.jsx(ye, { message: M }),
-        q.length > 0 && /* @__PURE__ */ e.jsxs("div", { className: "p-3 bg-blue-50 border border-blue-100 rounded-md space-y-2", children: [
-          /* @__PURE__ */ e.jsxs("p", { className: "text-xs font-bold text-blue-800 uppercase tracking-wider", children: [
-            o.availableApps || "Available Apps",
-            ":"
-          ] }),
-          /* @__PURE__ */ e.jsx("div", { className: "flex flex-wrap gap-2", children: q.map((D) => /* @__PURE__ */ e.jsx(
-            "a",
-            {
-              href: D.publicUrl,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              className: "text-[10px] px-2 py-1 bg-white border border-blue-200 rounded-full text-blue-600 hover:bg-blue-100 transition-colors",
-              children: D.appName
-            },
-            D.appKey
-          )) })
-        ] }),
+      /* @__PURE__ */ e.jsxs("form", { onSubmit: $, className: "space-y-4", children: [
+        /* @__PURE__ */ e.jsx(ye, { message: A }),
         /* @__PURE__ */ e.jsxs("div", { className: "space-y-2", children: [
           /* @__PURE__ */ e.jsx("label", { htmlFor: "auth-email", className: "text-sm font-medium leading-none", children: o.email }),
           /* @__PURE__ */ e.jsx(
@@ -1169,8 +1151,8 @@ function es({
               placeholder: "user@example.com",
               className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
               value: f,
-              onChange: (D) => {
-                N(D.target.value), M && C("");
+              onChange: (b) => {
+                N(b.target.value), A && k("");
               },
               required: !0
             }
@@ -1184,9 +1166,9 @@ function es({
               id: "auth-password",
               type: "password",
               className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
-              value: h,
-              onChange: (D) => {
-                T(D.target.value), M && C("");
+              value: p,
+              onChange: (b) => {
+                I(b.target.value), A && k("");
               },
               required: !0
             }
@@ -1196,9 +1178,9 @@ function es({
           "button",
           {
             type: "button",
-            onClick: () => p && p("forgot-password"),
+            onClick: () => h && h("forgot-password"),
             className: "text-sm hover:underline",
-            style: v,
+            style: O,
             children: o.forgotPassword
           }
         ) }),
@@ -1207,7 +1189,7 @@ function es({
           {
             type: "submit",
             className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50",
-            style: G,
+            style: B,
             disabled: i,
             children: i ? o.loading : o.loginButton
           }
@@ -1221,9 +1203,9 @@ function es({
         "button",
         {
           type: "button",
-          onClick: () => p && p("signup"),
+          onClick: () => h && h("signup"),
           className: "font-medium hover:underline",
-          style: v,
+          style: O,
           children: o.signUp
         }
       )
@@ -1237,60 +1219,59 @@ function rs({
   backgroundColor: y = "#ffffff",
   onSuccess: g,
   onError: u,
-  onNavigate: p,
-  apiToken: b,
+  onNavigate: h,
+  apiToken: v,
   lang: m = "en",
   texts: L = {}
 }) {
-  const o = { ...le[m], ...L }, { isAuthorized: j } = ve(b), { primaryColor: n, backgroundColor: t, isLoading: c } = xe(s, b, d, l, y), { post: P } = ge(s, b), [f, N] = k(!1), [h, T] = k(""), [i, S] = k({
+  const o = { ...le[m], ...L }, { isAuthorized: j } = ve(v), { primaryColor: n, backgroundColor: t, isLoading: c } = xe(s, v, d, l, y), { post: E } = ge(s, v), [f, N] = C(!1), [p, I] = C(""), [i, _] = C({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: ""
-  }), [M, C] = k([]);
+  });
   if (c) return null;
   if (!j)
     return /* @__PURE__ */ e.jsx(je, { lang: m });
-  const q = (v) => {
-    g && g(v);
-  }, V = async (v) => {
-    var D;
-    if (v.preventDefault(), T(""), C([]), i.password !== i.confirmPassword) {
-      const O = o.passwordsDontMatch;
-      T(O), u && u(O);
+  const A = (O) => {
+    g && g(O);
+  }, k = async (O) => {
+    if (O.preventDefault(), I(""), i.password !== i.confirmPassword) {
+      const b = o.passwordsDontMatch;
+      I(b), u && u(b);
       return;
     }
     N(!0);
     try {
-      const O = await P("/register", {
+      const b = await E("/register", {
         firstName: i.firstName,
         lastName: i.lastName,
         email: i.email,
         password: i.password
       });
-      if (O.success)
-        q({ ...O, email: i.email });
+      if (b.success)
+        A({ ...b, email: i.email });
       else {
-        const w = O.message || O.error || o.unknownError;
-        T(w), O.apps && C(O.apps), u && u(w), N(!1);
+        const w = b.message || b.error || o.unknownError;
+        I(w), u && u(w), N(!1);
       }
-    } catch (O) {
-      console.error("⚠️ SignUp Error:", O);
-      let w = O.message;
-      O.isConnectionError ? w = o.connectionError : O.status >= 500 ? w = o.serverError : (!w || w === "Error " + O.status) && (w = o.unknownError), T(w), (D = O.data) != null && D.apps && C(O.data.apps), u && u(w), N(!1);
+    } catch (b) {
+      console.error("⚠️ SignUp Error:", b);
+      let w = b.message;
+      b.isConnectionError ? w = o.connectionError : b.status >= 500 ? w = o.serverError : (!w || w === "Error " + b.status) && (w = o.unknownError), I(w), u && u(w), N(!1);
     }
-  }, Y = (v, D) => {
-    S((O) => ({ ...O, [v]: D })), h && T("");
-  }, z = {
+  }, z = (O, b) => {
+    _((w) => ({ ...w, [O]: b })), p && I("");
+  }, $ = {
     backgroundColor: n,
     color: "#ffffff"
-  }, G = {
+  }, B = {
     backgroundColor: t
-  }, F = {
+  }, D = {
     color: n
   };
-  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: G, children: [
+  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: B, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6 text-center", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: o.createAccount }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: o.createAccountSubtitle })
@@ -1302,38 +1283,21 @@ function rs({
           apiBaseUrl: s,
           user: d,
           primaryColor: n,
-          onSuccess: q,
-          onError: (v, D) => {
-            T(v), D && C(D), u && u(v);
+          onSuccess: A,
+          onError: (O) => {
+            I(O), u && u(O);
           },
           lang: m,
-          apiToken: b,
+          apiToken: v,
           texts: L
         }
       ),
       /* @__PURE__ */ e.jsxs("div", { className: "relative py-2", children: [
         /* @__PURE__ */ e.jsx("div", { className: "absolute inset-0 flex items-center", children: /* @__PURE__ */ e.jsx("div", { className: "w-full border-t border-gray-200" }) }),
-        /* @__PURE__ */ e.jsx("div", { className: "relative flex justify-center text-xs uppercase", children: /* @__PURE__ */ e.jsx("span", { className: "px-2 text-gray-500", style: G, children: o.or }) })
+        /* @__PURE__ */ e.jsx("div", { className: "relative flex justify-center text-xs uppercase", children: /* @__PURE__ */ e.jsx("span", { className: "px-2 text-gray-500", style: B, children: o.or }) })
       ] }),
-      /* @__PURE__ */ e.jsxs("form", { onSubmit: V, className: "space-y-4", children: [
-        /* @__PURE__ */ e.jsx(ye, { message: h }),
-        M.length > 0 && /* @__PURE__ */ e.jsxs("div", { className: "p-3 bg-blue-50 border border-blue-100 rounded-md space-y-2", children: [
-          /* @__PURE__ */ e.jsxs("p", { className: "text-xs font-bold text-blue-800 uppercase tracking-wider", children: [
-            o.availableApps || "Available Apps",
-            ":"
-          ] }),
-          /* @__PURE__ */ e.jsx("div", { className: "flex flex-wrap gap-2", children: M.map((v) => /* @__PURE__ */ e.jsx(
-            "a",
-            {
-              href: v.publicUrl,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              className: "text-[10px] px-2 py-1 bg-white border border-blue-200 rounded-full text-blue-600 hover:bg-blue-100 transition-colors",
-              children: v.appName
-            },
-            v.appKey
-          )) })
-        ] }),
+      /* @__PURE__ */ e.jsxs("form", { onSubmit: k, className: "space-y-4", children: [
+        /* @__PURE__ */ e.jsx(ye, { message: p }),
         /* @__PURE__ */ e.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ e.jsxs("div", { className: "space-y-2", children: [
             /* @__PURE__ */ e.jsx("label", { className: "text-sm font-medium", children: o.firstName }),
@@ -1341,7 +1305,7 @@ function rs({
               "input",
               {
                 value: i.firstName,
-                onChange: (v) => Y("firstName", v.target.value),
+                onChange: (O) => z("firstName", O.target.value),
                 required: !0,
                 className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
               }
@@ -1353,7 +1317,7 @@ function rs({
               "input",
               {
                 value: i.lastName,
-                onChange: (v) => Y("lastName", v.target.value),
+                onChange: (O) => z("lastName", O.target.value),
                 required: !0,
                 className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
               }
@@ -1367,7 +1331,7 @@ function rs({
             {
               type: "email",
               value: i.email,
-              onChange: (v) => Y("email", v.target.value),
+              onChange: (O) => z("email", O.target.value),
               required: !0,
               className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
             }
@@ -1380,7 +1344,7 @@ function rs({
             {
               type: "password",
               value: i.password,
-              onChange: (v) => Y("password", v.target.value),
+              onChange: (O) => z("password", O.target.value),
               required: !0,
               className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
             }
@@ -1393,7 +1357,7 @@ function rs({
             {
               type: "password",
               value: i.confirmPassword,
-              onChange: (v) => Y("confirmPassword", v.target.value),
+              onChange: (O) => z("confirmPassword", O.target.value),
               required: !0,
               className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
             }
@@ -1404,7 +1368,7 @@ function rs({
           {
             type: "submit",
             className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50",
-            style: z,
+            style: $,
             disabled: f,
             children: f ? o.creatingAccount : o.createAccount
           }
@@ -1418,9 +1382,9 @@ function rs({
         "button",
         {
           type: "button",
-          onClick: () => p && p("login"),
+          onClick: () => h && h("login"),
           className: "font-medium hover:underline",
-          style: F,
+          style: D,
           children: o.login
         }
       )
@@ -1434,39 +1398,39 @@ function ss({
   backgroundColor: y = "#ffffff",
   onSuccess: g,
   onError: u,
-  onNavigate: p,
-  apiToken: b,
+  onNavigate: h,
+  apiToken: v,
   lang: m = "en",
   texts: L = {}
 }) {
-  const o = { ...le[m], ...L }, { isAuthorized: j } = ve(b), { primaryColor: n, backgroundColor: t, isLoading: c } = xe(s, b, d, l, y), { post: P } = ge(s, b), [f, N] = k(""), [h, T] = k(!1), [i, S] = k(!1), [M, C] = k("");
+  const o = { ...le[m], ...L }, { isAuthorized: j } = ve(v), { primaryColor: n, backgroundColor: t, isLoading: c } = xe(s, v, d, l, y), { post: E } = ge(s, v), [f, N] = C(""), [p, I] = C(!1), [i, _] = C(!1), [A, k] = C("");
   if (c) return null;
   if (!j)
     return /* @__PURE__ */ e.jsx(je, { lang: m });
-  const q = async (G) => {
-    G.preventDefault(), T(!0), C("");
+  const z = async (O) => {
+    O.preventDefault(), I(!0), k("");
     try {
-      const F = await P("/forgot-password", { email: f });
-      if (F.success)
-        S(!0), g && g({ ...F, email: f });
+      const b = await E("/forgot-password", { email: f });
+      if (b.success)
+        _(!0), g && g({ ...b, email: f });
       else {
-        const v = F.message || F.error || o.unknownError;
-        C(v), u && u(v), T(!1);
+        const w = b.message || b.error || o.unknownError;
+        k(w), u && u(w), I(!1);
       }
-    } catch (F) {
-      console.error("⚠️ ForgotPassword Error:", F);
-      let v = F.message;
-      F.isConnectionError ? v = o.connectionError : F.status >= 500 ? v = o.serverError : (!v || v === "Error " + F.status) && (v = o.unknownError), C(v), u && u(v), T(!1);
+    } catch (b) {
+      console.error("⚠️ ForgotPassword Error:", b);
+      let w = b.message;
+      b.isConnectionError ? w = o.connectionError : b.status >= 500 ? w = o.serverError : (!w || w === "Error " + b.status) && (w = o.unknownError), k(w), u && u(w), I(!1);
     }
-  }, V = {
+  }, $ = {
     backgroundColor: n,
     color: "#ffffff"
-  }, Y = {
+  }, B = {
     backgroundColor: t
-  }, z = {
+  }, D = {
     color: n
   };
-  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: Y, children: [
+  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: B, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6 text-center", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: o.forgotPassword }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: i ? o.checkEmail : o.resetPasswordInstructions })
@@ -1478,23 +1442,23 @@ function ss({
         /* @__PURE__ */ e.jsx(
           "button",
           {
-            onClick: () => p && p("reset-password"),
+            onClick: () => h && h("reset-password"),
             className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-            style: V,
+            style: $,
             children: o.enterCodeAndPassword
           }
         ),
         /* @__PURE__ */ e.jsx(
           "button",
           {
-            onClick: () => p && p("login"),
+            onClick: () => h && h("login"),
             className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-gray-200 hover:bg-gray-50",
             children: o.backToLogin
           }
         )
       ] })
-    ] }) : /* @__PURE__ */ e.jsxs("form", { onSubmit: q, className: "space-y-4", children: [
-      /* @__PURE__ */ e.jsx(ye, { message: M }),
+    ] }) : /* @__PURE__ */ e.jsxs("form", { onSubmit: z, className: "space-y-4", children: [
+      /* @__PURE__ */ e.jsx(ye, { message: A }),
       /* @__PURE__ */ e.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ e.jsx("label", { htmlFor: "auth-forgot-email", className: "text-sm font-medium", children: o.email }),
         /* @__PURE__ */ e.jsx(
@@ -1505,8 +1469,8 @@ function ss({
             placeholder: "user@example.com",
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
             value: f,
-            onChange: (G) => {
-              N(G.target.value), M && C("");
+            onChange: (O) => {
+              N(O.target.value), A && k("");
             },
             required: !0
           }
@@ -1517,18 +1481,18 @@ function ss({
         {
           type: "submit",
           className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50",
-          style: V,
-          disabled: h,
-          children: h ? o.sending : o.sendResetLink
+          style: $,
+          disabled: p,
+          children: p ? o.sending : o.sendResetLink
         }
       ),
       /* @__PURE__ */ e.jsx(
         "button",
         {
           type: "button",
-          onClick: () => p && p("login"),
+          onClick: () => h && h("login"),
           className: "w-full text-sm font-medium hover:underline text-center",
-          style: z,
+          style: D,
           children: o.backToLogin
         }
       )
@@ -1549,8 +1513,8 @@ function ts({
   backgroundColor: y = "#ffffff",
   onSuccess: g,
   onError: u,
-  onNavigate: p,
-  apiToken: b,
+  onNavigate: h,
+  apiToken: v,
   lang: m = "en",
   email: L = "",
   authToken: o = "",
@@ -1559,94 +1523,94 @@ function ts({
   initialWaitSeconds: n = 0,
   texts: t = {}
 }) {
-  const c = { ...le[m], ...t }, { isAuthorized: P } = ve(b), { primaryColor: f, backgroundColor: N, isLoading: h } = xe(s, b, j, l, y), { post: T } = ge(s, b), [i, S] = k({
+  const c = { ...le[m], ...t }, { isAuthorized: E } = ve(v), { primaryColor: f, backgroundColor: N, isLoading: p } = xe(s, v, j, l, y), { post: I } = ge(s, v), [i, _] = C({
     token: d,
     newPassword: "",
     confirmPassword: ""
-  }), [M, C] = k(!1), [q, V] = k(!1), [Y, z] = k(!1), [G, F] = k([]), [v, D] = k(!1), [O, w] = k(""), [R, X] = k(""), [de, ue] = k(o), [ie, I] = k(n), [se, ee] = k(c.resetPasswordSubtitle), re = Re(null);
-  if (me(() => (ie > 0 && (re.current = setInterval(() => {
-    I((A) => A <= 1 ? (clearInterval(re.current), 0) : A - 1);
-  }, 1e3)), () => clearInterval(re.current)), [ie]), me(() => {
+  }), [A, k] = C(!1), [z, $] = C(!1), [B, D] = C(!1), [O, b] = C([]), [w, K] = C(!1), [ne, W] = C(""), [U, X] = C(""), [de, ue] = C(o), [ie, M] = C(n), [re, Z] = C(c.resetPasswordSubtitle), ee = Re(null);
+  if (me(() => (ie > 0 && (ee.current = setInterval(() => {
+    M((R) => R <= 1 ? (clearInterval(ee.current), 0) : R - 1);
+  }, 1e3)), () => clearInterval(ee.current)), [ie]), me(() => {
     o && ue(o);
-  }, [o]), h) return null;
-  if (!P)
+  }, [o]), p) return null;
+  if (!E)
     return /* @__PURE__ */ e.jsx(je, { lang: m });
-  const pe = (A) => {
-    const _ = Math.floor(A / 60), U = A % 60;
-    return `${_.toString().padStart(2, "0")}:${U.toString().padStart(2, "0")}`;
-  }, K = async () => {
+  const he = (R) => {
+    const P = Math.floor(R / 60), V = R % 60;
+    return `${P.toString().padStart(2, "0")}:${V.toString().padStart(2, "0")}`;
+  }, H = async () => {
     if (!(!L || ie > 0)) {
-      V(!0), w("");
+      $(!0), W("");
       try {
-        const A = await T("/forgot-password", { email: L });
-        if (A.success)
-          A.wait_seconds && I(A.wait_seconds), ee(A.message || c.resendSent);
+        const R = await I("/forgot-password", { email: L });
+        if (R.success)
+          R.wait_seconds && M(R.wait_seconds), Z(R.message || c.resendSent);
         else {
-          const _ = A.message || A.error || c.connectionError;
-          w(_), A.wait_seconds && I(A.wait_seconds), u && u(_);
+          const P = R.message || R.error || c.connectionError;
+          W(P), R.wait_seconds && M(R.wait_seconds), u && u(P);
         }
-      } catch (A) {
-        console.error("⚠️ Resend Reset Error:", A);
-        let _ = A.message;
-        A.isConnectionError ? _ = c.connectionError : A.status >= 500 ? _ = c.serverError : (!_ || _ === "Error " + A.status) && (_ = c.unknownError), w(_), u && u(_);
+      } catch (R) {
+        console.error("⚠️ Resend Reset Error:", R);
+        let P = R.message;
+        R.isConnectionError ? P = c.connectionError : R.status >= 500 ? P = c.serverError : (!P || P === "Error " + R.status) && (P = c.unknownError), W(P), u && u(P);
       } finally {
-        V(!1);
+        $(!1);
       }
     }
-  }, J = async (A) => {
-    if (A.preventDefault(), w(""), i.newPassword !== i.confirmPassword) {
-      const _ = c.passwordsDontMatch;
-      w(_), u && u(_);
+  }, G = async (R) => {
+    if (R.preventDefault(), W(""), i.newPassword !== i.confirmPassword) {
+      const P = c.passwordsDontMatch;
+      W(P), u && u(P);
       return;
     }
     if (!i.token) {
-      const _ = c.enterRecoveryCode;
-      w(_), u && u(_);
+      const P = c.enterRecoveryCode;
+      W(P), u && u(P);
       return;
     }
-    C(!0);
+    k(!0);
     try {
-      const _ = await T("/reset-password", {
+      const P = await I("/reset-password", {
         token: i.token,
         newPassword: i.newPassword,
         confirmPassword: i.confirmPassword
       });
-      if (_.success || _.status)
-        z(!0), _.active_sessions && F(_.active_sessions), _.token && ue(_.token), g && g(_);
+      if (P.success || P.status)
+        D(!0), P.active_sessions && b(P.active_sessions), P.token && ue(P.token), g && g(P);
       else {
-        const U = _.message || _.error || c.unknownError;
-        w(U), u && u(U), C(!1);
+        const V = P.message || P.error || c.unknownError;
+        W(V), u && u(V), k(!1);
       }
-    } catch (_) {
-      console.error("⚠️ ResetPassword Error:", _);
-      let U = _.message;
-      _.isConnectionError ? U = c.connectionError : _.status >= 500 ? U = c.serverError : (!U || U === "Error " + _.status) && (U = c.unknownError), w(U), u && u(U), C(!1);
+    } catch (P) {
+      console.error("⚠️ ResetPassword Error:", P);
+      let V = P.message;
+      P.isConnectionError ? V = c.connectionError : P.status >= 500 ? V = c.serverError : (!V || V === "Error " + P.status) && (V = c.unknownError), W(V), u && u(V), k(!1);
     }
-  }, te = async (A = !1, _ = []) => {
+  }, se = async (R = !1, P = []) => {
     if (!de) {
-      const U = c.noSessions;
-      w(U), u && u(U);
+      const V = c.noSessions;
+      W(V), u && u(V);
       return;
     }
-    D(!0), w(""), X("");
+    K(!0), W(""), X("");
     try {
-      const U = await T("/logout_sessions", {
+      const V = await I("/logout_sessions", {
         email: L || "",
-        all_sessions: A,
-        session_ids: _
+        all_sessions: R,
+        session_ids: P
       }, { token: de });
-      if (U.success)
-        F(A ? [] : (oe) => oe.filter((_e) => !_.includes(_e._id))), X(c.logoutSuccess);
+      if (V.success)
+        b(R ? [] : (te) => te.filter((_e) => !P.includes(_e._id))), X(c.logoutSuccess);
       else {
-        const oe = U.message || U.error || "Logout failed";
-        w(oe), u && u(oe);
+        const te = V.message || V.error || "Logout failed";
+        W(te), u && u(te);
       }
-    } catch (U) {
-      console.error("⚠️ Logout Sessions Error:", U);
-      let oe = U.message;
-      U.isConnectionError ? oe = c.connectionError : U.status >= 500 ? oe = c.serverError : (!oe || oe === "Error " + U.status) && (oe = c.unknownError), w(oe), u && u(oe);
+    } catch (V) {
+      console.error("⚠️ Logout Sessions Error:", V);
+      let te = V.message;
+      V.isConnectionError ? te = c.connectionError : V.status >= 500 ? te = c.serverError : (!te || te === "Error " + V.status) && (te = c.unknownError), W(te), u && u(te);
     } finally {
-      D(!1);
+      K(!1);
     }
   }, Pe = {
     backgroundColor: f,
@@ -1656,56 +1620,56 @@ function ts({
   }, Oe = {
     color: f
   };
-  return Y ? /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: ke, children: [
+  return B ? /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: ke, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "text-center mb-6", children: [
       /* @__PURE__ */ e.jsx("div", { className: "w-16 h-16 mx-auto rounded-full bg-green-50 flex items-center justify-center text-green-500 mb-4", children: /* @__PURE__ */ e.jsx("svg", { className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ e.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M5 13l4 4L19 7" }) }) }),
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: c.resetSuccessTitle }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: c.resetSuccessSubtitle })
     ] }),
-    /* @__PURE__ */ e.jsx(Ae, { message: R }),
-    /* @__PURE__ */ e.jsx(ye, { message: O }),
-    G.length > 0 && /* @__PURE__ */ e.jsxs("div", { className: "mt-8 space-y-4 border-t pt-6", children: [
+    /* @__PURE__ */ e.jsx(Ae, { message: U }),
+    /* @__PURE__ */ e.jsx(ye, { message: ne }),
+    O.length > 0 && /* @__PURE__ */ e.jsxs("div", { className: "mt-8 space-y-4 border-t pt-6", children: [
       /* @__PURE__ */ e.jsxs("div", { className: "text-left", children: [
         /* @__PURE__ */ e.jsx("h3", { className: "text-lg font-medium", children: c.activeSessions }),
         /* @__PURE__ */ e.jsx("p", { className: "text-xs text-gray-500", children: c.sessionsSubtitle })
       ] }),
-      /* @__PURE__ */ e.jsx("div", { className: "space-y-3 max-h-60 overflow-y-auto pr-1", children: G.map((A) => {
-        var _;
+      /* @__PURE__ */ e.jsx("div", { className: "space-y-3 max-h-60 overflow-y-auto pr-1", children: O.map((R) => {
+        var P;
         return /* @__PURE__ */ e.jsxs("div", { className: "p-3 border rounded-md text-xs bg-gray-50 flex justify-between items-center", children: [
           /* @__PURE__ */ e.jsxs("div", { className: "space-y-1", children: [
-            /* @__PURE__ */ e.jsx("div", { className: "font-semibold text-gray-700 truncate max-w-[180px]", title: A["Device Name"], children: ((_ = A["Device Name"]) == null ? void 0 : _.split(" ")[0]) || c.deviceName }),
-            /* @__PURE__ */ e.jsx("div", { className: "text-gray-500", children: A.IP }),
-            A["Expiration Date"] && /* @__PURE__ */ e.jsxs("div", { className: "text-gray-400 italic", children: [
+            /* @__PURE__ */ e.jsx("div", { className: "font-semibold text-gray-700 truncate max-w-[180px]", title: R["Device Name"], children: ((P = R["Device Name"]) == null ? void 0 : P.split(" ")[0]) || c.deviceName }),
+            /* @__PURE__ */ e.jsx("div", { className: "text-gray-500", children: R.IP }),
+            R["Expiration Date"] && /* @__PURE__ */ e.jsxs("div", { className: "text-gray-400 italic", children: [
               c.expiry,
               ": ",
-              new Date(A["Expiration Date"]).toLocaleDateString()
+              new Date(R["Expiration Date"]).toLocaleDateString()
             ] })
           ] }),
           /* @__PURE__ */ e.jsx(
             "button",
             {
-              onClick: () => te(!1, [A._id]),
-              disabled: v,
+              onClick: () => se(!1, [R._id]),
+              disabled: w,
               className: "px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors",
               children: c.logoutThisSession
             }
           )
-        ] }, A._id);
+        ] }, R._id);
       }) }),
       /* @__PURE__ */ e.jsx(
         "button",
         {
-          onClick: () => te(!0),
-          disabled: v,
+          onClick: () => se(!0),
+          disabled: w,
           className: "w-full py-2 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors font-medium",
-          children: v ? c.loggingOut : c.logoutAllSessions
+          children: w ? c.loggingOut : c.logoutAllSessions
         }
       )
     ] }),
     /* @__PURE__ */ e.jsx("div", { className: "mt-8 pt-6 border-t", children: /* @__PURE__ */ e.jsx(
       "button",
       {
-        onClick: () => p && p("login"),
+        onClick: () => h && h("login"),
         className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
         style: Pe,
         children: c.goToLogin
@@ -1714,10 +1678,10 @@ function ts({
   ] }) : /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: ke, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6 text-center", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: c.resetPasswordTitle }),
-      /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: se })
+      /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: re })
     ] }),
-    /* @__PURE__ */ e.jsxs("form", { onSubmit: J, className: "space-y-4", children: [
-      /* @__PURE__ */ e.jsx(ye, { message: O }),
+    /* @__PURE__ */ e.jsxs("form", { onSubmit: G, className: "space-y-4", children: [
+      /* @__PURE__ */ e.jsx(ye, { message: ne }),
       /* @__PURE__ */ e.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ e.jsx("label", { className: "text-sm font-medium", children: c.verificationCode }),
         /* @__PURE__ */ e.jsx(
@@ -1725,7 +1689,7 @@ function ts({
           {
             type: "text",
             value: i.token,
-            onChange: (A) => S({ ...i, token: A.target.value }),
+            onChange: (R) => _({ ...i, token: R.target.value }),
             required: !0,
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 font-mono tracking-widest text-center",
             placeholder: "XXXXXX"
@@ -1739,7 +1703,7 @@ function ts({
           {
             type: "password",
             value: i.newPassword,
-            onChange: (A) => S({ ...i, newPassword: A.target.value }),
+            onChange: (R) => _({ ...i, newPassword: R.target.value }),
             required: !0,
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
             placeholder: c.min8Chars
@@ -1753,7 +1717,7 @@ function ts({
           {
             type: "password",
             value: i.confirmPassword,
-            onChange: (A) => S({ ...i, confirmPassword: A.target.value }),
+            onChange: (R) => _({ ...i, confirmPassword: R.target.value }),
             required: !0,
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
           }
@@ -1765,30 +1729,30 @@ function ts({
           type: "submit",
           className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50",
           style: Pe,
-          disabled: M || !i.token,
-          children: M ? c.resetting : c.resetPasswordTitle
+          disabled: A || !i.token,
+          children: A ? c.resetting : c.resetPasswordTitle
         }
       ),
       /* @__PURE__ */ e.jsxs("div", { className: "pt-2 text-center space-y-3", children: [
         ie > 0 ? /* @__PURE__ */ e.jsxs("div", { className: "text-xs text-gray-500 font-mono", children: [
           c.resendCodeIn,
-          /* @__PURE__ */ e.jsx("span", { className: "font-bold", children: pe(ie) })
+          /* @__PURE__ */ e.jsx("span", { className: "font-bold", children: he(ie) })
         ] }) : /* @__PURE__ */ e.jsx(
           "button",
           {
             type: "button",
-            onClick: K,
-            disabled: q || !L,
+            onClick: H,
+            disabled: z || !L,
             className: "text-sm font-medium hover:underline",
             style: Oe,
-            children: q ? c.loading : c.resendCode
+            children: z ? c.loading : c.resendCode
           }
         ),
         /* @__PURE__ */ e.jsx(
           "button",
           {
             type: "button",
-            onClick: () => p && p("login"),
+            onClick: () => h && h("login"),
             className: "w-full text-sm font-medium hover:underline text-center text-gray-500",
             children: c.backToLogin
           }
@@ -1804,8 +1768,8 @@ function os({
   backgroundColor: y = "#ffffff",
   onSuccess: g,
   onError: u,
-  onNavigate: p,
-  apiToken: b,
+  onNavigate: h,
+  apiToken: v,
   // X-API-KEY for headers
   authToken: m,
   // User session token
@@ -1814,68 +1778,68 @@ function os({
   lang: o = "en",
   texts: j = {}
 }) {
-  const n = { ...le[o], ...j }, { isAuthorized: t } = ve(b), { primaryColor: c, backgroundColor: P, isLoading: f } = xe(s, b, d, l, y), { changePassword: N } = ge(s, b), [h, T] = k({
+  const n = { ...le[o], ...j }, { isAuthorized: t } = ve(v), { primaryColor: c, backgroundColor: E, isLoading: f } = xe(s, v, d, l, y), { changePassword: N } = ge(s, v), [p, I] = C({
     oldPassword: "",
     newPassword: "",
     confirmPassword: ""
-  }), [i, S] = k(!1), [M, C] = k(!1), [q, V] = k(""), [Y, z] = k("");
+  }), [i, _] = C(!1), [A, k] = C(!1), [z, $] = C(""), [B, D] = C("");
   if (f) return null;
   if (!t)
     return /* @__PURE__ */ e.jsx(je, { lang: o });
-  const G = async (w) => {
-    if (w.preventDefault(), V(""), z(""), h.newPassword !== h.confirmPassword) {
-      const R = n.passwordsDontMatch;
-      V(R), u && u(R);
+  const O = async (W) => {
+    if (W.preventDefault(), $(""), D(""), p.newPassword !== p.confirmPassword) {
+      const U = n.passwordsDontMatch;
+      $(U), u && u(U);
       return;
     }
-    S(!0);
+    _(!0);
     try {
-      const R = await N({
+      const U = await N({
         email: L || d.email,
-        old_password: h.oldPassword,
-        new_password: h.newPassword,
+        old_password: p.oldPassword,
+        new_password: p.newPassword,
         token: m
         // Now using user session token, not api key
       });
-      if (R.success)
-        C(!0), z(n.passwordChanged), g && g(R), T({ oldPassword: "", newPassword: "", confirmPassword: "" }), setTimeout(() => z(""), 5e3);
+      if (U.success)
+        k(!0), D(n.passwordChanged), g && g(U), I({ oldPassword: "", newPassword: "", confirmPassword: "" }), setTimeout(() => D(""), 5e3);
       else {
-        const X = R.message || R.error || n.unknownError;
-        V(X), u && u(X);
+        const X = U.message || U.error || n.unknownError;
+        $(X), u && u(X);
       }
-    } catch (R) {
-      console.error("⚠️ ChangePassword Error:", R);
-      let X = R.message;
-      R.isConnectionError ? X = n.connectionError : R.status >= 500 ? X = n.serverError : (!X || X === "Error " + R.status) && (X = n.unknownError), V(X), u && u(X);
+    } catch (U) {
+      console.error("⚠️ ChangePassword Error:", U);
+      let X = U.message;
+      U.isConnectionError ? X = n.connectionError : U.status >= 500 ? X = n.serverError : (!X || X === "Error " + U.status) && (X = n.unknownError), $(X), u && u(X);
     } finally {
-      S(!1);
+      _(!1);
     }
-  }, F = (w, R) => {
-    T((X) => ({ ...X, [w]: R })), q && V("");
-  }, v = {
+  }, b = (W, U) => {
+    I((X) => ({ ...X, [W]: U })), z && $("");
+  }, w = {
     backgroundColor: c,
     color: "#ffffff"
-  }, D = {
-    backgroundColor: P
-  }, O = {
+  }, K = {
+    backgroundColor: E
+  }, ne = {
     color: c
   };
-  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: D, children: [
+  return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border", style: K, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6 text-center", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: n.changePassword }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: n.changePasswordSubtitle })
     ] }),
-    /* @__PURE__ */ e.jsxs("form", { onSubmit: G, className: "space-y-4", children: [
-      /* @__PURE__ */ e.jsx(ye, { message: q }),
-      /* @__PURE__ */ e.jsx(Ae, { message: Y }),
+    /* @__PURE__ */ e.jsxs("form", { onSubmit: O, className: "space-y-4", children: [
+      /* @__PURE__ */ e.jsx(ye, { message: z }),
+      /* @__PURE__ */ e.jsx(Ae, { message: B }),
       /* @__PURE__ */ e.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ e.jsx("label", { className: "text-sm font-medium", children: n.oldPassword }),
         /* @__PURE__ */ e.jsx(
           "input",
           {
             type: "password",
-            value: h.oldPassword,
-            onChange: (w) => F("oldPassword", w.target.value),
+            value: p.oldPassword,
+            onChange: (W) => b("oldPassword", W.target.value),
             required: !0,
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
           }
@@ -1887,8 +1851,8 @@ function os({
           "input",
           {
             type: "password",
-            value: h.newPassword,
-            onChange: (w) => F("newPassword", w.target.value),
+            value: p.newPassword,
+            onChange: (W) => b("newPassword", W.target.value),
             required: !0,
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
           }
@@ -1900,8 +1864,8 @@ function os({
           "input",
           {
             type: "password",
-            value: h.confirmPassword,
-            onChange: (w) => F("confirmPassword", w.target.value),
+            value: p.confirmPassword,
+            onChange: (W) => b("confirmPassword", W.target.value),
             required: !0,
             className: "flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
           }
@@ -1912,18 +1876,18 @@ function os({
         {
           type: "submit",
           className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50",
-          style: v,
+          style: w,
           disabled: i,
           children: i ? n.loading : n.changePassword
         }
       ),
-      p && /* @__PURE__ */ e.jsx(
+      h && /* @__PURE__ */ e.jsx(
         "button",
         {
           type: "button",
-          onClick: () => p("login"),
+          onClick: () => h("login"),
           className: "w-full text-sm font-medium hover:underline text-center",
-          style: O,
+          style: ne,
           children: n.backToLogin
         }
       )
@@ -1937,47 +1901,47 @@ function ns({
   primaryColor: y = "#3b82f6",
   backgroundColor: g = "#ffffff",
   onSuccess: u,
-  onError: p,
-  onNavigate: b,
+  onError: h,
+  onNavigate: v,
   lang: m = "en",
   apiToken: L,
   texts: o = {}
 }) {
-  const j = { ...le[m], ...o }, { isAuthorized: n } = ve(L), { primaryColor: t, backgroundColor: c, isLoading: P } = xe(s, L, l, y, g), { post: f } = ge(s, L), [N, h] = k(d ? "verifying" : "idle"), [T, i] = k(""), [S, M] = k("");
+  const j = { ...le[m], ...o }, { isAuthorized: n } = ve(L), { primaryColor: t, backgroundColor: c, isLoading: E } = xe(s, L, l, y, g), { post: f } = ge(s, L), [N, p] = C(d ? "verifying" : "idle"), [I, i] = C(""), [_, A] = C("");
   if (me(() => {
-    d && N === "verifying" && C();
-  }, [d]), P) return null;
+    d && N === "verifying" && k();
+  }, [d]), E) return null;
   if (!n)
     return /* @__PURE__ */ e.jsx(je, { lang: m });
-  const C = async () => {
-    M("");
+  const k = async () => {
+    A("");
     try {
-      const Y = await f("/verify-email", { token: d });
-      if (Y.success)
-        h("success"), i(Y.message || j.verifySuccess), u && u(Y);
+      const B = await f("/verify-email", { token: d });
+      if (B.success)
+        p("success"), i(B.message || j.verifySuccess), u && u(B);
       else {
-        h("error");
-        const z = Y.message || Y.error || j.verifyError;
-        i(z), M(z), p && p(z);
+        p("error");
+        const D = B.message || B.error || j.verifyError;
+        i(D), A(D), h && h(D);
       }
-    } catch (Y) {
-      console.error("⚠️ Verification Error:", Y), h("error");
-      const z = j.connectionError;
-      i(z), M(z), p && p(z);
+    } catch (B) {
+      console.error("⚠️ Verification Error:", B), p("error");
+      const D = j.connectionError;
+      i(D), A(D), h && h(D);
     }
-  }, q = {
+  }, z = {
     backgroundColor: t,
     color: "#ffffff"
-  }, V = {
+  }, $ = {
     backgroundColor: c
   };
-  return d ? /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: V, children: [
+  return d ? /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: $, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: N === "verifying" ? j.verifying : j.emailVerification }),
-      /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: N === "verifying" ? j.verifyingSubtitle : T })
+      /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: N === "verifying" ? j.verifyingSubtitle : I })
     ] }),
     /* @__PURE__ */ e.jsxs("div", { className: "py-6 flex flex-col items-center", children: [
-      /* @__PURE__ */ e.jsx(ye, { message: S }),
+      /* @__PURE__ */ e.jsx(ye, { message: _ }),
       N === "verifying" && /* @__PURE__ */ e.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-500", style: { borderTopColor: t } }),
       N === "success" && /* @__PURE__ */ e.jsx("div", { className: "w-16 h-16 rounded-full bg-green-50 flex items-center justify-center text-green-500", children: /* @__PURE__ */ e.jsx("svg", { className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ e.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M5 13l4 4L19 7" }) }) }),
       N === "error" && /* @__PURE__ */ e.jsx("div", { className: "w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500", children: /* @__PURE__ */ e.jsx("svg", { className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ e.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" }) }) })
@@ -1985,13 +1949,13 @@ function ns({
     N !== "verifying" && /* @__PURE__ */ e.jsx(
       "button",
       {
-        onClick: () => b && b("login"),
+        onClick: () => v && v("login"),
         className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-        style: q,
+        style: z,
         children: j.backToLogin
       }
     )
-  ] }) : /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: V, children: [
+  ] }) : /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: $, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: j.emailVerification }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: j.checkEmail })
@@ -2002,7 +1966,7 @@ function ns({
       /* @__PURE__ */ e.jsx(
         "button",
         {
-          onClick: () => b && b("login"),
+          onClick: () => v && v("login"),
           className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-gray-200 hover:bg-gray-50",
           children: j.backToLogin
         }
@@ -2017,8 +1981,8 @@ function as({
   backgroundColor: y = "#ffffff",
   onNavigate: g,
   lang: u = "en",
-  userEmail: p,
-  initialMessage: b,
+  userEmail: h,
+  initialMessage: v,
   initialWaitSeconds: m = 0,
   onSuccess: L,
   onError: o,
@@ -2026,66 +1990,66 @@ function as({
   // Added apiToken
   texts: n = {}
 }) {
-  const t = { ...le[u], ...n }, { isAuthorized: c } = ve(j), { primaryColor: P, backgroundColor: f, isLoading: N } = xe(s, j, d, l, y), { post: h } = ge(s, j), [T, i] = k(!1), [S, M] = k(!1), [C, q] = k(""), [V, Y] = k(b || t.waitingConfirmationMsg), [z, G] = k(m), [F, v] = k(!1), [D, O] = k(!1), [w, R] = k(""), [X, de] = k(""), ue = Re(null);
-  if (me(() => (z > 0 && (ue.current = setInterval(() => {
-    G((K) => K <= 1 ? (clearInterval(ue.current), 0) : K - 1);
-  }, 1e3)), () => clearInterval(ue.current)), [z]), me(() => {
-    z === 0 && (m > 0 || F) && (Y(t.waitingConfirmationMsg), v(!1));
-  }, [z, m, t.waitingConfirmationMsg]), N) return null;
+  const t = { ...le[u], ...n }, { isAuthorized: c } = ve(j), { primaryColor: E, backgroundColor: f, isLoading: N } = xe(s, j, d, l, y), { post: p } = ge(s, j), [I, i] = C(!1), [_, A] = C(!1), [k, z] = C(""), [$, B] = C(v || t.waitingConfirmationMsg), [D, O] = C(m), [b, w] = C(!1), [K, ne] = C(!1), [W, U] = C(""), [X, de] = C(""), ue = Re(null);
+  if (me(() => (D > 0 && (ue.current = setInterval(() => {
+    O((H) => H <= 1 ? (clearInterval(ue.current), 0) : H - 1);
+  }, 1e3)), () => clearInterval(ue.current)), [D]), me(() => {
+    D === 0 && (m > 0 || b) && (B(t.waitingConfirmationMsg), w(!1));
+  }, [D, m, t.waitingConfirmationMsg]), N) return null;
   if (!c)
     return /* @__PURE__ */ e.jsx(je, { lang: u });
-  const ie = (K) => {
-    const J = Math.floor(K / 60), te = K % 60;
-    return `${J.toString().padStart(2, "0")}:${te.toString().padStart(2, "0")}`;
-  }, I = async (K) => {
-    if (K.preventDefault(), !!C) {
-      M(!0), R("");
+  const ie = (H) => {
+    const G = Math.floor(H / 60), se = H % 60;
+    return `${G.toString().padStart(2, "0")}:${se.toString().padStart(2, "0")}`;
+  }, M = async (H) => {
+    if (H.preventDefault(), !!k) {
+      A(!0), U("");
       try {
-        const J = await h("/verify-email", { token: C });
-        if (J.success)
-          O(!0), L && L(J);
+        const G = await p("/verify-email", { token: k });
+        if (G.success)
+          ne(!0), L && L(G);
         else {
-          const te = J.message || J.error || t.verificationFailed;
-          R(te), o && o(te);
+          const se = G.message || G.error || t.verificationFailed;
+          U(se), o && o(se);
         }
-      } catch (J) {
-        console.error("⚠️ Manual Verification Error:", J);
-        const te = t.connectionError;
-        R(te), o && o(te);
+      } catch (G) {
+        console.error("⚠️ Manual Verification Error:", G);
+        const se = t.connectionError;
+        U(se), o && o(se);
       } finally {
-        M(!1);
+        A(!1);
       }
     }
-  }, se = async () => {
-    if (!(!p || z > 0)) {
-      i(!0), v(!1), R(""), de("");
+  }, re = async () => {
+    if (!(!h || D > 0)) {
+      i(!0), w(!1), U(""), de("");
       try {
-        const K = await h("/resend-confirmation", { email: p });
-        if (K.success) {
-          v(!0);
-          const J = K.message || t.resendSent;
-          de(J), K.wait_seconds && G(K.wait_seconds);
+        const H = await p("/resend-confirmation", { email: h });
+        if (H.success) {
+          w(!0);
+          const G = H.message || t.resendSent;
+          de(G), H.wait_seconds && O(H.wait_seconds);
         } else {
-          const J = K.message || K.error || t.connectionError;
-          R(J), K.wait_seconds && G(K.wait_seconds), o && o(J);
+          const G = H.message || H.error || t.connectionError;
+          U(G), H.wait_seconds && O(H.wait_seconds), o && o(G);
         }
-      } catch (K) {
-        console.error("⚠️ Resend Error:", K);
-        const J = t.connectionError;
-        R(J), o && o(J);
+      } catch (H) {
+        console.error("⚠️ Resend Error:", H);
+        const G = t.connectionError;
+        U(G), o && o(G);
       } finally {
         i(!1);
       }
     }
-  }, ee = {
-    backgroundColor: P,
+  }, Z = {
+    backgroundColor: E,
     color: "#ffffff"
-  }, re = {
+  }, ee = {
     backgroundColor: f
-  }, pe = {
-    color: P
+  }, he = {
+    color: E
   };
-  return D ? /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: re, children: [
+  return K ? /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: ee, children: [
     /* @__PURE__ */ e.jsxs("div", { className: "space-y-1 mb-6", children: [
       /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold", children: t.verifySuccess }),
       /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-500", children: t.verifySuccess })
@@ -2096,19 +2060,19 @@ function as({
       {
         onClick: () => g && g("login"),
         className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-        style: ee,
+        style: Z,
         children: t.goToLogin
       }
     )
-  ] }) : /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: re, children: [
-    /* @__PURE__ */ e.jsx("div", { className: "flex items-center justify-center mb-6", children: S ? /* @__PURE__ */ e.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-blue-500", style: { borderTopColor: P } }) : /* @__PURE__ */ e.jsx("div", { className: "w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-500", children: /* @__PURE__ */ e.jsx("svg", { className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ e.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) }) }),
+  ] }) : /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-md mx-auto p-6 rounded-lg shadow-lg border text-center", style: ee, children: [
+    /* @__PURE__ */ e.jsx("div", { className: "flex items-center justify-center mb-6", children: _ ? /* @__PURE__ */ e.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-blue-500", style: { borderTopColor: E } }) : /* @__PURE__ */ e.jsx("div", { className: "w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-500", children: /* @__PURE__ */ e.jsx("svg", { className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ e.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) }) }),
     /* @__PURE__ */ e.jsx("h2", { className: "text-2xl font-semibold mb-2", children: t.waitingConfirmation }),
-    /* @__PURE__ */ e.jsx("p", { className: "text-sm mb-6 text-gray-500", children: V }),
+    /* @__PURE__ */ e.jsx("p", { className: "text-sm mb-6 text-gray-500", children: $ }),
     /* @__PURE__ */ e.jsxs("div", { className: "mb-4", children: [
       /* @__PURE__ */ e.jsx(Ae, { message: X }),
-      /* @__PURE__ */ e.jsx(ye, { message: w })
+      /* @__PURE__ */ e.jsx(ye, { message: W })
     ] }),
-    /* @__PURE__ */ e.jsxs("form", { onSubmit: I, className: "mb-8 space-y-4", children: [
+    /* @__PURE__ */ e.jsxs("form", { onSubmit: M, className: "mb-8 space-y-4", children: [
       /* @__PURE__ */ e.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ e.jsx("label", { className: "text-sm font-medium text-gray-700 block text-left px-1", children: t.enterCode }),
         /* @__PURE__ */ e.jsx(
@@ -2117,8 +2081,8 @@ function as({
             type: "text",
             placeholder: "XXXXXX",
             className: "flex h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-center text-lg font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2",
-            value: C,
-            onChange: (K) => q(K.target.value),
+            value: k,
+            onChange: (H) => z(H.target.value),
             required: !0
           }
         )
@@ -2127,26 +2091,26 @@ function as({
         "button",
         {
           type: "submit",
-          disabled: S || !C,
+          disabled: _ || !k,
           className: "w-full h-10 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:opacity-50",
-          style: ee,
-          children: S ? t.loading : t.verifyButton
+          style: Z,
+          children: _ ? t.loading : t.verifyButton
         }
       )
     ] }),
     /* @__PURE__ */ e.jsxs("div", { className: "border-t pt-6 space-y-3", children: [
-      z > 0 ? /* @__PURE__ */ e.jsxs("div", { className: "p-2 rounded bg-gray-50 text-gray-700 text-xs font-mono border inline-block", children: [
+      D > 0 ? /* @__PURE__ */ e.jsxs("div", { className: "p-2 rounded bg-gray-50 text-gray-700 text-xs font-mono border inline-block", children: [
         t.resendCodeIn,
-        /* @__PURE__ */ e.jsx("span", { className: "font-bold", children: ie(z) })
+        /* @__PURE__ */ e.jsx("span", { className: "font-bold", children: ie(D) })
       ] }) : /* @__PURE__ */ e.jsx(
         "button",
         {
           type: "button",
-          onClick: se,
-          disabled: T || !p,
+          onClick: re,
+          disabled: I || !h,
           className: "text-sm font-medium hover:underline",
-          style: pe,
-          children: T ? t.loading : t.resendEmail
+          style: he,
+          children: I ? t.loading : t.resendEmail
         }
       ),
       /* @__PURE__ */ e.jsx(
@@ -2162,14 +2126,14 @@ function as({
   ] });
 }
 function Xr(s, d, l, y) {
-  const { getMe: g } = ge(s, d), [u, p] = k({
+  const { getMe: g } = ge(s, d), [u, h] = C({
     user: null,
     isLoading: !0,
     error: null
   });
   return me(() => {
     if (!l || !y) {
-      p({
+      h({
         user: null,
         isLoading: !1,
         error: "Missing authentication credentials"
@@ -2177,24 +2141,24 @@ function Xr(s, d, l, y) {
       return;
     }
     (async () => {
-      p((m) => ({ ...m, isLoading: !0, error: null }));
+      h((m) => ({ ...m, isLoading: !0, error: null }));
       try {
         const m = await g(y, l);
         if (m.success) {
           const L = m.user ? { ...m.user, ...Object.fromEntries(Object.entries(m).filter(([o]) => o !== "user" && o !== "success")) } : m;
-          p({
+          h({
             user: L,
             isLoading: !1,
             error: null
           });
         } else
-          p({
+          h({
             user: null,
             isLoading: !1,
             error: m.message || "Failed to load profile"
           });
       } catch (m) {
-        console.error("Failed to fetch user profile:", m), p({
+        console.error("Failed to fetch user profile:", m), h({
           user: null,
           isLoading: !1,
           error: m.message || "Connection error"
@@ -2225,25 +2189,25 @@ function is({
   backgroundColor: y = "#ffffff",
   primaryColor: g = "#3b82f6",
   apiBaseUrl: u,
-  apiToken: p,
-  onAppClick: b,
+  apiToken: h,
+  onAppClick: v,
   lang: m = "en",
   texts: L = {}
 }) {
-  const [o, j] = k(!1), n = Re(null), t = { ...le[m], ...L }, { primaryColor: c, backgroundColor: P, isLoading: f } = xe(u, p, d, g, y);
+  const [o, j] = C(!1), n = Re(null), t = { ...le[m], ...L }, { primaryColor: c, backgroundColor: E, isLoading: f } = xe(u, h, d, g, y);
   if (me(() => {
-    const i = (S) => {
-      n.current && !n.current.contains(S.target) && j(!1);
+    const i = (_) => {
+      n.current && !n.current.contains(_.target) && j(!1);
     };
     return o && document.addEventListener("mousedown", i), () => document.removeEventListener("mousedown", i);
   }, [o]), f) return null;
-  const N = (i) => i ? i.charAt(0).toUpperCase() : "?", h = (i) => {
-    let S = 0;
-    for (let M = 0; M < i.length; M++)
-      S = i.charCodeAt(M) + ((S << 5) - S);
-    return ir[Math.abs(S) % ir.length];
-  }, T = (i) => {
-    b && b(i), j(!1), i.publicUrl && window.open(i.publicUrl, "_blank");
+  const N = (i) => i ? i.charAt(0).toUpperCase() : "?", p = (i) => {
+    let _ = 0;
+    for (let A = 0; A < i.length; A++)
+      _ = i.charCodeAt(A) + ((_ << 5) - _);
+    return ir[Math.abs(_) % ir.length];
+  }, I = (i) => {
+    v && v(i), j(!1), i.publicUrl && window.open(i.publicUrl, "_blank");
   };
   return /* @__PURE__ */ e.jsxs("div", { className: "relative inline-block text-left", ref: n, children: [
     /* @__PURE__ */ e.jsx(
@@ -2278,19 +2242,19 @@ function is({
           "div",
           {
             className: "rounded-[1.5rem] p-4 shadow-sm",
-            style: { backgroundColor: P },
+            style: { backgroundColor: E },
             children: /* @__PURE__ */ e.jsxs("div", { className: "grid grid-cols-3 gap-3", children: [
               s.map((i) => /* @__PURE__ */ e.jsxs(
                 "button",
                 {
-                  onClick: () => T(i),
+                  onClick: () => I(i),
                   className: "group relative flex flex-col items-center p-2 rounded-2xl hover:bg-gray-50 transition-all duration-200",
                   children: [
                     /* @__PURE__ */ e.jsx(
                       "div",
                       {
                         className: "w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm text-white text-2xl font-bold mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all duration-300",
-                        style: { backgroundColor: h(i.appKey) },
+                        style: { backgroundColor: p(i.appKey) },
                         children: N(i.appKey)
                       }
                     ),
@@ -2344,34 +2308,34 @@ function ls({
   onChangePassword: g,
   onProfileClick: u,
   // Added onProfileClick
-  extraItems: p = [],
+  extraItems: h = [],
   // Array of { icon: ReactNode, label: string, onClick: function }
-  lang: b = "en",
+  lang: v = "en",
   apiBaseUrl: m,
   apiToken: L,
   texts: o = {}
 }) {
-  var M;
-  const [j, n] = k(!1), t = Re(null), c = { ...le[b], ...o }, { primaryColor: P, backgroundColor: f, isLoading: N } = xe(m, L, s, l, d);
+  var A;
+  const [j, n] = C(!1), t = Re(null), c = { ...le[v], ...o }, { primaryColor: E, backgroundColor: f, isLoading: N } = xe(m, L, s, l, d);
   if (me(() => {
-    const C = (q) => {
-      t.current && !t.current.contains(q.target) && n(!1);
+    const k = (z) => {
+      t.current && !t.current.contains(z.target) && n(!1);
     };
-    return j && document.addEventListener("mousedown", C), () => document.removeEventListener("mousedown", C);
+    return j && document.addEventListener("mousedown", k), () => document.removeEventListener("mousedown", k);
   }, [j]), N) return null;
-  const h = xr(s), T = () => {
-    const C = s["Full Name"] || s.fullName || s.full_name || s.firstName || s.first_name;
-    return C ? C.trim().charAt(0).toUpperCase() : s.email ? s.email.charAt(0).toUpperCase() : "U";
-  }, i = s["Full Name"] || s.fullName || s.full_name || s.firstName || s.first_name || ((M = s.email) == null ? void 0 : M.split("@")[0]) || "User", S = ({ icon: C, label: q, onClick: V, className: Y = "", color: z = "text-gray-600" }) => /* @__PURE__ */ e.jsxs(
+  const p = xr(s), I = () => {
+    const k = s["Full Name"] || s.fullName || s.full_name || s.firstName || s.first_name;
+    return k ? k.trim().charAt(0).toUpperCase() : s.email ? s.email.charAt(0).toUpperCase() : "U";
+  }, i = s["Full Name"] || s.fullName || s.full_name || s.firstName || s.first_name || ((A = s.email) == null ? void 0 : A.split("@")[0]) || "User", _ = ({ icon: k, label: z, onClick: $, className: B = "", color: D = "text-gray-600" }) => /* @__PURE__ */ e.jsxs(
     "button",
     {
       onClick: () => {
-        n(!1), V && V();
+        n(!1), $ && $();
       },
-      className: `w-full flex items-center gap-3 px-3 py-2 text-sm rounded-xl hover:bg-gray-50 transition-colors group ${z} ${Y}`,
+      className: `w-full flex items-center gap-3 px-3 py-2 text-sm rounded-xl hover:bg-gray-50 transition-colors group ${D} ${B}`,
       children: [
-        C && /* @__PURE__ */ e.jsx(C, { className: "w-4 h-4 transition-transform group-hover:scale-110" }),
-        /* @__PURE__ */ e.jsx("span", { className: "flex-1 text-left", children: q })
+        k && /* @__PURE__ */ e.jsx(k, { className: "w-4 h-4 transition-transform group-hover:scale-110" }),
+        /* @__PURE__ */ e.jsx("span", { className: "flex-1 text-left", children: z })
       ]
     }
   );
@@ -2383,23 +2347,23 @@ function ls({
         onClick: () => n(!j),
         className: "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden",
         style: {
-          borderColor: P,
+          borderColor: E,
           backgroundColor: f,
-          color: P
+          color: E
         },
         children: [
-          h ? /* @__PURE__ */ e.jsx(
+          p ? /* @__PURE__ */ e.jsx(
             "img",
             {
-              src: h,
+              src: p,
               alt: i,
               className: "w-full h-full object-cover",
-              onError: (C) => {
-                C.target.style.display = "none", C.target.nextSibling.style.display = "block";
+              onError: (k) => {
+                k.target.style.display = "none", k.target.nextSibling.style.display = "block";
               }
             }
           ) : null,
-          /* @__PURE__ */ e.jsx("span", { className: `${h ? "hidden" : "block"} text-sm font-bold`, children: T() })
+          /* @__PURE__ */ e.jsx("span", { className: `${p ? "hidden" : "block"} text-sm font-bold`, children: I() })
         ]
       }
     ),
@@ -2418,7 +2382,7 @@ function ls({
                 /* @__PURE__ */ e.jsx("p", { className: "text-[10px] font-medium text-gray-400 truncate", children: s.email })
               ] }),
               /* @__PURE__ */ e.jsx(
-                S,
+                _,
                 {
                   icon: cr,
                   label: c.profile,
@@ -2426,25 +2390,25 @@ function ls({
                 }
               ),
               /* @__PURE__ */ e.jsx(
-                S,
+                _,
                 {
                   icon: Vr,
                   label: c.changePassword,
                   onClick: g
                 }
               ),
-              p.map((C, q) => /* @__PURE__ */ e.jsx(
-                S,
+              h.map((k, z) => /* @__PURE__ */ e.jsx(
+                _,
                 {
-                  icon: C.icon,
-                  label: C.label,
-                  onClick: C.onClick
+                  icon: k.icon,
+                  label: k.label,
+                  onClick: k.onClick
                 },
-                `extra-${q}`
+                `extra-${z}`
               )),
-              p.length > 0 && /* @__PURE__ */ e.jsx("div", { className: "my-1 border-t border-gray-50" }),
+              h.length > 0 && /* @__PURE__ */ e.jsx("div", { className: "my-1 border-t border-gray-50" }),
               /* @__PURE__ */ e.jsx(
-                S,
+                _,
                 {
                   icon: dr,
                   label: c.logoutThisSession,
@@ -2467,23 +2431,23 @@ function cs({
   userEmail: y,
   primaryColor: g = "#3b82f6",
   backgroundColor: u = "#ffffff",
-  onClose: p,
-  onNavigate: b,
+  onClose: h,
+  onNavigate: v,
   onError: m,
   onSuccess: L,
   lang: o = "en",
   texts: j = {}
 }) {
-  const n = { ...le[o], ...j }, { user: t, isLoading: c, error: P } = Xr(s, d, l, y), { primaryColor: f, backgroundColor: N, isLoading: h } = xe(s, d, t, g, u), { post: T } = ge(s, d), [i, S] = k([]), [M, C] = k(!1), [q, V] = k(""), [Y, z] = k(""), [G, F] = k(!1);
+  const n = { ...le[o], ...j }, { user: t, isLoading: c, error: E } = Xr(s, d, l, y), { primaryColor: f, backgroundColor: N, isLoading: p } = xe(s, d, t, g, u), { post: I } = ge(s, d), [i, _] = C([]), [A, k] = C(!1), [z, $] = C(""), [B, D] = C(""), [O, b] = C(!1);
   me(() => {
-    t != null && t.active_sessions ? S(t.active_sessions) : t != null && t.sessions && S(t.sessions);
+    t != null && t.active_sessions ? _(t.active_sessions) : t != null && t.sessions && _(t.sessions);
   }, [t]);
-  const v = (I) => I ? I.includes("Mozilla/") ? I.includes("iPhone") ? "iPhone" : I.includes("Android") ? "Android Device" : I.includes("Windows") ? "Windows PC" : I.includes("Macintosh") ? "Mac" : I.includes("iPad") ? "iPad" : "Web Browser" : I : n.deviceName, D = (I) => {
-    if (!I) return /* @__PURE__ */ e.jsx(tr, { className: "w-5 h-5" });
-    const se = I.toLowerCase();
-    return se.includes("iphone") || se.includes("android") ? /* @__PURE__ */ e.jsx(Wr, { className: "w-5 h-5" }) : se.includes("ipad") || se.includes("tablet") ? /* @__PURE__ */ e.jsx(Ur, { className: "w-5 h-5" }) : /* @__PURE__ */ e.jsx(tr, { className: "w-5 h-5" });
+  const w = (M) => M ? M.includes("Mozilla/") ? M.includes("iPhone") ? "iPhone" : M.includes("Android") ? "Android Device" : M.includes("Windows") ? "Windows PC" : M.includes("Macintosh") ? "Mac" : M.includes("iPad") ? "iPad" : "Web Browser" : M : n.deviceName, K = (M) => {
+    if (!M) return /* @__PURE__ */ e.jsx(tr, { className: "w-5 h-5" });
+    const re = M.toLowerCase();
+    return re.includes("iphone") || re.includes("android") ? /* @__PURE__ */ e.jsx(Wr, { className: "w-5 h-5" }) : re.includes("ipad") || re.includes("tablet") ? /* @__PURE__ */ e.jsx(Ur, { className: "w-5 h-5" }) : /* @__PURE__ */ e.jsx(tr, { className: "w-5 h-5" });
   };
-  if (c || h)
+  if (c || p)
     return /* @__PURE__ */ e.jsx("div", { className: "w-full max-w-4xl mx-auto p-8", children: /* @__PURE__ */ e.jsxs("div", { className: "flex flex-col items-center justify-center py-20 space-y-4", children: [
       /* @__PURE__ */ e.jsxs("div", { className: "relative", children: [
         /* @__PURE__ */ e.jsx(Ze, { className: "w-16 h-16 animate-spin", style: { color: g } }),
@@ -2491,43 +2455,43 @@ function cs({
       ] }),
       /* @__PURE__ */ e.jsx("p", { className: "text-lg font-semibold text-gray-600 animate-pulse", children: n.loadingProfile })
     ] }) });
-  if (P || !t)
+  if (E || !t)
     return /* @__PURE__ */ e.jsx("div", { className: "w-full max-w-4xl mx-auto p-8", children: /* @__PURE__ */ e.jsxs("div", { className: "flex flex-col items-center justify-center py-20 space-y-4", children: [
       /* @__PURE__ */ e.jsx(lr, { className: "w-16 h-16 text-red-500" }),
-      /* @__PURE__ */ e.jsx("p", { className: "text-lg font-semibold text-red-600", children: P || n.failedLoadProfile }),
-      p && /* @__PURE__ */ e.jsx(
+      /* @__PURE__ */ e.jsx("p", { className: "text-lg font-semibold text-red-600", children: E || n.failedLoadProfile }),
+      h && /* @__PURE__ */ e.jsx(
         "button",
         {
-          onClick: p,
+          onClick: h,
           className: "mt-4 px-6 py-2 rounded-xl font-semibold text-white transition-all hover:brightness-110",
           style: { backgroundColor: g },
           children: n.close
         }
       )
     ] }) });
-  const O = t["Full Name"] || t.fullName || t.full_name || `${t.firstName || ""} ${t.lastName || ""}`.trim() || "User", w = t.Roles || [], R = t.permissions || [], X = t.biography || t.bio || "", de = xr(t), ue = () => O.charAt(0).toUpperCase(), ie = async (I = !1, se = []) => {
+  const ne = t["Full Name"] || t.fullName || t.full_name || `${t.firstName || ""} ${t.lastName || ""}`.trim() || "User", W = t.Roles || [], U = t.permissions || [], X = t.biography || t.bio || "", de = xr(t), ue = () => ne.charAt(0).toUpperCase(), ie = async (M = !1, re = []) => {
     if (!l) {
-      const ee = n.noSessions;
-      V(ee);
+      const Z = n.noSessions;
+      $(Z);
       return;
     }
-    C(!0), V(""), z("");
+    k(!0), $(""), D("");
     try {
-      const ee = await T("/logout_sessions", {
+      const Z = await I("/logout_sessions", {
         email: t.email || y || "",
-        all_sessions: I,
-        session_ids: se
+        all_sessions: M,
+        session_ids: re
       }, { token: l });
-      if (ee.success)
-        S(I ? [] : (re) => re.filter((pe) => !se.includes(pe._id))), z(n.logoutSuccess), L && L(ee);
+      if (Z.success)
+        _(M ? [] : (ee) => ee.filter((he) => !re.includes(he._id))), D(n.logoutSuccess), L && L(Z);
       else {
-        const re = ee.message || ee.error || "Logout failed";
-        V(re), m && m(re);
+        const ee = Z.message || Z.error || "Logout failed";
+        $(ee), m && m(ee);
       }
-    } catch (ee) {
-      console.error("⚠️ Logout Sessions Error:", ee), V(n.connectionError);
+    } catch (Z) {
+      console.error("⚠️ Logout Sessions Error:", Z), $(n.connectionError);
     } finally {
-      C(!1);
+      k(!1);
     }
   };
   return /* @__PURE__ */ e.jsxs("div", { className: "w-full max-w-5xl mx-auto", children: [
@@ -2555,13 +2519,13 @@ function cs({
           ),
           /* @__PURE__ */ e.jsxs("div", { className: "relative flex flex-col md:flex-row items-center md:items-start gap-6", children: [
             /* @__PURE__ */ e.jsxs("div", { className: "relative group", children: [
-              de && !G ? /* @__PURE__ */ e.jsx("div", { className: "relative", children: /* @__PURE__ */ e.jsx(
+              de && !O ? /* @__PURE__ */ e.jsx("div", { className: "relative", children: /* @__PURE__ */ e.jsx(
                 "img",
                 {
                   src: de,
-                  alt: O,
+                  alt: ne,
                   className: "w-32 h-32 md:w-40 md:h-40 rounded-3xl object-cover shadow-2xl ring-4 ring-white transition-transform group-hover:scale-105",
-                  onError: () => F(!0)
+                  onError: () => b(!0)
                 }
               ) }) : /* @__PURE__ */ e.jsx(
                 "div",
@@ -2584,7 +2548,7 @@ function cs({
               )
             ] }),
             /* @__PURE__ */ e.jsxs("div", { className: "flex-1 text-center md:text-left space-y-3", children: [
-              /* @__PURE__ */ e.jsx("h1", { className: "text-4xl md:text-5xl font-black text-gray-900 tracking-tight", children: O }),
+              /* @__PURE__ */ e.jsx("h1", { className: "text-4xl md:text-5xl font-black text-gray-900 tracking-tight", children: ne }),
               /* @__PURE__ */ e.jsxs("div", { className: "flex items-center justify-center md:justify-start gap-2 text-gray-600", children: [
                 /* @__PURE__ */ e.jsx(zr, { className: "w-5 h-5" }),
                 /* @__PURE__ */ e.jsx("span", { className: "text-lg font-medium", children: t.email || y })
@@ -2594,7 +2558,7 @@ function cs({
                 X,
                 '"'
               ] }),
-              w.length > 0 && /* @__PURE__ */ e.jsx("div", { className: "flex flex-wrap gap-2 justify-center md:justify-start pt-2", children: w.map((I, se) => /* @__PURE__ */ e.jsx(
+              W.length > 0 && /* @__PURE__ */ e.jsx("div", { className: "flex flex-wrap gap-2 justify-center md:justify-start pt-2", children: W.map((M, re) => /* @__PURE__ */ e.jsx(
                 "span",
                 {
                   className: "px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm transition-all hover:scale-105 hover:shadow-md",
@@ -2603,9 +2567,9 @@ function cs({
                     color: f,
                     border: `2px solid ${f}40`
                   },
-                  children: I.replace(/_/g, " ")
+                  children: M.replace(/_/g, " ")
                 },
-                se
+                re
               )) })
             ] })
           ] })
@@ -2618,8 +2582,8 @@ function cs({
         className: "rounded-b-[2.5rem] shadow-2xl border-x border-b border-gray-100 p-8 md:p-12",
         style: { backgroundColor: N },
         children: [
-          /* @__PURE__ */ e.jsx(ye, { message: q }),
-          /* @__PURE__ */ e.jsx(Ae, { message: Y }),
+          /* @__PURE__ */ e.jsx(ye, { message: z }),
+          /* @__PURE__ */ e.jsx(Ae, { message: B }),
           /* @__PURE__ */ e.jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-10", children: [
             /* @__PURE__ */ e.jsxs("div", { className: "space-y-8", children: [
               /* @__PURE__ */ e.jsxs("div", { className: "space-y-4", children: [
@@ -2630,7 +2594,7 @@ function cs({
                 /* @__PURE__ */ e.jsxs("div", { className: "space-y-4 pl-2", children: [
                   /* @__PURE__ */ e.jsxs("div", { className: "group", children: [
                     /* @__PURE__ */ e.jsx("p", { className: "text-xs uppercase font-bold text-gray-400 tracking-widest mb-1.5", children: n.fullNameLabel }),
-                    /* @__PURE__ */ e.jsx("p", { className: "text-base font-bold text-gray-800 group-hover:text-gray-900 transition-colors", children: O })
+                    /* @__PURE__ */ e.jsx("p", { className: "text-base font-bold text-gray-800 group-hover:text-gray-900 transition-colors", children: ne })
                   ] }),
                   /* @__PURE__ */ e.jsxs("div", { className: "group", children: [
                     /* @__PURE__ */ e.jsx("p", { className: "text-xs uppercase font-bold text-gray-400 tracking-widest mb-1.5", children: n.email }),
@@ -2643,8 +2607,8 @@ function cs({
                   /* @__PURE__ */ e.jsx("div", { className: "p-2 rounded-xl", style: { backgroundColor: `${f}15` }, children: /* @__PURE__ */ e.jsx(rr, { className: "w-6 h-6", style: { color: f } }) }),
                   /* @__PURE__ */ e.jsx("h2", { className: "text-xl font-black text-gray-800 uppercase tracking-wide", children: n.permissionsLabel })
                 ] }),
-                /* @__PURE__ */ e.jsx("div", { className: "grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar", children: R.length > 0 ? R.map((I, se) => {
-                  var ee, re;
+                /* @__PURE__ */ e.jsx("div", { className: "grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar", children: U.length > 0 ? U.map((M, re) => {
+                  var Z, ee;
                   return /* @__PURE__ */ e.jsxs(
                     "div",
                     {
@@ -2654,19 +2618,19 @@ function cs({
                         borderColor: `${f}20`
                       },
                       children: [
-                        /* @__PURE__ */ e.jsx("p", { className: "text-xs font-bold uppercase tracking-wider", style: { color: f }, children: ((ee = I["Permission ID"]) == null ? void 0 : ee.split(".")[0]) || "App" }),
-                        /* @__PURE__ */ e.jsx("p", { className: "text-sm font-bold text-gray-800", children: ((re = I["Permission ID"]) == null ? void 0 : re.split(".").slice(1).join(" ")) || I["Permission ID"] }),
+                        /* @__PURE__ */ e.jsx("p", { className: "text-xs font-bold uppercase tracking-wider", style: { color: f }, children: ((Z = M["Permission ID"]) == null ? void 0 : Z.split(".")[0]) || "App" }),
+                        /* @__PURE__ */ e.jsx("p", { className: "text-sm font-bold text-gray-800", children: ((ee = M["Permission ID"]) == null ? void 0 : ee.split(".").slice(1).join(" ")) || M["Permission ID"] }),
                         /* @__PURE__ */ e.jsx(
                           "span",
                           {
                             className: "mt-1 w-fit px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-widest",
                             style: { backgroundColor: f, color: "white" },
-                            children: I["Action Key"]
+                            children: M["Action Key"]
                           }
                         )
                       ]
                     },
-                    se
+                    re
                   );
                 }) : /* @__PURE__ */ e.jsxs("div", { className: "py-8 text-center", children: [
                   /* @__PURE__ */ e.jsx(rr, { className: "w-12 h-12 mx-auto mb-3 text-gray-300" }),
@@ -2679,7 +2643,7 @@ function cs({
                 /* @__PURE__ */ e.jsx("div", { className: "p-2 rounded-xl", style: { backgroundColor: `${f}15` }, children: /* @__PURE__ */ e.jsx(sr, { className: "w-6 h-6", style: { color: f } }) }),
                 /* @__PURE__ */ e.jsx("h2", { className: "text-xl font-black text-gray-800 uppercase tracking-wide", children: n.activeSessions })
               ] }),
-              /* @__PURE__ */ e.jsx("div", { className: "space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar", children: i.length > 0 ? i.map((I) => /* @__PURE__ */ e.jsxs(
+              /* @__PURE__ */ e.jsx("div", { className: "space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar", children: i.length > 0 ? i.map((M) => /* @__PURE__ */ e.jsxs(
                 "div",
                 {
                   className: "p-4 border-2 rounded-2xl flex justify-between items-center group hover:shadow-lg transition-all",
@@ -2689,25 +2653,25 @@ function cs({
                   },
                   children: [
                     /* @__PURE__ */ e.jsxs("div", { className: "flex items-center gap-3 flex-1", children: [
-                      /* @__PURE__ */ e.jsx("div", { className: "p-2 rounded-xl", style: { backgroundColor: `${f}10`, color: f }, children: D(I["Device Name"]) }),
+                      /* @__PURE__ */ e.jsx("div", { className: "p-2 rounded-xl", style: { backgroundColor: `${f}10`, color: f }, children: K(M["Device Name"]) }),
                       /* @__PURE__ */ e.jsxs("div", { className: "space-y-1.5 flex-1", children: [
-                        /* @__PURE__ */ e.jsx("div", { className: "font-black text-gray-800 text-sm", title: I["Device Name"], children: v(I["Device Name"]) }),
+                        /* @__PURE__ */ e.jsx("div", { className: "font-black text-gray-800 text-sm", title: M["Device Name"], children: w(M["Device Name"]) }),
                         /* @__PURE__ */ e.jsxs("div", { className: "text-xs text-gray-600 font-semibold flex items-center gap-2", children: [
                           /* @__PURE__ */ e.jsx("span", { className: "w-2 h-2 rounded-full bg-green-500" }),
-                          I.IP
+                          M.IP
                         ] }),
-                        I["Expiration Date"] && /* @__PURE__ */ e.jsxs("div", { className: "text-xs text-gray-500 italic", children: [
+                        M["Expiration Date"] && /* @__PURE__ */ e.jsxs("div", { className: "text-xs text-gray-500 italic", children: [
                           n.expiry,
                           ": ",
-                          new Date(I["Expiration Date"]).toLocaleDateString()
+                          new Date(M["Expiration Date"]).toLocaleDateString()
                         ] })
                       ] })
                     ] }),
                     /* @__PURE__ */ e.jsx(
                       "button",
                       {
-                        onClick: () => ie(!1, [I._id]),
-                        disabled: M,
+                        onClick: () => ie(!1, [M._id]),
+                        disabled: A,
                         className: "p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 hover:scale-110",
                         title: n.logoutThisSession,
                         children: /* @__PURE__ */ e.jsx(dr, { className: "w-5 h-5" })
@@ -2715,7 +2679,7 @@ function cs({
                     )
                   ]
                 },
-                I._id
+                M._id
               )) : /* @__PURE__ */ e.jsxs("div", { className: "py-12 text-center", children: [
                 /* @__PURE__ */ e.jsx(sr, { className: "w-12 h-12 mx-auto mb-3 text-gray-300" }),
                 /* @__PURE__ */ e.jsx("p", { className: "text-sm text-gray-400 italic", children: n.noSessions })
@@ -2724,10 +2688,10 @@ function cs({
                 "button",
                 {
                   onClick: () => ie(!0),
-                  disabled: M,
+                  disabled: A,
                   className: "w-full py-3 text-sm uppercase tracking-widest font-extrabold text-white rounded-2xl transition-all active:scale-95 hover:brightness-110 shadow-lg",
                   style: { backgroundColor: "#ef4444" },
-                  children: M ? /* @__PURE__ */ e.jsxs("span", { className: "flex items-center justify-center gap-2", children: [
+                  children: A ? /* @__PURE__ */ e.jsxs("span", { className: "flex items-center justify-center gap-2", children: [
                     /* @__PURE__ */ e.jsx(Ze, { className: "w-4 h-4 animate-spin" }),
                     n.loggingOut
                   ] }) : n.logoutAllSessions
@@ -2736,10 +2700,10 @@ function cs({
             ] })
           ] }),
           /* @__PURE__ */ e.jsxs("div", { className: "mt-12 flex flex-col sm:flex-row gap-4 justify-center pt-8 border-t-2", style: { borderColor: `${f}10` }, children: [
-            p && /* @__PURE__ */ e.jsx(
+            h && /* @__PURE__ */ e.jsx(
               "button",
               {
-                onClick: p,
+                onClick: h,
                 className: "px-10 py-4 rounded-2xl font-bold text-base transition-all border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:scale-95 shadow-md hover:shadow-lg",
                 children: n.closeProfile
               }
@@ -2747,7 +2711,7 @@ function cs({
             /* @__PURE__ */ e.jsx(
               "button",
               {
-                onClick: () => b && b("change-password"),
+                onClick: () => v && v("change-password"),
                 className: "px-10 py-4 rounded-2xl font-bold text-base text-white shadow-lg transition-all active:scale-95 hover:brightness-110 hover:shadow-xl",
                 style: { backgroundColor: f },
                 children: n.changePassword
