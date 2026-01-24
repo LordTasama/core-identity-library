@@ -10,7 +10,9 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuthApi } from '../hooks/useAuthApi';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
 import { User, Key, Mail, Settings, LogOut, Loader2, AlertCircle, Sparkles, Monitor, Smartphone, Tablet } from 'lucide-react';
+import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
+
 
 import FormSuccess from './FormSuccess';
 
@@ -78,19 +80,51 @@ export default function UserProfile({
     // Show loading state
     if (isLoadingProfile || isAppInfoLoading) {
         return (
-            <div className="cil-w-full cil-max-w-4xl cil-mx-auto cil-p-8">
-                <div className="cil-flex cil-flex-col cil-items-center cil-justify-center cil-py-20 cil-space-y-4">
-                    <div className="cil-relative">
-                        <LoadingSpinner size="xl" color={propPrimaryColor} />
-                        <Sparkles className="cil-w-6 cil-h-6 cil-absolute cil-top-0 cil-right-0 cil-animate-pulse" style={{ color: propPrimaryColor }} />
+            <div className="cil-w-full cil-max-w-5xl cil-mx-auto cil-animate-pulse">
+                {/* Hero Header Skeleton */}
+                <div className="cil-relative cil-rounded-t-[2.5rem] cil-p-8 md:cil-p-12 cil-min-h-[300px] cil-flex cil-items-center"
+                    style={{ background: `linear-gradient(135deg, ${propPrimaryColor}15 0%, ${propPrimaryColor}05 100%)` }}>
+                    <div className="cil-flex cil-flex-col md:cil-flex-row cil-items-center md:cil-items-start cil-gap-6 cil-w-full">
+                        <div className="cil-w-32 cil-h-32 md:cil-w-40 md:cil-h-40 cil-rounded-3xl cil-bg-gray-200"></div>
+                        <div className="cil-flex-1 cil-space-y-4 cil-w-full">
+                            <div className="cil-h-12 cil-w-2/3 cil-bg-gray-200 cil-rounded-xl"></div>
+                            <div className="cil-h-6 cil-w-1/3 cil-bg-gray-200 cil-rounded-lg"></div>
+                            <div className="cil-flex cil-gap-2">
+                                <div className="cil-h-8 cil-w-20 cil-bg-gray-200 cil-rounded-full"></div>
+                                <div className="cil-h-8 cil-w-20 cil-bg-gray-200 cil-rounded-full"></div>
+                            </div>
+                        </div>
                     </div>
-                    <p className="cil-text-lg cil-font-semibold cil-text-gray-600 cil-animate-pulse">
-                        {t.loadingProfile}
-                    </p>
+                </div>
+
+                {/* Main Content Skeleton */}
+                <div className="cil-rounded-b-[2.5rem] cil-shadow-2xl cil-border cil-p-8 md:cil-p-12" style={{ backgroundColor: propBackgroundColor }}>
+                    <div className="cil-grid cil-grid-cols-1 lg:cil-grid-cols-2 cil-gap-10">
+                        <div className="cil-space-y-8">
+                            <div className="cil-h-8 cil-w-48 cil-bg-gray-100 cil-rounded-lg"></div>
+                            <div className="cil-space-y-4">
+                                <div className="cil-h-20 cil-w-full cil-bg-gray-50 cil-rounded-2xl"></div>
+                                <div className="cil-h-20 cil-w-full cil-bg-gray-50 cil-rounded-2xl"></div>
+                            </div>
+                        </div>
+                        <div className="cil-space-y-8">
+                            <div className="cil-h-8 cil-w-48 cil-bg-gray-100 cil-rounded-lg"></div>
+                            <div className="cil-space-y-3">
+                                <div className="cil-h-24 cil-w-full cil-bg-gray-50 cil-rounded-2xl"></div>
+                                <div className="cil-h-24 cil-w-full cil-bg-gray-50 cil-rounded-2xl"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Overlay Spinner */}
+                    <div className="cil-absolute cil-inset-0 cil-flex cil-flex-col cil-items-center cil-justify-center cil-pointer-events-none">
+                        <LoadingSpinner size="xl" color={propPrimaryColor} />
+                        <p className="cil-mt-4 cil-text-gray-400 cil-font-medium">{t.loadingProfile}</p>
+                    </div>
                 </div>
             </div>
         );
     }
+
 
 
     // Show error state

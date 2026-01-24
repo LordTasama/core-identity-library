@@ -11,7 +11,9 @@ import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
 import { useAppInfo } from '../hooks/useAppInfo';
 import AuthError from './AuthError';
+import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
+
 
 export default function Login({
     apiBaseUrl,
@@ -38,12 +40,56 @@ export default function Login({
 
     if (isAppInfoLoading) {
         return (
-            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-flex cil-flex-col cil-items-center cil-justify-center cil-min-h-[400px]" style={{ backgroundColor: propBackgroundColor }}>
-                <LoadingSpinner size="xl" color={propPrimaryColor} />
-                <p className="cil-mt-4 cil-text-gray-500 cil-animate-pulse">{t.loading}</p>
+            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-relative" style={{ backgroundColor: propBackgroundColor }}>
+                {/* Central Overlay Spinner */}
+                <div className="cil-absolute cil-inset-0 cil-z-10 cil-flex cil-flex-col cil-items-center cil-justify-center cil-bg-white/40 cil-backdrop-blur-[1px] cil-rounded-lg">
+                    <LoadingSpinner size="xl" color={propPrimaryColor} />
+                </div>
+
+                {/* Skeleton Structure */}
+                <div className="cil-animate-pulse cil-opacity-20 cil-pointer-events-none">
+                    <div className="cil-space-y-1 cil-mb-6">
+                        <div className="cil-h-8 cil-w-32 cil-bg-gray-400 cil-rounded"></div>
+                        <div className="cil-h-4 cil-w-48 cil-bg-gray-400 cil-rounded"></div>
+                    </div>
+
+                    <div className="cil-space-y-4">
+                        <div className="cil-h-12 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
+
+                        <div className="cil-relative cil-py-2">
+                            <div className="cil-absolute cil-inset-0 cil-flex cil-items-center">
+                                <div className="cil-w-full cil-border-t cil-border-gray-200"></div>
+                            </div>
+                            <div className="cil-relative cil-flex cil-justify-center cil-text-xs">
+                                <span className="cil-px-2 cil-bg-white cil-text-gray-400">OR</span>
+                            </div>
+                        </div>
+
+                        <div className="cil-space-y-4">
+                            <div className="cil-space-y-2">
+                                <div className="cil-h-4 cil-w-16 cil-bg-gray-400 cil-rounded"></div>
+                                <div className="cil-h-10 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
+                            </div>
+                            <div className="cil-space-y-2">
+                                <div className="cil-h-4 cil-w-20 cil-bg-gray-400 cil-rounded"></div>
+                                <div className="cil-h-10 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
+                            </div>
+                            <div className="cil-flex cil-justify-end">
+                                <div className="cil-h-4 cil-w-24 cil-bg-gray-400 cil-rounded"></div>
+                            </div>
+                            <div className="cil-h-11 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
+                        </div>
+                    </div>
+
+                    <div className="cil-mt-6 cil-flex cil-justify-center">
+                        <div className="cil-h-4 cil-w-40 cil-bg-gray-400 cil-rounded"></div>
+                    </div>
+                </div>
             </div>
         );
     }
+
+
 
 
     if (!isAuthorized) {
