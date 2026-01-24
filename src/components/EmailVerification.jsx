@@ -9,7 +9,8 @@ import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
 import { useAppInfo } from '../hooks/useAppInfo';
 import AuthError from './AuthError';
-import FormError from './FormError';
+import LoadingSpinner from './LoadingSpinner';
+
 
 export default function EmailVerification({
     apiBaseUrl,
@@ -38,7 +39,15 @@ export default function EmailVerification({
         }
     }, [token]);
 
-    if (isAppInfoLoading) return null;
+    if (isAppInfoLoading) {
+        return (
+            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-flex cil-flex-col cil-items-center cil-justify-center cil-min-h-[300px]" style={{ backgroundColor: propBackgroundColor }}>
+                <LoadingSpinner size="xl" color={propPrimaryColor} />
+                <p className="cil-mt-4 cil-text-gray-500 cil-animate-pulse">{t.loading}</p>
+            </div>
+        );
+    }
+
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
@@ -95,8 +104,9 @@ export default function EmailVerification({
                 <div className="cil-py-6 cil-flex cil-flex-col cil-items-center">
                     <FormError message={localError} />
                     {status === 'verifying' && (
-                        <div className="cil-animate-spin cil-rounded-full cil-h-12 cil-w-12 cil-border-4 cil-border-gray-200 cil-border-t-blue-500" style={{ borderTopColor: primaryColor }} />
+                        <LoadingSpinner size="xl" color={primaryColor} />
                     )}
+
 
                     {status === 'success' && (
                         <div className="cil-w-16 cil-h-16 cil-rounded-full cil-bg-green-50 cil-flex cil-items-center cil-justify-center cil-text-green-500">

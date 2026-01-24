@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 import { translations } from '../translations';
 import { useAppInfo } from '../hooks/useAppInfo';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
+import LoadingSpinner from './LoadingSpinner';
 import {
     KeyRound,
     LogOut,
@@ -44,7 +45,14 @@ export default function UserMenu({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
 
-    if (isAppInfoLoading) return null;
+    if (isAppInfoLoading) {
+        return (
+            <div className="cil-w-10 cil-h-10 cil-flex cil-items-center cil-justify-center">
+                <LoadingSpinner size="sm" color={propPrimaryColor} />
+            </div>
+        );
+    }
+
 
     const profileImageURL = getValidProfileImageUrl(user);
 

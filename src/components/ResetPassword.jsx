@@ -11,7 +11,9 @@ import { useAuthApi } from '../hooks/useAuthApi';
 import { useAppInfo } from '../hooks/useAppInfo';
 import AuthError from './AuthError';
 import FormError from './FormError';
+import LoadingSpinner from './LoadingSpinner';
 import FormSuccess from './FormSuccess';
+
 
 export default function ResetPassword({
     apiBaseUrl,
@@ -74,7 +76,15 @@ export default function ResetPassword({
         if (propAuthToken) setCurrentAuthToken(propAuthToken);
     }, [propAuthToken]);
 
-    if (isAppInfoLoading) return null;
+    if (isAppInfoLoading) {
+        return (
+            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-flex cil-flex-col cil-items-center cil-justify-center cil-min-h-[400px]" style={{ backgroundColor: propBackgroundColor }}>
+                <LoadingSpinner size="xl" color={propPrimaryColor} />
+                <p className="cil-mt-4 cil-text-gray-500 cil-animate-pulse">{t.loading}</p>
+            </div>
+        );
+    }
+
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
@@ -293,10 +303,16 @@ export default function ResetPassword({
                         <button
                             onClick={() => handleLogoutSessions(true)}
                             disabled={isLoggingOutSession}
-                            className="cil-w-full cil-py-2 cil-text-sm cil-text-red-600 cil-border cil-border-red-200 cil-rounded-md cil-hover:bg-red-50 cil-transition-colors cil-font-medium"
+                            className="cil-w-full cil-py-2 cil-text-sm cil-text-red-600 cil-border cil-border-red-200 cil-rounded-md cil-hover:bg-red-50 cil-transition-colors cil-font-medium cil-flex cil-items-center cil-justify-center cil-gap-2"
                         >
-                            {isLoggingOutSession ? t.loggingOut : t.logoutAllSessions}
+                            {isLoggingOutSession ? (
+                                <>
+                                    <LoadingSpinner size="xs" color="#ef4444" />
+                                    {t.loggingOut}
+                                </>
+                            ) : t.logoutAllSessions}
                         </button>
+
                     </div>
                 )}
 
@@ -377,12 +393,18 @@ export default function ResetPassword({
 
                 <button
                     type="submit"
-                    className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-50"
+                    className="cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed"
                     style={primaryButtonStyle}
                     disabled={isLoading || !formData.token}
                 >
-                    {isLoading ? t.resetting : t.resetPasswordTitle}
+                    {isLoading ? (
+                        <div className="cil-flex cil-items-center cil-gap-2">
+                            <LoadingSpinner size="sm" color="#ffffff" />
+                            <span>{t.resetting}</span>
+                        </div>
+                    ) : t.resetPasswordTitle}
                 </button>
+
 
                 <div className="cil-pt-2 cil-text-center cil-space-y-3">
                     {countdown > 0 ? (

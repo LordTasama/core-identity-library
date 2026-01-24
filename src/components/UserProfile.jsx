@@ -10,7 +10,8 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuthApi } from '../hooks/useAuthApi';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
 import { User, Key, Mail, Settings, LogOut, Loader2, AlertCircle, Sparkles, Monitor, Smartphone, Tablet } from 'lucide-react';
-import FormError from './FormError';
+import LoadingSpinner from './LoadingSpinner';
+
 import FormSuccess from './FormSuccess';
 
 export default function UserProfile({
@@ -80,7 +81,7 @@ export default function UserProfile({
             <div className="cil-w-full cil-max-w-4xl cil-mx-auto cil-p-8">
                 <div className="cil-flex cil-flex-col cil-items-center cil-justify-center cil-py-20 cil-space-y-4">
                     <div className="cil-relative">
-                        <Loader2 className="cil-w-16 cil-h-16 cil-animate-spin" style={{ color: propPrimaryColor }} />
+                        <LoadingSpinner size="xl" color={propPrimaryColor} />
                         <Sparkles className="cil-w-6 cil-h-6 cil-absolute cil-top-0 cil-right-0 cil-animate-pulse" style={{ color: propPrimaryColor }} />
                     </div>
                     <p className="cil-text-lg cil-font-semibold cil-text-gray-600 cil-animate-pulse">
@@ -90,6 +91,7 @@ export default function UserProfile({
             </div>
         );
     }
+
 
     // Show error state
     if (profileError || !user) {
@@ -400,12 +402,13 @@ export default function UserProfile({
                             >
                                 {isLoggingOutSession ? (
                                     <span className="cil-flex cil-items-center cil-justify-center cil-gap-2">
-                                        <Loader2 className="cil-w-4 cil-h-4 cil-animate-spin" />
+                                        <LoadingSpinner size="sm" color="#ffffff" />
                                         {t.loggingOut}
                                     </span>
                                 ) : (
                                     t.logoutAllSessions
                                 )}
+
                             </button>
                         )}
                     </div>

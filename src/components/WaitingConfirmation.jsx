@@ -10,7 +10,9 @@ import { useAuthApi } from '../hooks/useAuthApi';
 import { useAppInfo } from '../hooks/useAppInfo';
 import AuthError from './AuthError';
 import FormError from './FormError';
+import LoadingSpinner from './LoadingSpinner';
 import FormSuccess from './FormSuccess';
+
 
 export default function WaitingConfirmation({
     apiBaseUrl,
@@ -66,7 +68,15 @@ export default function WaitingConfirmation({
         }
     }, [countdown, initialWaitSeconds, t.waitingConfirmationMsg]);
 
-    if (isAppInfoLoading) return null;
+    if (isAppInfoLoading) {
+        return (
+            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-flex cil-flex-col cil-items-center cil-justify-center cil-min-h-[400px]" style={{ backgroundColor: propBackgroundColor }}>
+                <LoadingSpinner size="xl" color={propPrimaryColor} />
+                <p className="cil-mt-4 cil-text-gray-500 cil-animate-pulse">{t.loading}</p>
+            </div>
+        );
+    }
+
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
@@ -183,7 +193,7 @@ export default function WaitingConfirmation({
         <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center" style={cardStyle}>
             <div className="cil-flex cil-items-center cil-justify-center cil-mb-6">
                 {isVerifying ? (
-                    <div className="cil-animate-spin cil-rounded-full cil-h-10 cil-w-10 cil-border-4 cil-border-gray-200 cil-border-t-blue-500" style={{ borderTopColor: primaryColor }} />
+                    <LoadingSpinner size="lg" color={primaryColor} />
                 ) : (
                     <div className="cil-w-16 cil-h-16 cil-rounded-full cil-bg-blue-50 cil-flex cil-items-center cil-justify-center cil-text-blue-500">
                         <svg className="cil-w-8 cil-h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,6 +201,7 @@ export default function WaitingConfirmation({
                         </svg>
                     </div>
                 )}
+
             </div>
 
             <h2 className="cil-text-2xl cil-font-semibold cil-mb-2">{t.waitingConfirmation}</h2>
@@ -221,11 +232,17 @@ export default function WaitingConfirmation({
                 <button
                     type="submit"
                     disabled={isVerifying || !verificationCode}
-                    className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-disabled:opacity-50"
+                    className="cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed"
                     style={primaryButtonStyle}
                 >
-                    {isVerifying ? t.loading : t.verifyButton}
+                    {isVerifying ? (
+                        <div className="cil-flex cil-items-center cil-gap-2">
+                            <LoadingSpinner size="sm" color="#ffffff" />
+                            <span>{t.loading}</span>
+                        </div>
+                    ) : t.verifyButton}
                 </button>
+
             </form>
 
             <div className="cil-border-t cil-pt-6 cil-space-y-3">
@@ -239,11 +256,17 @@ export default function WaitingConfirmation({
                         type="button"
                         onClick={handleResend}
                         disabled={isLoading || !userEmail}
-                        className="cil-text-sm cil-font-medium cil-hover:underline"
+                        className="cil-text-sm cil-font-medium cil-hover:underline cil-flex cil-items-center cil-justify-center cil-gap-2 cil-mx-auto"
                         style={primaryTextStyle}
                     >
-                        {isLoading ? t.loading : t.resendEmail}
+                        {isLoading ? (
+                            <>
+                                <LoadingSpinner size="xs" color={primaryColor} />
+                                {t.loading}
+                            </>
+                        ) : t.resendEmail}
                     </button>
+
                 )}
 
                 <button

@@ -13,6 +13,8 @@ const COLORS = [
     '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
 ];
 
+import LoadingSpinner from './LoadingSpinner';
+
 export default function AppGrid({
     apps = [],
     user = {},
@@ -43,7 +45,14 @@ export default function AppGrid({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
 
-    if (isAppInfoLoading) return null;
+    if (isAppInfoLoading) {
+        return (
+            <div className="cil-w-10 cil-h-10 cil-flex cil-items-center cil-justify-center">
+                <LoadingSpinner size="sm" color={propPrimaryColor} />
+            </div>
+        );
+    }
+
 
     const getAppInitial = (name) => {
         return name ? name.charAt(0).toUpperCase() : '?';

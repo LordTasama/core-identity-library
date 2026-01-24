@@ -19,5 +19,7 @@ export { default as AuthError } from './components/AuthError';
 export { default as AppGrid } from './components/AppGrid';
 export { default as UserMenu } from './components/UserMenu';
 export { default as UserProfile } from './components/UserProfile';
+export { default as LoadingSpinner } from './components/LoadingSpinner';
 export { translations } from './translations';
+
 export { isValidUrl, getValidProfileImageUrl } from './utils/urlValidation';
