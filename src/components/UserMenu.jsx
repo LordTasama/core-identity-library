@@ -6,12 +6,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { translations } from '../translations';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
-import LoadingSpinner from './LoadingSpinner';
 import {
     KeyRound,
     LogOut,
     User,
-    Settings
 } from 'lucide-react';
 
 export default function UserMenu({
@@ -23,8 +21,6 @@ export default function UserMenu({
     onProfileClick, // Added onProfileClick
     extraItems = [], // Array of { icon: ReactNode, label: string, onClick: function }
     lang = 'en',
-    apiBaseUrl,
-    apiToken,
     texts: customTexts = {}
 }) {
     const [isOpen, setIsOpen] = useState(false);

@@ -30,6 +30,9 @@ export default function Header({
     notificationData = [],
     onSettings,
     user,
+    onProfileClick,
+    onChangePassword,
+    onLogout,
     apps,
     primaryColor = '#10b981', // Por defecto el verde de la imagen
     lang = 'en',
@@ -228,6 +231,9 @@ export default function Header({
                         primaryColor={primaryColor}
                         backgroundColor="#ffffff"
                         lang={lang}
+                        onProfileClick={onProfileClick}
+                        onChangePassword={onChangePassword}
+                        onLogout={onLogout}
                         apiBaseUrl={apiBaseUrl}
                         apiToken={apiToken}
                     />
