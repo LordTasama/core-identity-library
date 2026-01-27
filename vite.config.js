@@ -7,6 +7,7 @@ export default defineConfig(({ command }) => {
 
     return {
         plugins: [react()],
+        publicDir: 'src/public',
         build: isBuild ? {
             lib: {
                 entry: resolve(__dirname, 'src/index.js'),

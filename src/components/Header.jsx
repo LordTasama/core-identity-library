@@ -10,12 +10,12 @@ import {
     Sun,
     Moon,
     ChevronDown,
-    Settings,
-    Globe
+    Settings
 } from 'lucide-react';
 import AppGrid from './AppGrid';
 import UserMenu from './UserMenu';
 import LanguageSwitcher from './LanguageSwitcher';
+import prismLogoWhite from '../public/prism-logo-white.png';
 
 export default function Header({
     logo,
@@ -28,7 +28,6 @@ export default function Header({
     notificationsEnabled = false,
     onNotification,
     notificationData = [],
-    showSettings = false,
     onSettings,
     user,
     apps,
@@ -89,7 +88,7 @@ export default function Header({
                 {logo ? (
                     typeof logo === 'string' ? <img src={logo} alt="Logo" className="cil-h-14" /> : logo
                 ) : (
-                    <img src="/src/public/prism-logo-white.png" alt="The Prism Group" className="cil-h-14" />
+                    <img src={prismLogoWhite} alt="The Prism Group" className="cil-h-14" />
                 )}
             </div>
 
