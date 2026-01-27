@@ -23,7 +23,9 @@ export default function UserMenu({
     lang = 'en',
     texts: customTexts = {}
 }) {
+
     const [isOpen, setIsOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
     const containerRef = useRef(null);
     const t = { ...translations[lang], ...customTexts };
     const primaryColor = propPrimaryColor;
@@ -51,7 +53,6 @@ export default function UserMenu({
         if (user.email) return user.email.charAt(0).toUpperCase();
         return 'U';
     };
-
     const displayName = user["Full Name"] || user.fullName || user.full_name || user.firstName || user.first_name || user.email?.split('@')[0] || 'User';
 
     const MenuItem = ({ icon: Icon, label, onClick, className = "", color = "cil-text-gray-600", hoverColor }) => {
@@ -87,18 +88,16 @@ export default function UserMenu({
                     color: primaryColor
                 }}
             >
-                {profileImageURL ? (
+                {profileImageURL && !imageError ? (
                     <img
                         src={profileImageURL}
                         alt={displayName}
                         className="cil-w-full cil-h-full cil-object-cover"
-                        onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'cil-block';
-                        }}
+                        onError={() => setImageError(true)}
                     />
-                ) : null}
-                <span className={`${profileImageURL ? 'cil-hidden' : 'cil-block'} cil-text-sm cil-font-bold`}>{getInitial()}</span>
+                ) : (
+                    <span className="cil-block cil-text-sm cil-font-bold">{getInitial()}</span>
+                )}
             </button>
 
             {isOpen && (

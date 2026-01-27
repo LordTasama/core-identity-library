@@ -80,7 +80,6 @@ function App() {
                     timeoutPromise
                 ]);
 
-                console.log('🎨 Branding loaded:', data);
                 if (data.primaryColor) setPrimaryColor(data.primaryColor);
                 if (data.backgroundColor) setBackgroundColor(data.backgroundColor);
             } catch (err) {
@@ -106,7 +105,6 @@ function App() {
                 return;
             }
             if (data.success) {
-                console.log('🔄 User context loaded:', data);
                 const userData = data.user || data;
 
                 if (userData.email) {
@@ -141,7 +139,6 @@ function App() {
     };
 
     const handleSuccess = (data) => {
-        console.log('✅ Success callback:', data);
         const userData = data.user || data;
 
         if (userData.email) {

@@ -628,6 +628,9 @@ Este objeto contiene el "Contexto Completo" del usuario. Se recibe al iniciar se
 }
 ```
 
+## 14.2 Respuesta de `verifySession`
+Este objeto es una respuesta ligera que solo confirma la validez de la sesión.
+
 ```json
 {
   "success": true,
@@ -657,14 +660,48 @@ Cuando un usuario se registra o intenta loguearse pero requiere validación manu
 }
 ```
 
-### B. Campos Críticos en la Respuesta
-- **`redirect_url`**: Si es `/waiting-confirmation` o `/esperando-confirmacion`, la librería activará la vista de ingreso de código.
-- **`wait_seconds`**: Segundos que el usuario debe esperar antes de poder solicitar un reenvío de código.
-- **`user`**: Objeto mínimo con el `email` para que la pantalla de espera sepa a quién pertenece la sesión.
+---
+
+# 14. Arquitectura de Componentes: El "Flat User Object"
+Para garantizar la máxima compatibilidad y simplicidad, todos los componentes visuales de la librería (como `Header`, `UserMenu`, `UserProfile` y `AppGrid`) operan bajo un **Patrón de Objeto Plano**.
+
+### 14.1 ¿Qué es un Objeto Plano?
+Los componentes esperan recibir la información del usuario directamente en la raíz del objeto prop `user`. No deben estar envueltos en claves adicionales.
+
+*   **✅ BIEN (Objeto Plano):**
+    ```javascript
+    {
+      "email": "tasama@prism.com",
+      "Full Name": "Anderson Tasama",
+      "Roles": ["admin"],
+      "active_sessions": [...]
+    }
+    ```
+*   **❌ MAL (Objeto Anidado):**
+    ```javascript
+    {
+      "success": true,
+      "user": {
+        "email": "tasama@prism.com",
+        "Full Name": "Anderson Tasama"
+      }
+    }
+    ```
+
+### 14.2 Normalización de Datos
+Si su API devuelve la estructura anidada (Pattern ❌ MAL), debe aplanarla antes de pasarla al prop `user` de los componentes.
+
+```jsx
+// Ejemplo de normalización rápida
+const userData = apiResponse.user || apiResponse;
+<Header user={userData} />
+```
+
+> **Tip Pro:** El hook `useUserProfile` incluido en la librería realiza esta normalización automáticamente. Si utiliza este hook para cargar el perfil, no necesita preocuparse por la estructura de la respuesta.
 
 ---
 
-# 14. Troubleshooting: Errores Comunes de Integración
+# 15. Troubleshooting: Errores Comunes de Integración
 
 ### 14.1 TypeError: Cannot read properties of undefined (reading 'expired_at')
 **Causa:** El desarrollador intenta leer datos de sesión (JWT) en el callback `onSuccess` inmediatamente después de un registro.

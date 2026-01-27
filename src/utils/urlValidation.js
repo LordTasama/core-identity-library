@@ -25,6 +25,7 @@ export function isValidUrl(url) {
  * @returns {string|null} - Valid URL or null
  */
 export function getValidProfileImageUrl(user) {
+
     if (!user) return null;
 
     const possibleFields = [
@@ -34,7 +35,8 @@ export function getValidProfileImageUrl(user) {
         user.profileImage,
         user.avatar,
         user.avatarUrl,
-        user.avatar_url
+        user.avatar_url,
+
     ];
 
     for (const field of possibleFields) {
