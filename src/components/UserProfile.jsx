@@ -215,6 +215,8 @@ export default function UserProfile({
                                     src={profileImageURL}
                                     alt={displayName}
                                     className="cil-w-32 cil-h-32 md:cil-w-40 md:cil-h-40 cil-rounded-3xl cil-object-cover cil-shadow-2xl cil-ring-4 cil-ring-white cil-transition-transform cil-group-hover:scale-105"
+                                    style={{ filter: 'none' }}
+                                    referrerPolicy="no-referrer"
                                     onError={() => setImageLoadError(true)}
                                 />
                             </div>

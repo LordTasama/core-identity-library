@@ -93,6 +93,8 @@ export default function UserMenu({
                         src={profileImageURL}
                         alt={displayName}
                         className="cil-w-full cil-h-full cil-object-cover"
+                        style={{ filter: 'none', display: 'block' }}
+                        referrerPolicy="no-referrer"
                         onError={() => setImageError(true)}
                     />
                 ) : (
