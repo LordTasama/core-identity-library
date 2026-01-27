@@ -8,7 +8,7 @@ import { translations } from '../translations';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuthApi } from '../hooks/useAuthApi';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
-import { User, Key, Mail, Settings, LogOut, Loader2, AlertCircle, Sparkles, Monitor, Smartphone, Tablet } from 'lucide-react';
+import { User, Key, Mail, Settings, LogOut, AlertCircle, Sparkles, Monitor, Smartphone, Tablet } from 'lucide-react';
 import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
 import FormSuccess from './FormSuccess';
@@ -25,12 +25,13 @@ export default function UserProfile({
     onError,
     onSuccess,
     lang = 'en',
+    user: propUser,
     texts: customTexts = {}
 }) {
     const t = { ...translations[lang], ...customTexts };
 
-    // Fetch user profile data from /me endpoint
-    const { user, isLoading: isLoadingProfile, error: profileError } = useUserProfile(apiBaseUrl, apiToken, authToken, userEmail);
+    // Fetch user profile data from /me endpoint, using propUser as initial value if provided
+    const { user, isLoading: isLoadingProfile, error: profileError } = useUserProfile(apiBaseUrl, apiToken, authToken, userEmail, propUser);
 
     const primaryColor = propPrimaryColor;
     const backgroundColor = propBackgroundColor;
@@ -110,11 +111,6 @@ export default function UserProfile({
                                 <div className="cil-h-24 cil-w-full cil-bg-gray-50 cil-rounded-2xl"></div>
                             </div>
                         </div>
-                    </div>
-                    {/* Overlay Spinner */}
-                    <div className="cil-absolute cil-inset-0 cil-flex cil-flex-col cil-items-center cil-justify-center cil-pointer-events-none">
-                        <LoadingSpinner size="xl" color={propPrimaryColor} />
-                        <p className="cil-mt-4 cil-text-gray-400 cil-font-medium">{t.loadingProfile}</p>
                     </div>
                 </div>
             </div>

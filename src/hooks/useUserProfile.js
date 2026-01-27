@@ -10,21 +10,27 @@ import { useAuthApi } from './useAuthApi';
  * Custom hook to fetch and manage user profile data
  * Implements loading states similar to useAppInfo pattern
  */
-export function useUserProfile(apiBaseUrl, apiToken, authToken, userEmail) {
+export function useUserProfile(apiBaseUrl, apiToken, authToken, userEmail, initialData = null) {
     const { getMe } = useAuthApi(apiBaseUrl, apiToken);
 
     const [state, setState] = useState({
-        user: null,
-        isLoading: true,
+        user: initialData,
+        isLoading: !initialData,
         error: null
     });
 
     useEffect(() => {
-        if (!authToken || !userEmail) {
+        // Skip if we already have initial data
+        if (initialData && state.user === initialData && !state.error) {
+            if (state.isLoading) setState(prev => ({ ...prev, isLoading: false }));
+            return;
+        }
+
+        if (!authToken || !userEmail || !apiBaseUrl) {
             setState({
-                user: null,
+                user: initialData || null,
                 isLoading: false,
-                error: 'Missing authentication credentials'
+                error: (authToken && userEmail) ? null : 'Missing authentication credentials'
             });
             return;
         }
@@ -48,7 +54,7 @@ export function useUserProfile(apiBaseUrl, apiToken, authToken, userEmail) {
                     });
                 } else {
                     setState({
-                        user: null,
+                        user: initialData || null,
                         isLoading: false,
                         error: data.message || 'Failed to load profile'
                     });
@@ -56,7 +62,7 @@ export function useUserProfile(apiBaseUrl, apiToken, authToken, userEmail) {
             } catch (error) {
                 console.error('Failed to fetch user profile:', error);
                 setState({
-                    user: null,
+                    user: initialData || null,
                     isLoading: false,
                     error: error.message || 'Connection error'
                 });
@@ -64,7 +70,7 @@ export function useUserProfile(apiBaseUrl, apiToken, authToken, userEmail) {
         };
 
         fetchProfile();
-    }, [authToken, userEmail, apiBaseUrl, apiToken]);
+    }, [authToken, userEmail, apiBaseUrl, apiToken, initialData]);
 
     return state;
 }

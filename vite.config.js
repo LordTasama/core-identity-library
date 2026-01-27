@@ -7,12 +7,13 @@ export default defineConfig(({ command }) => {
 
     return {
         plugins: [react()],
-        publicDir: 'src/public',
         build: isBuild ? {
+            assetsInlineLimit: 5000000,
             lib: {
                 entry: resolve(__dirname, 'src/index.js'),
                 name: 'CoreIdentityLibrary',
                 fileName: 'core-identity-library',
+
             },
             rollupOptions: {
                 external: ['react', 'react-dom', '@tanstack/react-query', 'lucide-react', 'react-icons'],

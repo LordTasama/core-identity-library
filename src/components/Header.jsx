@@ -15,7 +15,7 @@ import {
 import AppGrid from './AppGrid';
 import UserMenu from './UserMenu';
 import LanguageSwitcher from './LanguageSwitcher';
-import prismLogoWhite from '../public/prism-logo-white.png';
+import prismLogoWhite from '../assets/prism-logo-white.png';
 
 export default function Header({
     logo,

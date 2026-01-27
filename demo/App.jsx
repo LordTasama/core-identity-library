@@ -33,6 +33,7 @@ function App() {
     // Volatile state (Not persisted in localStorage)
     const [userFullName, setUserFullName] = useState('');
     const [userApps, setUserApps] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null); // Centralized user object
 
     const [initialMsg, setInitialMsg] = useState('');
     const [waitSeconds, setWaitSeconds] = useState(0);
@@ -122,6 +123,8 @@ function App() {
                     setUserApps(userData.apps);
                 }
 
+                setCurrentUser(userData); // Update centralized user object
+
                 // Update theme colors from user context if provided
                 if (userData.primaryColor) setPrimaryColor(userData.primaryColor);
                 if (userData.backgroundColor) setBackgroundColor(userData.backgroundColor);
@@ -154,6 +157,8 @@ function App() {
         if (userData.apps) {
             setUserApps(userData.apps);
         }
+
+        setCurrentUser(userData); // Update centralized user object
 
         if (data.token) {
             setAuthToken(data.token);
@@ -195,6 +200,7 @@ function App() {
         setUserEmail('');
         setUserFullName('');
         setUserApps([]);
+        setCurrentUser(null);
         setAuthToken('');
         // Reset to default or re-fetch initial branding? Let's re-fetch branding
         setPrimaryColor('#3b82f6');
@@ -243,6 +249,7 @@ function App() {
             case 'profile': return (
                 <UserProfile
                     {...commonProps}
+                    user={currentUser}
                     userEmail={userEmail}
                     onClose={() => setView('login')}
                 />
@@ -276,7 +283,7 @@ function App() {
         <div className="cil-min-h-screen cil-bg-gray-100 cil-flex cil-flex-col">
             {/* Header Integration */}
             <Header
-                user={{ email: userEmail, "Full Name": userFullName }}
+                user={currentUser || { email: userEmail, "Full Name": userFullName }}
                 apps={userApps}
                 primaryColor={primaryColor}
                 backgroundColor={backgroundColor}
