@@ -18,6 +18,8 @@ export { useUserProfile } from './hooks/useUserProfile';
 export { default as AuthError } from './components/AuthError';
 export { default as AppGrid } from './components/AppGrid';
 export { default as UserMenu } from './components/UserMenu';
+export { default as Header } from './components/Header';
+export { default as LanguageSwitcher } from './components/LanguageSwitcher';
 export { default as UserProfile } from './components/UserProfile';
 export { default as LoadingSpinner } from './components/LoadingSpinner';
 export { translations } from './translations';

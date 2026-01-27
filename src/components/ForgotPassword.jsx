@@ -7,12 +7,9 @@ import { useState } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
-import { useAppInfo } from '../hooks/useAppInfo';
 import AuthError from './AuthError';
 import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
-
-
 
 export default function ForgotPassword({
     apiBaseUrl,
@@ -28,46 +25,13 @@ export default function ForgotPassword({
 }) {
     const t = { ...translations[lang], ...customTexts };
     const { isAuthorized } = useSecurity(apiToken);
-    const { primaryColor, backgroundColor, isLoading: isAppInfoLoading } = useAppInfo(apiBaseUrl, apiToken, user, propPrimaryColor, propBackgroundColor);
+    const primaryColor = propPrimaryColor;
+    const backgroundColor = propBackgroundColor;
     const { post } = useAuthApi(apiBaseUrl, apiToken);
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [sent, setSent] = useState(false);
     const [localError, setLocalError] = useState('');
-
-    if (isAppInfoLoading) {
-        return (
-            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-relative" style={{ backgroundColor: propBackgroundColor }}>
-                {/* Central Overlay Spinner */}
-                <div className="cil-absolute cil-inset-0 cil-z-10 cil-flex cil-flex-col cil-items-center cil-justify-center cil-bg-white/40 cil-backdrop-blur-[1px] cil-rounded-lg">
-                    <LoadingSpinner size="xl" color={propPrimaryColor} />
-                </div>
-
-                {/* Skeleton Structure */}
-                <div className="cil-animate-pulse cil-opacity-20 cil-pointer-events-none">
-                    <div className="cil-space-y-1 cil-mb-6 cil-text-center">
-                        <div className="cil-h-8 cil-w-40 cil-mx-auto cil-bg-gray-400 cil-rounded"></div>
-                        <div className="cil-h-4 cil-w-56 cil-mx-auto cil-bg-gray-400 cil-rounded"></div>
-                    </div>
-
-                    <div className="cil-space-y-4">
-                        <div className="cil-space-y-2">
-                            <div className="cil-h-4 cil-w-16 cil-bg-gray-400 cil-rounded"></div>
-                            <div className="cil-h-10 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
-                        </div>
-                        <div className="cil-h-11 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
-                    </div>
-
-                    <div className="cil-mt-6 cil-flex cil-justify-center">
-                        <div className="cil-h-4 cil-w-24 cil-bg-gray-400 cil-rounded"></div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-
-
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;

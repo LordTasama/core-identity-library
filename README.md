@@ -40,8 +40,9 @@ La librería ofrece dos categorías principales de componentes:
 - **`EmailVerification` / `WaitingConfirmation`**: Feedback de estado de cuenta.
 
 ### 2. Navegación y Ecosistema (Premium)
-- **`AppGrid`**: Selector de aplicaciones con efecto Glassmorphism y generación de avatares automática.
-- **`UserMenu`**: Menú de perfil extensible con gestión de identidad.
+- **`Header`**: Barra de navegación completa con búsqueda, notificaciones, cambio de tema, cuadrícula de aplicaciones y menú de usuario integrados.
+- **`AppGrid`**: Selector de aplicaciones con diseño refinado y generación de avatares automática.
+- **`UserMenu`**: Menú de perfil con diseño profesional, soporte para iniciales en color primario y acciones rápidas.
 
 ---
 
@@ -59,14 +60,17 @@ import 'core-identity-library/style.css';
 />
 ```
 
-### Barra de Navegación
+### Barra de Navegación Premium
 ```jsx
-import { UserMenu, AppGrid } from 'core-identity-library';
+import { Header } from 'core-identity-library';
 
-<div className="navbar">
-  <AppGrid apps={userApps} />
-  <UserMenu user={currentUser} onLogout={doLogout} />
-</div>
+<Header 
+  user={currentUser} 
+  apps={userApps}
+  onSearch={(q) => console.log(q)}
+  onSettings={() => console.log('Settings')}
+  primaryColor="#0ea5e9"
+/>
 ```
 
 ---

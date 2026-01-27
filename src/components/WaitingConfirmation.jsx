@@ -7,12 +7,10 @@ import { useState, useEffect, useRef } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
-import { useAppInfo } from '../hooks/useAppInfo';
 import AuthError from './AuthError';
 import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
 import FormSuccess from './FormSuccess';
-
 
 export default function WaitingConfirmation({
     apiBaseUrl,
@@ -26,12 +24,13 @@ export default function WaitingConfirmation({
     initialWaitSeconds = 0,
     onSuccess,
     onError,
-    apiToken, // Added apiToken
+    apiToken,
     texts: customTexts = {}
 }) {
     const t = { ...translations[lang], ...customTexts };
     const { isAuthorized } = useSecurity(apiToken);
-    const { primaryColor, backgroundColor, isLoading: isAppInfoLoading } = useAppInfo(apiBaseUrl, apiToken, user, propPrimaryColor, propBackgroundColor);
+    const primaryColor = propPrimaryColor;
+    const backgroundColor = propBackgroundColor;
     const { post } = useAuthApi(apiBaseUrl, apiToken);
     const [isLoading, setIsLoading] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -67,45 +66,6 @@ export default function WaitingConfirmation({
             setIsResendSuccess(false);
         }
     }, [countdown, initialWaitSeconds, t.waitingConfirmationMsg]);
-
-    if (isAppInfoLoading) {
-        return (
-            <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-relative" style={{ backgroundColor: propBackgroundColor }}>
-                {/* Central Overlay Spinner */}
-                <div className="cil-absolute cil-inset-0 cil-z-10 cil-flex cil-flex-col cil-items-center cil-justify-center cil-bg-white/40 cil-backdrop-blur-[1px] cil-rounded-lg">
-                    <LoadingSpinner size="xl" color={propPrimaryColor} />
-                </div>
-
-                {/* Skeleton Structure */}
-                <div className="cil-animate-pulse cil-opacity-20 cil-pointer-events-none">
-                    <div className="cil-flex cil-items-center cil-justify-center cil-mb-6">
-                        <div className="cil-w-16 cil-h-16 cil-rounded-full cil-bg-gray-400"></div>
-                    </div>
-
-                    <div className="cil-space-y-1 cil-mb-6 cil-text-center">
-                        <div className="cil-h-8 cil-w-48 cil-mx-auto cil-bg-gray-400 cil-rounded"></div>
-                        <div className="cil-h-4 cil-w-56 cil-mx-auto cil-bg-gray-400 cil-rounded"></div>
-                    </div>
-
-                    <div className="cil-space-y-4">
-                        <div className="cil-space-y-2">
-                            <div className="cil-h-4 cil-w-24 cil-bg-gray-400 cil-rounded"></div>
-                            <div className="cil-h-12 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
-                        </div>
-                        <div className="cil-h-10 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
-                    </div>
-
-                    <div className="cil-border-t cil-pt-6 cil-mt-6 cil-space-y-3">
-                        <div className="cil-h-8 cil-w-32 cil-mx-auto cil-bg-gray-400 cil-rounded"></div>
-                        <div className="cil-h-10 cil-w-full cil-bg-gray-400 cil-rounded-md"></div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-
-
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
@@ -150,7 +110,7 @@ export default function WaitingConfirmation({
         setIsLoading(true);
         setIsResendSuccess(false);
         setLocalError('');
-        setLocalSuccess(''); // Clear previous success message
+        setLocalSuccess('');
 
         try {
             const data = await post('/resend-confirmation', { email: userEmail });
@@ -230,7 +190,6 @@ export default function WaitingConfirmation({
                         </svg>
                     </div>
                 )}
-
             </div>
 
             <h2 className="cil-text-2xl cil-font-semibold cil-mb-2">{t.waitingConfirmation}</h2>
@@ -271,7 +230,6 @@ export default function WaitingConfirmation({
                         </div>
                     ) : t.verifyButton}
                 </button>
-
             </form>
 
             <div className="cil-border-t cil-pt-6 cil-space-y-3">
@@ -295,7 +253,6 @@ export default function WaitingConfirmation({
                             </>
                         ) : t.resendEmail}
                     </button>
-
                 )}
 
                 <button

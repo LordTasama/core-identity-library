@@ -5,15 +5,12 @@
  */
 import { useState, useEffect } from 'react';
 import { translations } from '../translations';
-import { useAppInfo } from '../hooks/useAppInfo';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuthApi } from '../hooks/useAuthApi';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
 import { User, Key, Mail, Settings, LogOut, Loader2, AlertCircle, Sparkles, Monitor, Smartphone, Tablet } from 'lucide-react';
 import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
-
-
 import FormSuccess from './FormSuccess';
 
 export default function UserProfile({
@@ -35,9 +32,8 @@ export default function UserProfile({
     // Fetch user profile data from /me endpoint
     const { user, isLoading: isLoadingProfile, error: profileError } = useUserProfile(apiBaseUrl, apiToken, authToken, userEmail);
 
-    // Get app colors
-    const { primaryColor, backgroundColor, isLoading: isAppInfoLoading } = useAppInfo(apiBaseUrl, apiToken, user, propPrimaryColor, propBackgroundColor);
-
+    const primaryColor = propPrimaryColor;
+    const backgroundColor = propBackgroundColor;
     const { post } = useAuthApi(apiBaseUrl, apiToken);
 
     const [activeSessions, setActiveSessions] = useState([]);
@@ -78,7 +74,7 @@ export default function UserProfile({
     };
 
     // Show loading state
-    if (isLoadingProfile || isAppInfoLoading) {
+    if (isLoadingProfile) {
         return (
             <div className="cil-w-full cil-max-w-5xl cil-mx-auto cil-animate-pulse">
                 {/* Hero Header Skeleton */}
@@ -124,8 +120,6 @@ export default function UserProfile({
             </div>
         );
     }
-
-
 
     // Show error state
     if (profileError || !user) {
@@ -442,7 +436,6 @@ export default function UserProfile({
                                 ) : (
                                     t.logoutAllSessions
                                 )}
-
                             </button>
                         )}
                     </div>

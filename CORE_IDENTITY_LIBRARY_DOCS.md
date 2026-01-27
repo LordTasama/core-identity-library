@@ -96,9 +96,10 @@ Una vista detallada y premium con la información del usuario.
 | Prop | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `user` | Object | Objeto con datos del usuario (`fullName`, `email`, etc). |
-| `primaryColor` | String | Color del borde del avatar y acentos. |
+| `primaryColor` | String | Color del borde del avatar e iniciales. |
 | `onLogout` | Function | Callback ejecutado al cerrar sesión. |
 | `onChangePassword` | Function | Callback para navegar a la vista de cambio de password. |
+| `onProfileClick` | Function | Callback para navegar a la vista de perfil. |
 | `extraItems` | Array | Lista de `{ icon, label, onClick }` para añadir opciones al menú. |
 
 #### AppGrid
@@ -106,8 +107,20 @@ Una vista detallada y premium con la información del usuario.
 | :--- | :--- | :--- |
 | `apps` | Array | Lista de aplicaciones autorizadas para el usuario. |
 | `customLabels` | Object | Mapeo para renombrar apps (ej: `{"erp_system": "Mi ERP"}`). |
-| `primaryColor` | String | Color del icono del grid. |
+| `primaryColor` | String | Color del icono del grid (cuando no es blanco). |
 | `onAppClick` | Function | Callback opcional cuando se hace clic en una app. |
+
+#### Header
+| Prop | Tipo | Descripción |
+| :--- | :--- | :--- |
+| `logo` | ReactNode/String | Logo de la aplicación (URL o componente). |
+| `user` | Object | Datos del usuario para el `UserMenu`. |
+| `apps` | Array | Lista de aplicaciones para el `AppGrid`. |
+| `navItems`| Array | Elementos de navegación central `{ label, onClick, active }`. |
+| `onSettings`| Function | Muestra un icono de configuración integrado al lado del menú de usuario. |
+| `onTheme` | Function | Callback para alternar entre temas claro/oscuro. |
+| `primaryColor`| String | Color de fondo de la barra y acentos. |
+| `extraItems` | Array | Componentes adicionales a renderizar a la derecha. |
 
 ---
 
@@ -124,11 +137,11 @@ La librería espera que el servidor responda bajo una estructura REST estándar 
 ---
 
 # 7. Estética y Experiencia (UX/UI)
-La librería se enfoca en una estética **Premium**:
-1.  **Glassmorphism**: Uso intensivo de `backdrop-blur` en menús flotantes.
-2.  **Micro-animaciones**: Transiciones suaves al abrir menús y hover en botones.
-3.  **Identidad Visual**: El uso de variables CSS permite que el `primaryColor` se propague por toda la interfaz, desde botones hasta bordes de avatar.
-4.  **Feedback Instantáneo**: Limpieza de errores en tiempo real conforme el usuario escribe.
+La librería se enfoca en una estética **Premium** y consistente:
+1.  **Consistencia Visual**: Todos los iconos de acción principal en el header tienen un tamaño estandarizado de `w-6 h-6`.
+2.  **Glassmorphism**: Uso equilibrado de desenfoques y fondos limpios en menús flotantes con bordes refinados.
+3.  **Micro-animaciones**: Transiciones suaves y efectos de hover sutiles que responden al color primario.
+4.  **Branding Dinámico**: Soporte para carga inicial de colores corporativos con estados de carga ("Skeleton" style) y timeouts de seguridad.
 
 ---
 
@@ -392,7 +405,8 @@ Este hook es el corazón de la comunicación con el backend. Además de métodos
     - `get(url)`: Petición GET con X-API-KEY.
     - `post(url, body)`: Petición POST con X-API-KEY.
 
-- **Métodos de Identidad**:
+- **Métodos de Identidad y Branding**:
+    - `getAppColors()`: Consulta los colores corporativos (`primaryColor`, `backgroundColor`) configurados para la instancia.
     - `verifySession(token, email)`: Valida si un token de sesión sigue siendo válido.
     - `getUserContext(token, email)`: Trae la "Sesión Completa" (Datos del usuario, Roles, Aplicaciones permitidas y Permisos granulares).
     - `logout(token, email)`: Invalida la sesión actual en el servidor.

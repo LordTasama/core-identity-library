@@ -5,7 +5,6 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { translations } from '../translations';
-import { useAppInfo } from '../hooks/useAppInfo';
 import { getValidProfileImageUrl } from '../utils/urlValidation';
 import LoadingSpinner from './LoadingSpinner';
 import {
@@ -31,7 +30,8 @@ export default function UserMenu({
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
     const t = { ...translations[lang], ...customTexts };
-    const { primaryColor, backgroundColor, isLoading: isAppInfoLoading } = useAppInfo(apiBaseUrl, apiToken, user, propPrimaryColor, propBackgroundColor);
+    const primaryColor = propPrimaryColor;
+    const backgroundColor = propBackgroundColor;
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -45,13 +45,6 @@ export default function UserMenu({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
 
-    if (isAppInfoLoading) {
-        return (
-            <div className="cil-w-10 cil-h-10 cil-flex cil-items-center cil-justify-center">
-                <LoadingSpinner size="sm" color={propPrimaryColor} />
-            </div>
-        );
-    }
 
 
     const profileImageURL = getValidProfileImageUrl(user);
@@ -65,18 +58,26 @@ export default function UserMenu({
 
     const displayName = user["Full Name"] || user.fullName || user.full_name || user.firstName || user.first_name || user.email?.split('@')[0] || 'User';
 
-    const MenuItem = ({ icon: Icon, label, onClick, className = "", color = "cil-text-gray-600" }) => (
-        <button
-            onClick={() => {
-                setIsOpen(false);
-                if (onClick) onClick();
-            }}
-            className={`cil-w-full cil-flex cil-items-center cil-gap-3 cil-px-3 cil-py-2 cil-text-sm cil-rounded-xl cil-hover:bg-gray-50 cil-transition-colors cil-group ${color} ${className}`}
-        >
-            {Icon && <Icon className="cil-w-4 cil-h-4 cil-transition-transform cil-group-hover:scale-110" />}
-            <span className="cil-flex-1 cil-text-left">{label}</span>
-        </button>
-    );
+    const MenuItem = ({ icon: Icon, label, onClick, className = "", color = "cil-text-gray-600", hoverColor }) => {
+        const [isHovered, setIsHovered] = useState(false);
+        const itemHoverStyle = isHovered ? { backgroundColor: hoverColor || `${primaryColor}10` } : {};
+
+        return (
+            <button
+                onClick={() => {
+                    setIsOpen(false);
+                    if (onClick) onClick();
+                }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={itemHoverStyle}
+                className={`cil-w-full cil-flex cil-items-center cil-gap-3 cil-px-4 cil-py-3 cil-text-sm cil-transition-colors cil-group ${color} ${className}`}
+            >
+                {Icon && <Icon className="cil-w-5 cil-h-5 cil-transition-transform cil-group-hover:scale-105" />}
+                <span className="cil-flex-1 cil-text-left cil-font-medium">{label}</span>
+            </button>
+        );
+    };
 
     return (
         <div className="cil-relative cil-inline-block cil-text-left" ref={containerRef}>
@@ -106,18 +107,15 @@ export default function UserMenu({
 
             {isOpen && (
                 <div
-                    className="cil-absolute cil-right-0 cil-mt-3 cil-w-56 cil-origin-top-right cil-rounded-2xl cil-bg-gray-100/90 cil-backdrop-blur-md cil-p-2 cil-shadow-2xl cil-border cil-border-gray-200/50 cil-z-50 cil-transform cil-transition-all cil-duration-300 cil-ease-out"
+                    className="cil-absolute cil-right-0 cil-mt-1 cil-w-64 cil-origin-top-right cil-rounded-md cil-bg-white cil-shadow-2xl cil-border cil-border-gray-100 cil-z-50 cil-overflow-hidden"
                 >
-                    <div
-                        className="cil-rounded-[1.5rem] cil-bg-white cil-p-2 cil-shadow-sm"
-                    >
-                        {/* Header */}
-                        <div className="cil-px-3 cil-py-2 cil-border-b cil-border-gray-50 cil-mb-1">
-                            <p className="cil-text-xs cil-font-bold cil-text-gray-400 cil-uppercase cil-tracking-widest cil-leading-none cil-mb-1">Account</p>
-                            <p className="cil-text-sm cil-font-bold cil-text-gray-700 cil-truncate cil-mb-0.5">{displayName}</p>
-                            <p className="cil-text-[10px] cil-font-medium cil-text-gray-400 cil-truncate">{user.email}</p>
-                        </div>
+                    {/* Header */}
+                    <div className="cil-px-4 cil-py-3 cil-border-b cil-border-gray-100 cil-bg-gray-50/50">
+                        <p className="cil-text-sm cil-font-bold cil-text-gray-800 cil-truncate cil-mb-0.5">{displayName}</p>
+                        <p className="cil-text-xs cil-font-medium cil-text-gray-500 cil-truncate">{user.email}</p>
+                    </div>
 
+                    <div className="cil-py-1">
                         {/* Default Item: Profile */}
                         <MenuItem
                             icon={User}
@@ -142,16 +140,15 @@ export default function UserMenu({
                             />
                         ))}
 
-                        {/* Separator if there are extra items */}
-                        {extraItems.length > 0 && <div className="cil-my-1 cil-border-t cil-border-gray-50" />}
+                        <div className="cil-my-1 cil-border-t cil-border-gray-100" />
 
                         {/* Default Item: Logout */}
                         <MenuItem
                             icon={LogOut}
                             label={t.logoutThisSession}
                             onClick={onLogout}
-                            color="cil-text-red-500"
-                            className="cil-hover:bg-red-50"
+                            color="cil-text-gray-700"
+                            hoverColor="#fff1f2" // Minimal red hover (rose-50)
                         />
                     </div>
                 </div>
