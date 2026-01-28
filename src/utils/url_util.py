@@ -48,6 +48,8 @@ def find_best_app_match(input_url, applications):
     normalized_input = normalize_url(input_url)
     if not normalized_input:
         return None
+    
+    print(f"🔍 DEBUG find_best_app_match - Input URL: '{input_url}' -> Normalized: '{normalized_input}'")
         
     best_match = None
     max_length = -1
@@ -60,17 +62,20 @@ def find_best_app_match(input_url, applications):
         normalized_public = normalize_url(public_url)
         if not normalized_public:
             continue
+        
+        print(f"  🔸 Comparing with App '{app.get('App Key')}': '{public_url}' -> Normalized: '{normalized_public}'")
             
         # Check if normalized_input starts with normalized_public
         # Or if normalized_input is equal to normalized_public
         # Example: input "abc.com/app" starts with "abc.com"
         if normalized_input == normalized_public or normalized_input.startswith(normalized_public + "/"):
+            print(f"    ✅ MATCH! Length: {len(normalized_public)}")
             if len(normalized_public) > max_length:
                 max_length = len(normalized_public)
                 best_match = app.get("App Key")
-        elif normalized_input == normalized_public: # redundant but safe
-             if len(normalized_public) > max_length:
-                max_length = len(normalized_public)
-                best_match = app.get("App Key")
+                print(f"    🏆 New best match: {best_match}")
+        else:
+            print(f"    ❌ No match")
 
+    print(f"🎯 Final result: {best_match}")
     return best_match

@@ -129,10 +129,14 @@ def login():
             }), 200
 
     if provider == 'Google':
+        from src.services.identity_service import identity_service
+        app_key = identity_service.get_app_key_by_url()
+        print(f"🔍 DEBUG Login Route (Google) - Detected app_key: {app_key}")
+        
         if Config.MOCK_AUTH:
             from src.services.login_service import process_mock_social_login
             # Permitir email personalizado para pruebas
-            result = process_mock_social_login('Google', email)
+            result = process_mock_social_login('Google', email, app_key=app_key)
             if result.get('success'):
                 user_ctx = result.get('user')
                 
@@ -156,8 +160,6 @@ def login():
             else:
                 return jsonify({'success': False, 'message': result.get('error')}), 400
 
-        from src.services.identity_service import identity_service
-        app_key = identity_service.get_app_key_by_url()
         oauth_data = get_google_oauth_url(app_key=app_key)
         response = jsonify({'auth_url': oauth_data['auth_url']})
         response.set_cookie('oauth_state', oauth_data['state'], max_age=600, secure=False, httponly=True, samesite='Lax')
@@ -205,9 +207,13 @@ def login():
             return jsonify({'success': False, 'message': result.get("message", "Authentication failed"), "redirect_url": result.get("redirect_url")}), 400
     
     elif provider == 'Microsoft':
+        from src.services.identity_service import identity_service
+        app_key = identity_service.get_app_key_by_url()
+        print(f"🔍 DEBUG Login Route (Microsoft) - Detected app_key: {app_key}")
+        
         if Config.MOCK_AUTH:
             from src.services.login_service import process_mock_social_login
-            result = process_mock_social_login('Microsoft', email)
+            result = process_mock_social_login('Microsoft', email, app_key=app_key)
             if result.get('success'):
                 user_ctx = result.get('user')
                 
@@ -230,8 +236,6 @@ def login():
             else:
                 return jsonify({'success': False, 'message': result.get('error')}), 400
 
-        from src.services.identity_service import identity_service
-        app_key = identity_service.get_app_key_by_url()
         oauth_data = get_microsoft_oauth_url(app_key=app_key)
         response = jsonify({'auth_url': oauth_data['auth_url']})
         response.set_cookie('oauth_state', oauth_data['state'], max_age=600, secure=False, httponly=True, samesite='Lax')

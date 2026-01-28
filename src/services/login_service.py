@@ -71,7 +71,7 @@ def validate_password_strength(password):
     
     return True, "Valid password"
 
-def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row=None):
+def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row=None, app_key=None):
     """
     Retrieves the comprehensive user profile needed for the session.
     
@@ -83,8 +83,11 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     """
     from src.services.identity_service import identity_service
     
-    # 1. Detectar App Key primero para usarlo en la llave del caché
-    app_key = identity_service.get_app_key_by_url()
+    # 1. Detectar App Key (O usar la inyectada si viene de un callback OAuth)
+    if not app_key:
+        app_key = identity_service.get_app_key_by_url()
+    
+    print(f"🔍 DEBUG _get_user_context - email: {email}, app_key: {app_key}, provider: {provider}")
     
     # 2. Verificar Caché (Si no se solicita bypass)
     now = time.time()
@@ -714,7 +717,7 @@ def _link_identity_to_auth(identity_row_id, auth_row_id):
         print(f"⚠️ Error in reverse link: {e}")
 
 
-def process_mock_social_login(provider, email=None):
+def process_mock_social_login(provider, email=None, app_key=None):
     """
     Simulates a successful authentication flow for controlled development purposes.
     
@@ -758,7 +761,7 @@ def process_mock_social_login(provider, email=None):
     print(f"🔍 Searching for Auth Methods to link session...")
     
     # 1. Obtain context (Bypass cache for login and force provider)
-    user_context = _get_user_context(mock_userinfo['email'], provider=provider, bypass_cache=True)
+    user_context = _get_user_context(mock_userinfo['email'], provider=provider, bypass_cache=True, app_key=app_key)
     
     if not user_context:
         print("❌ Error obtaining context for mock user")
@@ -2042,7 +2045,7 @@ def process_google_callback(code, state, expected_state):
             session['vendor_email'] = userinfo['email']
             
             # El contexto final se encarga de todo lo pesado
-            u_final = _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row)
+            u_final = _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row, app_key=app_key)
             return {'success': True, 'user': u_final}
         
         return {'success': False, 'error': 'user_not_found'}
@@ -2140,7 +2143,7 @@ def process_microsoft_callback(code, state, expected_state):
             session['vendor_email'] = final_userinfo['email']
 
             # Obtain context injecting the previous result to save a query
-            u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row)
+            u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row, app_key=app_key)
             return {'success': True, 'user': u_final}
             
         return {'success': False, 'error': 'user_not_found'}
