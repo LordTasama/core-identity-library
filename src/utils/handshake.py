@@ -26,13 +26,13 @@ def generate_handshake_code(email):
     # Usamos un salt específico para no mezclar con otros tokens
     return s.dumps(email, salt='handshake-auth')
 
-def validate_handshake_code(code, max_age=60):
+def validate_handshake_code(code, max_age=300): # 5 minutes
     """
     Valida la autenticidad y vigencia de un código de handshake.
     
     Objetivo:
     - Deserializar el código y verificar que no haya sido alterado.
-    - Comprobar que el código no supere la edad máxima permitida (default 60s).
+    - Comprobar que el código no supere la edad máxima permitida (default 300s).
     - Extraer el email del usuario para proceder con la creación de la nueva sesión.
     """
     s = URLSafeTimedSerializer(Config.SECRET_KEY)

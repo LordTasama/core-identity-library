@@ -12,8 +12,9 @@ Key Objectives:
 4. Ensure global and remote logout.
 """
 
-from flask import Blueprint, request, session, jsonify, redirect, make_response, current_app, g
+from flask import Blueprint, request, session, jsonify, make_response, current_app, g
 import json
+import time
 from src.services.login_service import (
     confirm_email_manual,
     login_with_password_and_email,
@@ -32,7 +33,8 @@ from src.services.login_service import (
     create_session,
     close_sessions_logic,
     logout_session,
-    _get_user_context
+    _get_user_context,
+    process_welcome_email_flow
 )
 from src.utils import login_required, get_current_user
 from src.utils.handshake import generate_handshake_code, validate_handshake_code
@@ -800,8 +802,8 @@ def validate_handshake_route():
     - Facilitate Single Sign-On (SSO) between different applications in the ecosystem.
     - Validate permissions in real-time for the target application.
     """
+    start_time = time.time()
     try:
-        
         code = request.json.get('code')
         if not code:
             return jsonify({'success': False, 'message': t('code_required')}), 400
@@ -813,6 +815,8 @@ def validate_handshake_route():
             
             # Validación de permisos/roles para la App detectada
             if user_data and not user_data.get("success"):
+                duration = time.time() - start_time
+                print(f"⏱️ Handshake Validation (Denied): {duration:.4f}s for {email}")
                 return jsonify({
                     'success': False,
                     'valid': True,
@@ -820,6 +824,8 @@ def validate_handshake_route():
                     'apps': user_data.get("apps", [])
                 }), 403
 
+            duration = time.time() - start_time
+            print(f"⏱️ Handshake Validation (Success): {duration:.4f}s for {email}")
             return jsonify({
                 'success': True,
                 'valid': True,
@@ -827,12 +833,16 @@ def validate_handshake_route():
                 'user': user_data
             }), 200
         else:
+            duration = time.time() - start_time
+            print(f"⏱️ Handshake Validation (Invalid Code): {duration:.4f}s")
             return jsonify({
                 'success': False,
                 'valid': False,
                 'message': 'Invalid or expired code'
             }), 401
     except Exception as e:
+        duration = time.time() - start_time
+        print(f"⏱️ Handshake Validation (Error): {duration:.4f}s - {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
@@ -1073,4 +1083,41 @@ def logout_sessions_route():
         return jsonify({
             "success": False,
             "message": "Internal server error"
+        }), 500
+
+
+@auth_bp.route('/send-welcome-email', methods=['POST'])
+def send_welcome_email_route():
+    """
+    Endpoint to trigger the welcome email flow for vendors.
+    
+    Payload:
+    - table_name: Name of the table to process (e.g., 'Vendors').
+    - subject: Subject template with {{Application}} and {{FirstName}} placeholders.
+    - body_html: HTML body template with various {{}} placeholders.
+    """
+    try:
+        data = request.json
+        table_name = data.get('table_name', 'Vendors')
+        subject = data.get('subject')
+        body_html = data.get('body_html')
+        
+        if not subject or not body_html:
+            return jsonify({
+                "success": False,
+                "message": "Subject and body_html are required templates."
+            }), 400
+            
+        result = process_welcome_email_flow(table_name, subject, body_html)
+        
+        if result.get("success"):
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 500
+            
+    except Exception as e:
+        print(f"❌ Error in send_welcome_email_route: {e}")
+        return jsonify({
+            "success": False,
+            "message": str(e)
         }), 500

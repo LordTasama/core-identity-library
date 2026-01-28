@@ -254,6 +254,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     all_apps = identity_service._get_all_apps_cached()
     current_app_meta = next((a for a in all_apps if a.get("App Key") == app_key), {})
     identity_data["app_info"] = {
+        "appKey": app_key,
         "primaryColor": current_app_meta.get("Primary Color"),
         "backgroundColor": current_app_meta.get("Background Color"),
         "appName": current_app_meta.get("App Name")
@@ -841,8 +842,8 @@ def send_manual_confirmation_email(email, auth_row_id=None):
     - Construct and send an email with professional HTML formatting.
     """
     try:
-        # Alphanumeric 6-character code generation
-        token = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        # Token generation: 32-character secure token
+        token = secrets.token_urlsafe(32)
 
         # Save token to database and update last email sent timestamp (local time without microseconds)
         now = datetime.datetime.now().replace(microsecond=0)
@@ -859,9 +860,12 @@ def send_manual_confirmation_email(email, auth_row_id=None):
         )
 
         # Preparar datos del correo
-
-        subject = "[Prism Group] Your Account Verification Code"
+        subject = "[Prism Group] Your Account Verification"
         
+        # Determine the frontend URL (from Config or fallback)
+        frontend_url = getattr(Config, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+        verification_link = f"{frontend_url}/verify-email?token={token}"
+
         # HTML Body
         body_html = f"""\
         <html>
@@ -875,11 +879,25 @@ def send_manual_confirmation_email(email, auth_row_id=None):
             <p>Hello,</p>
 
             <p>
-                To complete your registration in <strong>Core Identity</strong>, please use the following verification code:
+                To complete your registration in <strong>Core Identity</strong>, please click the button below to verify your email address:
             </p>
-            <div style="text-align: center; margin: 40px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 2px dashed #0072ff;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0072ff;">{token}</span>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="{verification_link}" style="background-color: #0072ff; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                    Verify Email Address
+                </a>
             </div>
+
+            <p style="font-size: 14px; color: #777;">
+                If the button above doesn't work, you can also copy and paste the following link into your browser:
+            </p>
+            <p style="font-size: 12px; color: #0072ff; word-break: break-all;">
+                {verification_link}
+            </p>
+            
+            <p style="font-size: 14px; color: #777; margin-top: 30px;">
+                This link will expire in 24 hours. If you didn't create an account, you can ignore this email.
+            </p>
             <p style="font-size: 14px; color: #777;">
                 This code will allow you to verify your email address. If you didn't create an account, you can ignore this email.
             </p>
@@ -1194,8 +1212,8 @@ def send_password_reset_email(email):
             except Exception as e:
                 print(f"⚠️ Error checking rate limit on reset: {e}")
         
-        # Generate a 6-character alphanumeric code for the reset
-        reset_token = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        # Token generation: 32-character secure token for password reset
+        reset_token = secrets.token_urlsafe(32)
 
         # Save token to the database and update Last Email Sent
         current_time_iso = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1211,7 +1229,12 @@ def send_password_reset_email(email):
         )
         
         # Preparar datos del correo
-        subject = "Your Password Reset Code - Core Identity"
+        subject = "Reset Your Password - Core Identity"
+        
+        # Determine the frontend URL
+        frontend_url = getattr(Config, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+
         body_html = f"""\
         <html>
           <body style="font-family: Arial, sans-serif; background-color: #f4f8fb; padding: 40px; color: #333;">
@@ -1219,10 +1242,24 @@ def send_password_reset_email(email):
               <h2 style="color: #0072ff; text-align: center;">Reset Your Password</h2>
               <p>Hello,</p>
               <p>We received a request to reset your password for your <strong>Core Identity</strong> account.</p>
-              <p>Use the following code to reset your password:</p>
-              <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 2px dashed #0072ff;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0072ff;">{reset_token}</span>
+              <p>Please click the button below to set a new password:</p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="{reset_link}" style="background-color: #0072ff; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                    Reset Password
+                </a>
               </div>
+
+              <p style="font-size: 14px; color: #777;">
+                If the button above doesn't work, you can copy and paste the following link into your browser:
+              </p>
+              <p style="font-size: 12px; color: #0072ff; word-break: break-all;">
+                {reset_link}
+              </p>
+
+              <p style="font-size: 0.9rem; color: #777; text-align: center; margin-top: 30px;">
+                This link is valid for 15 minutes. If you didn't request a password reset, you can safely ignore this email.
+              </p>
               <p style="font-size: 0.9rem; color: #777; text-align: center;">
                 This code is valid for 15 minutes. If you didn't request a password reset, you can safely ignore this email.
               </p>
@@ -1349,6 +1386,401 @@ def reset_password_with_token(token, new_password):
         import traceback
         traceback.print_exc()
         return {"status": False, "message": "Internal server error"}
+
+
+def process_welcome_email_flow(table_name, subject_template, body_html_template):
+    """
+    Triggers a batch process to send welcome emails to vendors.
+    
+    Objective:
+    - Query Vendors with 'Send Welcome Email' == True (Limit 50).
+    - Resolve Application Name and Public URL.
+    - Check if Identity and Auth Methods already exist.
+    - Create/Update records in batch for efficiency.
+    - Render and send personalized emails with secure 32-char tokens.
+    - Track the sent timestamp in the Vendors table.
+    """
+    try:
+        # 1. Query Vendors to process
+        # Use sql_query with batch=50 to avoid double LIMIT conflict
+        vendor_query = "SELECT * FROM `Vendors` WHERE `Send Welcome Email` = true"
+        vendors = seatable.sql_query(vendor_query, batch=50, base_data="core_identity")
+        
+        print(f"🔍 Found {len(vendors) if vendors else 0} vendors with 'Send Welcome Email' = true")
+        
+        if not vendors:
+            return {"success": True, "message": "No vendors to process.", "processed_count": 0}
+
+        # Pre-fetch Link IDs to avoid repeated API calls
+        link_id_v_id = seatable.get_column_link_id("Identity", "Vendor ID", base_data="core_identity")
+        link_id_auth_id = seatable.get_column_link_id("Auth Methods", "Identity", base_data="core_identity")
+        link_id_id_auth = seatable.get_column_link_id("Identity", "Auth Method", base_data="core_identity")
+
+        # 2. Resolve App Name and Public URL info
+        # We'll use this for rendering the emails later
+        all_apps = seatable.sql_query("SELECT * FROM `Applications`", base_data="core_identity")
+        apps_map = {app.get("App Name"): app.get("Public URL") for app in all_apps if app.get("App Name")}
+        
+        # 3. Process each vendor (existence checks and classification)
+        emails = [v.get("Email") for v in vendors if v.get("Email")]
+        if not emails:
+            return {"success": False, "message": "No valid emails found in vendors."}
+            
+        emails_str = "', '".join([e.replace("'", "''") for e in emails])
+        
+        # Check existing Auth Methods
+        existing_auths = seatable.sql_query(
+            f"SELECT * FROM `Auth Methods` WHERE `Email` IN ('{emails_str}') AND `Auth Provider` = 'Email'", 
+            base_data="core_identity"
+        )
+        auth_map = {row.get("Email"): row for row in existing_auths}
+        
+        # Link Identities from Auth Methods
+        id_row_ids = []
+        for auth in existing_auths:
+            links = auth.get("Identity", [])
+            for l in links:
+                if isinstance(l, dict):
+                    id_row_ids.append(l.get("row_id"))
+                elif isinstance(l, str):
+                    id_row_ids.append(l)
+
+        # Check existing Identities by _id (found through auth) OR by Vendor ID
+        id_map = {}
+        if id_row_ids:
+            ids_str_clause = "', '".join(id_row_ids)
+            identities_by_id = seatable.sql_query(
+                f"SELECT * FROM `Identity` WHERE `_id` IN ('{ids_str_clause}')",
+                base_data="core_identity"
+            )
+            # We need to map them back to email through the auth_map
+            for identity in identities_by_id:
+                # Find which Auth Method links to this identity
+                for email, auth in auth_map.items():
+                    links = auth.get("Identity", [])
+                    if any((isinstance(l, dict) and l.get("row_id") == identity.get("_id")) or l == identity.get("_id") for l in links):
+                        id_map[email] = identity
+                        break
+
+        # If processing Vendors (as indicated by the request table_name), 
+        # also check by Vendor ID for identities that might not have Auth Methods yet.
+        # Note: vendors always from 'Vendors' table, but table_name tells us the context.
+        if table_name == "Vendors":
+            vendor_ids = [v.get("ID") for v in vendors if v.get("ID")]
+            if vendor_ids:
+                vids_str = "', '".join([str(vid) for vid in vendor_ids])
+                identities_by_vid = seatable.sql_query(
+                    f"SELECT * FROM `Identity` WHERE `Vendor ID` IN ('{vids_str}')",
+                    base_data="core_identity"
+                )
+                for identity in identities_by_vid:
+                    v_id = str(identity.get("Vendor ID"))
+                    # Find which vendor has this ID and map its email
+                    for v in vendors:
+                        if str(v.get("ID")) == v_id:
+                            email = v.get("Email")
+                            if email not in id_map: # Don't overwrite if already found through auth
+                                id_map[email] = identity
+                            break
+
+        # Prepare batch data
+        batch_vendor_cleanup = []
+        batch_id_append = []
+        # We'll use a map for updates to avoid duplicate row_id in batch
+        id_updates_map = {} 
+        batch_auth_append = []
+        batch_auth_update = []
+        
+        # Index to keep track of vendors
+        processed_vendors = []
+        
+        now_iso = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        for vendor in vendors:
+            email = vendor.get("Email")
+            if not email: continue
+            
+            v_id = vendor.get("_id") # Use internal row_id for linking
+            v_business_id = vendor.get("ID") # Keep business ID if needed for logic
+            v_first_name = vendor.get("First Name") or vendor.get("FirstName") or ""
+            v_last_name = vendor.get("Last Name") or vendor.get("LastName") or ""
+            
+            # For template rendering, if first name is empty, use 'there'
+            v_display_name = v_first_name if v_first_name else "there"
+            
+            # Resolve Dynamic Application Name
+            # Priority: 
+            # 1. Welcome Application column in the vendor record (Check first)
+            # 2. Vendor Portal (if trigger table is 'Vendors')
+            # 3. Core Identity (global fallback)
+            app_name = None
+            
+            welcome_app_links = vendor.get("Welcome Application", [])
+            if welcome_app_links and isinstance(welcome_app_links, list) and len(welcome_app_links) > 0:
+                app_name = welcome_app_links[0].get("display_value")
+            
+            # If still empty and trigger is Vendors, use Vendor Portal
+            if not app_name and table_name == "Vendors":
+                app_name = "Vendor Portal"
+            
+            # Final fallback
+            if not app_name:
+                app_name = "Core Identity"
+            
+            # Resolve URL strictly from Applications table
+            public_url = apps_map.get(app_name)
+            if not public_url:
+                print(f"⚠️ Warning: No Public URL found for application '{app_name}' in SeaTable.")
+                public_url = "" # Empty if not found
+            
+            # Generate long secure token
+            token = secrets.token_urlsafe(32)
+            
+            id_row = id_map.get(email)
+            auth_row = auth_map.get(email)
+            
+            vendor_processed_data = {
+                "vendor_row_id": vendor.get("_id"),
+                "email": email,
+                "first_name": v_display_name,
+                "token": token,
+                "app_name": app_name,
+                "public_url": public_url
+            }
+            
+            # Case Analysis (Matches Mermaid Diagram)
+            if not id_row and not auth_row:
+                # Case A: Create Both
+                id_data = {
+                    "Email": email, 
+                    "Status": "Active",
+                    "First Name": v_first_name,
+                    "Last Name": v_last_name
+                }
+                batch_id_append.append(id_data)
+                
+                # Auth payload (link moved to add_link phase)
+                batch_auth_append.append({
+                    "Email": email, 
+                    "Auth Provider": "Email", 
+                    "Verified": True, 
+                    "Token": token,
+                    "First Name": v_first_name,
+                    "Last Name": v_last_name,
+                    "Last Email Sent": now_iso
+                })
+                vendor_processed_data["action"] = "create_both"
+            
+            elif id_row and not auth_row:
+                # Case B: Create Auth + Link
+                id_row_id = id_row.get("_id")
+                auth_data = {
+                    "Email": email, 
+                    "Auth Provider": "Email", 
+                    "Verified": True, 
+                    "Token": token,
+                    "First Name": v_first_name,
+                    "Last Name": v_last_name,
+                    "Last Email Sent": now_iso
+                }
+                batch_auth_append.append(auth_data)
+                
+                # Prepare Identity update (Names only)
+                id_upd = {}
+                if not id_row.get("First Name") and v_first_name:
+                    id_upd["First Name"] = v_first_name
+                if not id_row.get("Last Name") and v_last_name:
+                    id_upd["Last Name"] = v_last_name
+                
+                if id_upd:
+                    id_updates_map[id_row_id] = id_upd
+
+                vendor_processed_data["identity_row_id"] = id_row_id
+                vendor_processed_data["action"] = "create_auth"
+            
+            elif not id_row and auth_row:
+                # Case C: Create Identity + Link back
+                auth_row_id = auth_row.get("_id")
+                id_data = {
+                    "Email": email, 
+                    "Status": "Active",
+                    "First Name": v_first_name,
+                    "Last Name": v_last_name
+                }
+                batch_id_append.append(id_data)
+                
+                # Auth update
+                batch_auth_update.append({
+                    "row_id": auth_row_id, 
+                    "row": {
+                        "Token": token, 
+                        "Verified": True, 
+                        "Last Email Sent": now_iso,
+                        "First Name": v_first_name,
+                        "Last Name": v_last_name
+                    }
+                })
+                vendor_processed_data["auth_row_id"] = auth_row_id
+                vendor_processed_data["action"] = "create_identity"
+                
+            else:
+                # Case D: Both exist, ensure names
+                id_row_id = id_row.get("_id")
+                auth_row_id = auth_row.get("_id")
+                
+                auth_upd_data = {
+                    "Token": token, 
+                    "Verified": True, 
+                    "Last Email Sent": now_iso,
+                    "First Name": v_first_name,
+                    "Last Name": v_last_name
+                }
+                batch_auth_update.append({"row_id": auth_row_id, "row": auth_upd_data})
+                
+                id_upd = id_updates_map.get(id_row_id, {})
+                if not id_row.get("First Name") and v_first_name:
+                    id_upd["First Name"] = v_first_name
+                if not id_row.get("Last Name") and v_last_name:
+                    id_upd["Last Name"] = v_last_name
+                
+                if id_upd:
+                    id_updates_map[id_row_id] = id_upd
+                
+                vendor_processed_data["identity_row_id"] = id_row_id
+                vendor_processed_data["auth_row_id"] = auth_row_id
+                vendor_processed_data["action"] = "update_existing"
+
+            processed_vendors.append(vendor_processed_data)
+
+        # 4. Execute Batch Operations
+        # Step 4.1: Batch Create Identities
+        if batch_id_append:
+            logger.info(f"📤 Appending {len(batch_id_append)} Identities: {batch_id_append}")
+            res_id_append = seatable.perform_table_operation("Identity", row_data=batch_id_append, type_batch="batch_append_rows", base_data="core_identity")
+            if res_id_append and isinstance(res_id_append, dict) and "row_ids" in res_id_append:
+                row_ids = res_id_append["row_ids"]
+                # Map created row_ids back to vendors
+                for idx, row in enumerate(row_ids):
+                    new_rid = row.get("_id")
+                    v_email = batch_id_append[idx].get("Email")
+                    logger.debug(f"📍 Mapped new Identity ID {new_rid} to email {v_email}")
+                    for pv in processed_vendors:
+                        if pv.get("email") == v_email:
+                            pv["identity_row_id"] = new_rid
+                            break
+        
+        if batch_auth_append:
+            logger.info(f"📤 Appending {len(batch_auth_append)} Auth Methods: {batch_auth_append}")
+            res_auth_append = seatable.perform_table_operation("Auth Methods", row_data=batch_auth_append, type_batch="batch_append_rows", base_data="core_identity")
+            # Map created row_ids back
+            if isinstance(res_auth_append, dict) and "row_ids" in res_auth_append:
+                row_ids = res_auth_append["row_ids"]
+                for idx, row in enumerate(row_ids):
+                    a_rid = row.get("_id")
+                    a_email = batch_auth_append[idx].get("Email")
+                    logger.debug(f"📍 Mapped new Auth ID {a_rid} to email {a_email}")
+                    for pv in processed_vendors:
+                        if pv.get("email") == a_email:
+                            pv["auth_row_id"] = a_rid
+                            break
+            
+        if batch_auth_update:
+            logger.info(f"📤 Updating {len(batch_auth_update)} Auth Methods: {batch_auth_update}")
+            seatable.perform_table_operation("Auth Methods", row_data=batch_auth_update, type_batch="batch_update_rows", base_data="core_identity")
+            
+        # Finalize Identity updates from map
+        batch_id_update = [{"row_id": k, "row": v} for k, v in id_updates_map.items()]
+        if batch_id_update:
+            logger.info(f"📤 Updating {len(batch_id_update)} Identities: {batch_id_update}")
+            seatable.perform_table_operation("Identity", row_data=batch_id_update, type_batch="batch_update_rows", base_data="core_identity")
+
+        # Step 4.3: Bidirectional Linking via add_link
+        logger.info("🔗 Starting post-batch linking phase...")
+        for pv in processed_vendors:
+            brid_i = pv.get("identity_row_id")
+            brid_a = pv.get("auth_row_id")
+            brid_v = pv.get("vendor_row_id")
+            email = pv.get("email")
+            
+            logger.info(f"Processing links for {email}: Identity={brid_i}, Auth={brid_a}, Vendor={brid_v}")
+            print(f"------------------------Processing links for {email}: Identity={brid_i}, Auth={brid_a}, Vendor={brid_v}, table_name={table_name}")
+            # 1. Link Identity <-> Vendor
+            if brid_i and brid_v and table_name == "Vendors":
+                logger.info(f"Linking Identity {brid_i} to Vendor {brid_v}...")
+                seatable.perform_link_operation(link_id_v_id, brid_i, brid_v, "Identity", "Vendors", base_data="core_identity")
+            
+            # 2. Link Identity <-> Auth Method (Bidirectional)
+            # Both columns must be linked if they are NOT the same relationship
+            if brid_i and brid_a:
+                logger.info(f"Linking Identity {brid_i} to Auth Method {brid_a}...")
+                seatable.perform_link_operation(link_id_id_auth, brid_i, brid_a, "Identity", "Auth Methods", base_data="core_identity")
+                
+                logger.info(f"Linking Auth Method {brid_a} back to Identity {brid_i}...")
+                seatable.perform_link_operation(link_id_auth_id, brid_a, brid_i, "Auth Methods", "Identity", base_data="core_identity")
+
+        # 5. Send Emails and Update Vendors
+        sent_count = 0
+        batch_vendor_cleanup = []
+        
+        notifications_email = getattr(Config, 'MAIL_FROM', 'notifications@prismgrp.com')
+        
+        for pv in processed_vendors:
+            try:
+                # Template Rendering
+                rendered_subject = subject_template.replace("{{Application}}", pv["app_name"])
+                rendered_subject = rendered_subject.replace("{{FirstName}}", pv["first_name"])
+                
+                rendered_body = body_html_template.replace("{{Application}}", pv["app_name"])
+                rendered_body = rendered_body.replace("{{FirstName}}", pv["first_name"])
+                rendered_body = rendered_body.replace("{{Email}}", pv["email"])
+                rendered_body = rendered_body.replace("{{Token}}", pv["token"])
+                rendered_body = rendered_body.replace("{{Public URL}}", pv["public_url"])
+                rendered_body = rendered_body.replace("{{Notifications Email}}", notifications_email)
+                
+                # Send Email
+                email_success = send_email(pv["email"], rendered_subject, rendered_body)
+                
+                if email_success:
+                    logger.info(f"✅ Welcome email sent successfully to {pv['email']}")
+                    sent_count += 1
+                    # Prepare for vendor update
+                    cleanup_data = {
+                        "row_id": pv["vendor_row_id"],
+                        "row": {
+                            "Send Welcome Email": False,
+                            "Welcome Email Sent": now_iso
+                        }
+                    }
+                    batch_vendor_cleanup.append(cleanup_data)
+                else:
+                    logger.warning(f"❌ Failed to send welcome email to {pv['email']}. Record will NOT be updated in Vendors.")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error sending welcome email to {pv['email']}: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
+
+        # 6. Bulk update Vendors table
+        if batch_vendor_cleanup:
+            logger.info(f"🧹 Clearing 'Send Welcome Email' flag for {len(batch_vendor_cleanup)} vendors: {batch_vendor_cleanup}")
+            # We always update the 'Vendors' table as confirmed by the user
+            res_cleanup = seatable.perform_table_operation("Vendors", row_data=batch_vendor_cleanup, type_batch="batch_update_rows", base_data="core_identity")
+            logger.info(f"✅ Cleanup result: {res_cleanup}")
+        else:
+            logger.warning("⚠️ No vendors were marked for cleanup (maybe emails failed to send?)")
+
+        return {
+            "success": True, 
+            "message": f"Welcome email process completed. Sent {sent_count} emails.", 
+            "processed_count": len(vendors),
+            "sent_count": sent_count
+        }
+
+    except Exception as e:
+        print(f"❌ Error in process_welcome_email_flow: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "message": str(e)}
 
 # ============================================================================
 # OAUTH FUNCTIONS

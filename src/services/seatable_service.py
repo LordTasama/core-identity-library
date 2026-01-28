@@ -221,23 +221,28 @@ class Seatable:
             method_map = {
                 "append_row": base.append_row,
                 "update_row": base.update_row,
-                "delete_row": base.batch_update_rows,
+                "delete_row": base.delete_row,
+                "batch_append_rows": base.batch_append_rows,
+                "batch_update_rows": base.batch_update_rows,
             }
 
             method = method_map.get(type_batch)
             if not method:
-                raise ValueError(f"Tipo de batch '{type_batch}' no es vÃ¡lido.")
+                raise ValueError(f"Tipo de batch '{type_batch}' no es válido.")
             row = ""
 
             if type_batch == "append_row":
                 row = method(table_name, row_data, apply_default=True)
-                print("ðŸŸ© Registro subido")
+                print("🟩 Registro subido")
             elif type_batch == "update_row":
                 row = method(table_name, row_id, row_data)
-                print("ðŸŸ© Registro actualizado")
+                print("🟩 Registro actualizado")
             elif type_batch == "delete_row":
                 row = method(table_name, row_id)
-                print("ðŸŸ© Registro eliminado")
+                print("🟩 Registro eliminado")
+            elif type_batch in ["batch_append_rows", "batch_update_rows"]:
+                row = method(table_name, row_data)
+                print(f"🟩 Lote {type_batch} completado")
             return row
 
         max_retries = 3

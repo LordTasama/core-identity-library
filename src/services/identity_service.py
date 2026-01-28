@@ -35,7 +35,7 @@ class IdentityService:
         self.seatable = seatable
         # Cache for permissions: { (identity_id, app_key): (timestamp, data) }
         self._permissions_cache = {}
-        self._cache_ttl = 900       # 15 minutes (permissions/roles)
+        self._cache_ttl = 3600       # 15 minutes (permissions/roles)
         self._apps_cache_ttl = 86400 # 24 hours (application metadata)
         self._apps_cache = None
         self._apps_cache_time = 0
@@ -125,8 +125,8 @@ class IdentityService:
             return app_key
         
         # Historical fallback for local development (requested by the user)
-        if current_url and ("localhost" in current_url or "127.0.0.1" in current_url):
-            override_url = "https://eprcrm.prismgrp.com"
+        if current_url and ("localhost" in current_url or "127.0.0.1" in current_url or "ngrok" in current_url):
+            override_url = "https://insights.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
