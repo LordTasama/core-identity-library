@@ -80,7 +80,7 @@ class IdentityService:
             source = "backend_host"
             
             # 1. Maximum Priority: X-REQUEST-URL header (Sent by the Frontend)
-            x_request_url = request.headers.get('X-REQUEST-URL')
+            x_request_url = request.headers.get('X-REQUEST-URL') or request.headers.get('X-Request-Url')
             if x_request_url:
                 current_url = x_request_url.rstrip('/')
                 source = "x_request_url_header"
@@ -126,7 +126,7 @@ class IdentityService:
         
         # Historical fallback for local development (requested by the user)
         if current_url and ("localhost" in current_url or "127.0.0.1" in current_url or "ngrok" in current_url):
-            override_url = "https://insights.prismgrp.com"
+            override_url = "https://eprcrm.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
