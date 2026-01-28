@@ -70,7 +70,6 @@ class IdentityService:
             
         return apps
 
-    @lru_cache(maxsize=32)
     def get_app_key_by_url(self, current_url=None):
         """
         Searches the Applications table for the application that matches the provided URL.
@@ -81,9 +80,15 @@ class IdentityService:
             
             # 1. Maximum Priority: X-REQUEST-URL header (Sent by the Frontend)
             x_request_url = request.headers.get('X-REQUEST-URL') or request.headers.get('X-Request-Url')
+            
+            # DEBUG: Log what we're receiving
+            logger.info(f"📋 DEBUG - All request headers: {dict(request.headers)}")
+            logger.info(f"🔍 DEBUG - X-REQUEST-URL value: '{x_request_url}'")
+            
             if x_request_url:
                 current_url = x_request_url.rstrip('/')
                 source = "x_request_url_header"
+                logger.info(f"✅ DEBUG - Using X-REQUEST-URL: '{current_url}'")
             
             # 2. Attempt to get URL from the request body or parameters (POST/GET)
             if not current_url:
@@ -113,19 +118,29 @@ class IdentityService:
                     current_url = request.host_url.rstrip('/')
                     source = "backend_host"
             
-            logger.info(f"🔍 APPLICATION DETECTION - Source: {source}, URL: {current_url}")
+            logger.info(f"🔍 URL DETECTION - Source: {source}, URL: '{current_url}'")
         
         # Use application cache instead of querying every time
         apps = self._get_all_apps_cached()
         
+        # DEBUG: Show registered apps
+        app_list = [(app.get('App Key'), app.get('Public URL')) for app in apps]
+        logger.info(f"📱 DEBUG - Registered apps: {app_list}")
+        
         app_key = find_best_app_match(current_url, apps)
         
         if app_key:
-            logger.info(f"✅ APP DETECTED: {app_key}")
+            logger.info(f"✅ APP DETECTED: {app_key} for URL '{current_url}' (Source: {source})")
             return app_key
         
+        # DEBUG: Log why match failed
+        logger.warning(f"⚠️ DEBUG - NO MATCH FOUND for URL: '{current_url}'")
+        
         # Historical fallback for local development (requested by the user)
-        if current_url and ("localhost" in current_url or "127.0.0.1" in current_url or "ngrok" in current_url):
+        is_local = current_url and ("localhost" in current_url or "127.0.0.1" in current_url or "ngrok" in current_url)
+        logger.info(f"🔍 DEBUG - Is local URL? {is_local} (URL: '{current_url}')")
+        
+        if is_local:
             override_url = "https://eprcrm.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
