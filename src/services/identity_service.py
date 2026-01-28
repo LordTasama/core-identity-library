@@ -1,5 +1,5 @@
 """
-Identity Service and Permission Management (RBAC Service).
+Identity Service and Permission Management (RBAC Service)
 
 This module manages application resolution based on URLs, app metadata retrieval,
 and primarily the calculation of permissions and data access modes (Data Modes)
@@ -75,6 +75,7 @@ class IdentityService:
         Searches the Applications table for the application that matches the provided URL.
         Uses prefix match and looks for the most specific one (longest).
         """
+        source = "argument"
         if not current_url:
             source = "backend_host"
             
