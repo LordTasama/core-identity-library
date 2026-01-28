@@ -195,10 +195,6 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     auth_method_custom_id = row_auth.get("ID")
     profile_image_url = row_auth.get("Profile Image URL")
 
-    # 1. Detectar App Key (Usando el nuevo X-REQUEST-URL si existe)
-    from src.services.identity_service import identity_service
-    app_key = identity_service.get_app_key_by_url()
-
     # 2. Verificar Permisos Básicos antes de seguir (Interceptación Temprana)
     auth_data = {"permissions": [], "data_mode": "deny"}
     if app_key:

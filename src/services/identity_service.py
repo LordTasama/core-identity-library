@@ -198,6 +198,9 @@ class IdentityService:
         # 3. Roles through Assignments (Using links from Identity row to avoid ambiguous JOINS)
         assignment_links = identity_row.get("Assignments", [])
         raw_assignments = []
+        
+        print(f"🔍 DEBUG get_identity_permissions - Identity: {identity_id}, Assignments links: {assignment_links}")
+        
         if assignment_links:
             # Extract row_ids
             assig_ids = []
@@ -205,19 +208,36 @@ class IdentityService:
                 if isinstance(al, dict):
                     aid = al.get("row_id")
                     if aid: assig_ids.append(aid)
-                elif isinstance(al, str):
-                    assig_ids.append(al)
+                elif isinstance(al, (str, bytes)):
+                    # En SeaTable SQL, a veces vienen como strings (el nombre o el ID)
+                    assig_ids.append(str(al))
+            
+            print(f"🔍 DEBUG get_identity_permissions - Extracted assignment IDs: {assig_ids}")
             
             if assig_ids:
                 ids_str = "', '".join(assig_ids)
-                query_assig = f"SELECT `Data` AS `AssigData`, `Role`, `_id` AS `assig_row_id` FROM `Assignments` WHERE `_id` IN ('{ids_str}') AND `Status` = 'Active'"
+                query_assig = f"SELECT `Data` AS `AssigData`, `Role`, `_id` AS `assig_row_id`, `App Key` FROM `Assignments` WHERE `_id` IN ('{ids_str}') AND `Status` = 'Active'"
                 
-                if app_key:
-                    # Filter by App Key (Lookup in Assignments)
-                    query_assig += f" AND `App Key` LIKE '%{app_key}%'"
+                # REGLA: Si no hay app_key, no podemos filtrar, pero el caller ya validó app_key
+                print(f"🔍 DEBUG get_identity_permissions - Filter App: '{app_key}'")
                 
-                logger.debug(f"Querying assignments by IDs: {query_assig}")
                 raw_assignments = self.seatable.sql_query(query_assig, base_data="core_identity")
+                print(f"🔍 DEBUG get_identity_permissions - Raw Assignments from DB (before local filter): {len(raw_assignments) if raw_assignments else 0}")
+                
+                # Filtrado local robusto en lugar de LIKE en SQL (más seguro para Links/Listas)
+                if app_key and raw_assignments:
+                    filtered = []
+                    for rs in raw_assignments:
+                        app_val = rs.get("App Key")
+                        # Puede ser string o lista
+                        if isinstance(app_val, list):
+                            if any(app_key in str(v) for v in app_val):
+                                filtered.append(rs)
+                        elif app_val and app_key in str(app_val):
+                            filtered.append(rs)
+                    
+                    print(f"🔍 DEBUG get_identity_permissions - Assignments after local filter for '{app_key}': {len(filtered)}")
+                    raw_assignments = filtered
         
         logger.debug(f"Assignments found for permissions: {len(raw_assignments)}")
         
@@ -422,6 +442,10 @@ class IdentityService:
                 aid = link.get("row_id") or link.get("_id")
                 if aid:
                     assignment_ids.append(aid)
+            elif isinstance(link, (str, bytes)):
+                assignment_ids.append(str(link))
+        
+        print(f"🔍 DEBUG get_identity_with_assignments - Extracted assignment IDs: {assignment_ids}")
         
         if not assignment_ids:
             identity["Assignments"] = []
