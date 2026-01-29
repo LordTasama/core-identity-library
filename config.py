@@ -18,6 +18,7 @@ load_dotenv()
 class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv('SESSION_SECRET', 'dev-secret-key')
+    CI_HANDSHAKE_SECRET_KEY = os.getenv('CI_HANDSHAKE_SECRET_KEY', 'dev-secret-key')
     ENVIRONMENT = os.getenv('ENVIRONMENT', 'DEVELOPMENT')
     API_KEY = os.getenv('API_KEY')  # Token para autorización X-API-KEY
     
@@ -29,6 +30,7 @@ class Config:
     PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_DOMAIN = '.prismgrp.com'  # Permite SSO entre subdominios
     
     # Google OAuth configuration
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')

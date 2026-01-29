@@ -21,6 +21,10 @@ from src.utils.url_util import find_best_app_match
 from src.utils.logger import logger
 from src.utils.i18n import t
 
+# Global cache for team hierarchies (email + app_key)
+_TEAM_HIERARCHY_CACHE = {}  # { (email, app_key): (timestamp, data) }
+_TEAM_HIERARCHY_TTL = 1800  # 30 minutes
+
 class IdentityService:
     """
     Centralized service for identity management and authorization.
@@ -35,10 +39,16 @@ class IdentityService:
         self.seatable = seatable
         # Cache for permissions: { (identity_id, app_key): (timestamp, data) }
         self._permissions_cache = {}
-        self._cache_ttl = 3600       # 15 minutes (permissions/roles)
+        self._cache_ttl = 3600       # 1 hour (permissions/roles)
         self._apps_cache_ttl = 86400 # 24 hours (application metadata)
         self._apps_cache = None
         self._apps_cache_time = 0
+        # Cache for all roles and permissions (shared across all users)
+        self._all_roles_cache = None
+        self._all_roles_cache_time = 0
+        self._all_permissions_cache = None
+        self._all_permissions_cache_time = 0
+        self._roles_permissions_ttl = 3600  # 1 hour
 
     def _get_all_apps_cached(self):
         """
@@ -69,6 +79,99 @@ class IdentityService:
             self._apps_cache_time = now
             
         return apps
+
+    def _get_team_hierarchy_cached(self, user_email, app_key="default"):
+        """
+        Retrieves the team hierarchy for a user with 30-minute cache support.
+        
+        Objective:
+        - Minimize repeated database calls for team member calculations.
+        - Cache the hierarchy per email + app_key combination.
+        - Automatically invalidate after 30 minutes to reflect org changes.
+        """
+        global _TEAM_HIERARCHY_CACHE
+        
+        now = time.time()
+        cache_key = (user_email, app_key)
+        
+        # Check cache
+        if cache_key in _TEAM_HIERARCHY_CACHE:
+            timestamp, cached_data = _TEAM_HIERARCHY_CACHE[cache_key]
+            if now - timestamp < _TEAM_HIERARCHY_TTL:
+                logger.info(f"🚀 HIERARCHY CACHE HIT for {user_email} [{app_key}]")
+                return cached_data
+        
+        logger.info(f"LOADING team hierarchy for {user_email} (cache miss)")
+        # Fetch all collaborators for hierarchy calculation
+        all_collabs = self.seatable.sql_query(
+            "SELECT `Email address`, `Manager Email` FROM `Collaborators` WHERE `Email address` IS NOT NULL", 
+            base_data="core_identity"
+        )
+        
+        # Calculate hierarchy
+        hierarchy = calculate_team_hierarchy(user_email, all_collabs)
+        
+        # Store in cache
+        _TEAM_HIERARCHY_CACHE[cache_key] = (now, hierarchy)
+        logger.debug(f"HIERARCHY CACHED for {user_email}: {len(hierarchy.get('members', []))} members")
+        
+        return hierarchy
+
+    def _get_all_roles_cached(self):
+        """
+        Retrieves all Roles with 1-hour cache.
+        
+        Objective:
+        - Avoid repeated queries for role definitions.
+        - Share cache across all identity calculations.
+        """
+        now = time.time()
+        
+        # Check cache
+        if self._all_roles_cache and (now - self._all_roles_cache_time < self._roles_permissions_ttl):
+            logger.debug("🚀 ROLES CACHE HIT")
+            return self._all_roles_cache
+        
+        logger.info("LOADING all Roles from database (cache miss)")
+        roles_data = self.seatable.sql_query(
+            "SELECT `_id`, `Role ID`, `Role Name`, `Data`, `App Key` FROM `Roles`",
+            base_data="core_identity"
+        )
+        
+        self._all_roles_cache = roles_data if roles_data else []
+        self._all_roles_cache_time = now
+        logger.debug(f"ROLES CACHED: {len(self._all_roles_cache)} roles")
+        
+        return self._all_roles_cache
+
+    def _get_all_permissions_cached(self):
+        """
+        Retrieves all Permissions with 1-hour cache.
+        
+        Objective:
+        - Avoid repeated queries for permission definitions.
+        - Share cache across all identity calculations.
+        """
+        now = time.time()
+        
+        # Check cache
+        if self._all_permissions_cache and (now - self._all_permissions_cache_time < self._roles_permissions_ttl):
+            logger.debug("🚀 PERMISSIONS CACHE HIT")
+            return self._all_permissions_cache
+        
+        logger.info("LOADING all Permissions from database (cache miss)")
+        perms_data = self.seatable.sql_query(
+            "SELECT `Permission ID`, `Action Key`, `Roles`, `Status` FROM `Permissions` WHERE `Status` = 'Active'",
+            base_data="core_identity"
+        )
+        
+        self._all_permissions_cache = perms_data if perms_data else []
+        self._all_permissions_cache_time = now
+        logger.debug(f"PERMISSIONS CACHED: {len(self._all_permissions_cache)} permissions")
+        
+        return self._all_permissions_cache
+
+
 
     def get_app_key_by_url(self, current_url=None):
         """
@@ -142,7 +245,7 @@ class IdentityService:
         logger.info(f"🔍 DEBUG - Is local URL? {is_local} (URL: '{current_url}')")
         
         if is_local:
-            override_url = "https://eprcrm.prismgrp.com"
+            override_url = "https://insights.prismgrp.com"
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
@@ -269,63 +372,59 @@ class IdentityService:
             for r_str in direct_role_list:
                 if r_str: role_strings_to_fetch.add(r_str)
 
-        # D) Validate ALL roles against App Key in a single query
-        where_clauses = []
-        if role_row_ids_to_fetch:
-            ids_str = "', '".join(role_row_ids_to_fetch)
-            where_clauses.append(f"`_id` IN ('{ids_str}')")
-        if role_strings_to_fetch:
-            strs_str = "', '".join(role_strings_to_fetch)
-            where_clauses.append(f"`Role ID` IN ('{strs_str}')")
+        # ✅ OPTIMIZATION: Use cached Roles instead of querying every time
+        print(f"🔍 DEBUG get_identity_permissions - Fetching roles from cache instead of DB")
+        all_roles = self._get_all_roles_cached()
+        
+        # Filter roles locally: only keep those matching our row_ids or role_id strings AND the app_key
+        active_role_ids_set = set()
+        for role in all_roles:
+            role_id = role.get("_id")
+            role_id_string = role.get("Role ID")
+            role_app = role.get("App Key")
+            
+            # Check if this role is in our needed list
+            is_needed = (role_id in role_row_ids_to_fetch) or (role_id_string in role_strings_to_fetch)
+            
+            # Check if this role matches the app_key
+            is_match = False
+            if isinstance(role_app, list):
+                is_match = app_key in role_app
+            else:
+                is_match = app_key in str(role_app)
+            
+            if is_needed and is_match:
+                r_name = role.get("Role Name")
+                if role_id_string: active_role_ids_set.add(role_id_string)
+                
+                mode = self._extract_data_mode(role.get("Data"))
+                if mode:
+                    modes_to_add = [mode] if not isinstance(mode, list) else mode
+                    for m in modes_to_add:
+                        data_modes.add(m)
+                        # Trace which role contributes this mode
+                        if m not in data_mode_sources:
+                            data_mode_sources[m] = []
+                        data_mode_sources[m].append({
+                            "Role ID": role_id_string,
+                            "Role Name": r_name
+                        })
 
-        if where_clauses:
-            combined_where = " OR ".join(where_clauses)
-            roles_data = self.seatable.sql_query(
-                f"SELECT `_id`, `Role ID`, `Role Name`, `Data`, `App Key` FROM `Roles` WHERE ({combined_where})",
-                base_data="core_identity"
-            )
-            for role in roles_data:
-                role_app = role.get("App Key")
-                is_match = False
-                if isinstance(role_app, list):
-                    is_match = app_key in role_app
-                else:
-                    is_match = app_key in str(role_app)
-
-                if is_match:
-                    r_id_string = role.get("Role ID")
-                    r_name = role.get("Role Name")
-                    if r_id_string: active_role_ids.add(r_id_string)
-                    
-                    mode = self._extract_data_mode(role.get("Data"))
-                    if mode:
-                        modes_to_add = [mode] if not isinstance(mode, list) else mode
-                        for m in modes_to_add:
-                            data_modes.add(m)
-                            # Trace which role contributes this mode
-                            if m not in data_mode_sources:
-                                data_mode_sources[m] = []
-                            data_mode_sources[m].append({
-                                "Role ID": r_id_string,
-                                "Role Name": r_name
-                            })
-
-        if not active_role_ids:
+        if not active_role_ids_set:
             res = {"permissions": [], "data_mode": "deny"}
             self._permissions_cache[cache_key] = (now, res)
             return res
 
-        # 5. Get permissions from Permission table (Single Flat List)
-        # Filter permissions linked to our Role IDs
-        perms_data = self.seatable.sql_query(
-            "SELECT `Permission ID`, `Action Key`, `Roles` FROM `Permissions` WHERE `Status` = 'Active'",
-            base_data="core_identity"
-        )
+        active_role_ids = active_role_ids_set
+
+        # ✅ OPTIMIZATION: Use cached Permissions instead of querying every time
+        print(f"🔍 DEBUG get_identity_permissions - Fetching permissions from cache instead of DB")
+        all_permissions = self._get_all_permissions_cached()
         
         permissions_list = []
         seen_perm_ids = set()
 
-        for p in perms_data:
+        for p in all_permissions:
             p_roles = p.get("Roles", []) # List of links towards Roles (uses display_value which is Role ID)
             # Check if this permission belongs to any of the user's active roles
             has_role = any(pr.get("display_value") in active_role_ids for pr in p_roles)
@@ -366,12 +465,7 @@ class IdentityService:
         logger.debug(f"[get_identity_permissions] final_data_mode: {final_data_mode}, user_email: {user_email}, is_crm: {is_crm_app}")
         if final_data_mode == "team" and user_email and is_crm_app:
             logger.info(f"CALCULATING team hierarchy for permissions: {user_email}")
-            all_collabs = self.seatable.sql_query(
-                "SELECT `Email address`, `Manager Email` FROM `Collaborators` WHERE `Email address` IS NOT NULL", 
-                base_data="core_identity"
-            )
-            logger.debug(f"Found {len(all_collabs)} collaborators total")
-            hierarchy = calculate_team_hierarchy(user_email, all_collabs)
+            hierarchy = self._get_team_hierarchy_cached(user_email, app_key or "default")
             result["data_mode_info"]["members"] = hierarchy.get("members", [])
             result["data_mode_info"]["managerEmail"] = hierarchy.get("managerEmail")
             logger.debug(f"Hierarchy calculated: {len(result['data_mode_info']['members'])} members found")
@@ -504,19 +598,19 @@ class IdentityService:
                         if rid:
                             all_role_row_ids.add(rid)
         
-        # Get the names of all roles in a single query
+        # Get the names of all roles using cache instead of querying every time
+        print(f"🔍 DEBUG get_identity_with_assignments - Fetching roles from cache")
+        all_roles = self._get_all_roles_cached()
+        
+        # Build a map of role_id -> {Role ID, Role Name}
         role_names_map = {}  # {row_id: {"Role ID": "...", "Role Name": "..."}}
         if all_role_row_ids:
-            ids_str = "', '".join(all_role_row_ids)
-            roles_data = self.seatable.sql_query(
-                f"SELECT `_id`, `Role ID`, `Role Name` FROM `Roles` WHERE `_id` IN ('{ids_str}')",
-                base_data="core_identity"
-            )
-            for role in roles_data:
-                role_names_map[role.get("_id")] = {
-                    "Role ID": role.get("Role ID"),
-                    "Role Name": role.get("Role Name")
-                }
+            for role in all_roles:
+                if role.get("_id") in all_role_row_ids:
+                    role_names_map[role.get("_id")] = {
+                        "Role ID": role.get("Role ID"),
+                        "Role Name": role.get("Role Name")
+                    }
         
         for assig in assignments:
             # a) Unwrap Lookups/Links for display (Data only, no longer App Key)
@@ -616,14 +710,9 @@ class IdentityService:
             
             logger.debug(f"[get_identity_with_assignments] is_team: {is_team}, user_email: {user_email}, is_crm: {is_crm_app}")
             if is_team and user_email and is_crm_app:
-                # Calculate team hierarchy
+                # Calculate team hierarchy using cache
                 logger.info(f"CALCULATING team hierarchy for: {user_email}")
-                # We fetch all collaborators to build the tree
-                all_collabs = self.seatable.sql_query(
-                    "SELECT `Email address`, `Manager Email` FROM `Collaborators` WHERE `Email address` IS NOT NULL", 
-                    base_data="core_identity"
-                )
-                hierarchy = calculate_team_hierarchy(user_email, all_collabs)
+                hierarchy = self._get_team_hierarchy_cached(user_email, app_key or "default")
                 
                 # Merge into Data and cleanup redundant type key
                 normalized_data["team"] = hierarchy

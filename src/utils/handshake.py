@@ -6,39 +6,59 @@ criptográficamente para permitir el salto de sesión entre diferentes aplicacio
 del ecosistema Core Identity sin re-autenticación.
 
 Objetivos clave:
-1. Generar tokens stateless de corta duración (60s) asociados a un email.
+1. Generar tokens JWT firmados de corta duración (5 min) con el contexto completo del usuario.
 2. Validar la integridad y caducidad de los códigos de intercambio.
 3. Asegurar una transferencia segura de la identidad entre dominios autorizados.
 """
-import time
-from itsdangerous import URLSafeTimedSerializer
+import jwt
+import datetime
 from config import Config
 
-def generate_handshake_code(email):
+def generate_handshake_code(user_data, expires_in=300):
     """
-    Genera un código de intercambio firmado para un usuario específico.
+    Genera un token JWT firmado que contiene el contexto completo del usuario.
     
     Objetivo:
-    - Crear un token temporal que encapsula la identidad (email) del usuario.
+    - Crear un token temporal que encapsula la identidad y permisos del usuario.
     - Firmar el token con la SECRET_KEY para garantizar su autenticidad.
     """
-    s = URLSafeTimedSerializer(Config.SECRET_KEY)
-    # Usamos un salt específico para no mezclar con otros tokens
-    return s.dumps(email, salt='handshake-auth')
+    if not user_data:
+        return None
+        
+    payload = {
+        "user": user_data,
+        "iat": datetime.datetime.utcnow(),
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in),
+        "type": "handshake"
+    }
+    
+    # Nos aseguramos de codificar como string para el JSON
+    token = jwt.encode(payload, Config.CI_HANDSHAKE_SECRET_KEY, algorithm="HS256")
+    return token
 
-def validate_handshake_code(code, max_age=300): # 5 minutes
+def validate_handshake_code(code):
     """
-    Valida la autenticidad y vigencia de un código de handshake.
+    Valida la autenticidad y vigencia de un código de handshake JWT.
     
     Objetivo:
-    - Deserializar el código y verificar que no haya sido alterado.
-    - Comprobar que el código no supere la edad máxima permitida (default 300s).
-    - Extraer el email del usuario para proceder con la creación de la nueva sesión.
+    - Decodificar el JWT y verificar la firma con la SECRET_KEY.
+    - Comprobar que el token no haya expirado.
+    - Extraer el contexto del usuario contenido en el payload.
     """
-    s = URLSafeTimedSerializer(Config.SECRET_KEY)
     try:
-        email = s.loads(code, salt='handshake-auth', max_age=max_age)
-        return True, email
+        payload = jwt.decode(code, Config.CI_HANDSHAKE_SECRET_KEY, algorithms=["HS256"])
+        
+        if payload.get("type") != "handshake":
+            return False, "Invalid token type"
+            
+        return True, payload.get("user")
+    except jwt.ExpiredSignatureError:
+        print("Handshake validation error: Token expired")
+        return False, "Token expired"
+    except jwt.InvalidTokenError as e:
+        print(f"Handshake validation error: {str(e)}")
+        return False, str(e)
     except Exception as e:
         print(f"Handshake validation error: {str(e)}")
-        return False, None
+        return False, str(e)
+

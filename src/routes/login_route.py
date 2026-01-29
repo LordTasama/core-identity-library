@@ -39,6 +39,7 @@ from src.services.login_service import (
 from src.utils import login_required, get_current_user
 from src.utils.handshake import generate_handshake_code, validate_handshake_code
 from src.utils.i18n import t
+from src.utils.logger import logger
 from config import Config
 
 auth_bp = Blueprint('auth', __name__)
@@ -92,6 +93,8 @@ def login():
     - For Email: Attempts a session recovery by IP if credentials are missing, 
       or validates user existence to proceed to the password step.
     """
+    t_login_start = time.time()
+    
     provider = request.json.get('provider')
     temp_device = request.json.get('temp_device', False)
     token = request.json.get('token')
@@ -118,7 +121,7 @@ def login():
                     'apps': user_data.get("apps", [])
                 }), 403
 
-            handshake = generate_handshake_code(user_data.get('email') or email)
+            handshake = generate_handshake_code(user_data)
             return jsonify({
                 'success': True, 
                 'redirect_url': '/home',
@@ -149,7 +152,12 @@ def login():
 
                 # Create real session with corresponding expiration
                 final_token = create_session(user_ctx, temp_device=temp_device)
-                handshake = generate_handshake_code(user_ctx.get('email'))
+                handshake = generate_handshake_code(user_ctx)
+                
+                t_login_end = time.time()
+                t_total_ms = (t_login_end - t_login_start) * 1000
+                logger.info(f"⏱️ GOOGLE MOCK LOGIN took {t_total_ms:.0f}ms")
+                
                 return jsonify({
                     'success': True, 
                     'redirect_url': '/',
@@ -194,7 +202,11 @@ def login():
 
             # Generate token with new expiration logic
             final_token = create_session(user_ctx, temp_device=temp_device)
-            handshake = generate_handshake_code(user_ctx.get('email'))
+            handshake = generate_handshake_code(user_ctx)
+            
+            t_login_end = time.time()
+            t_total_ms = (t_login_end - t_login_start) * 1000
+            logger.info(f"⏱️ EMAIL LOGIN took {t_total_ms:.0f}ms")
             
             return jsonify({
                 "success": True,
@@ -225,7 +237,12 @@ def login():
                     }), 403
 
                 final_token = create_session(user_ctx, temp_device=temp_device)
-                handshake = generate_handshake_code(user_ctx.get('email'))
+                handshake = generate_handshake_code(user_ctx)
+                
+                t_login_end = time.time()
+                t_total_ms = (t_login_end - t_login_start) * 1000
+                logger.info(f"⏱️ MICROSOFT MOCK LOGIN took {t_total_ms:.0f}ms")
+                
                 return jsonify({
                     'success': True, 
                     'redirect_url': '/',
@@ -452,7 +469,7 @@ def login_with_password_and_email_route():
                 "redirect_url": "/home",
                 "token": result.get("token"),
                 "user": result.get("user"),
-                "handshake_code": generate_handshake_code(email)
+                "handshake_code": generate_handshake_code(user_ctx)
             }))
             response.set_cookie('oauth_state', '', expires=0)
             
@@ -546,7 +563,7 @@ def callback():
                         message: "Authentication successful",
                         token: "{final_token}",
                         user: {json.dumps(user_ctx)},
-                        handshake_code: "{generate_handshake_code(user_ctx.get('email'))}",
+                        handshake_code: "{generate_handshake_code(user_ctx)}",
                         redirect_url: "/home"
                     }};
                     
@@ -632,7 +649,7 @@ def microsoft_callback():
                         message: "Authentication successful",
                         token: "{final_token}",
                         user: {json.dumps(user_ctx)},
-                        handshake_code: "{generate_handshake_code(user_ctx.get('email'))}",
+                        handshake_code: "{generate_handshake_code(user_ctx)}",
                         redirect_url: "/home"
                     }};
                     
@@ -751,7 +768,7 @@ def verify_session_route():
                 "apps": user_ctx.get("apps", [])
             }), 403
 
-        result["handshake_code"] = generate_handshake_code(email)
+        result["handshake_code"] = generate_handshake_code(user_ctx)
         return jsonify(result), 200
     else:
         return jsonify(result), 401
@@ -790,7 +807,7 @@ def get_user_context_route():
             'message': t('user_context_retrieved'),
             'user': user_data,
             'token': g.current_token,
-            'handshake_code': generate_handshake_code(email)
+            'handshake_code': generate_handshake_code(user_data)
         })
     except Exception as e:
         print(f"❌ Error in get_user_context_route: {e}")
@@ -812,16 +829,15 @@ def validate_handshake_route():
         if not code:
             return jsonify({'success': False, 'message': t('code_required')}), 400
             
-        is_valid, email = validate_handshake_code(code)
+        is_valid, user_data = validate_handshake_code(code)
         
         if is_valid:
-            user_data = _get_user_context(email)
+            # Con el "Fat Token", el user_data ya viene completo en el JWT.
+            # No necesitamos volver a consultar la base de datos (SSO instantáneo).
             
-            # Validación de permisos/roles para la App detectada
-            if user_data and not user_data.get("success"):
-                duration = time.time() - start_time
-                print(f"⏱️ Handshake Validation (Denied): {duration:.4f}s for {email}")
-                return jsonify({
+            # Validación opcional: ¿Está la cuenta activa?
+            if user_data and not user_data.get("success") and user_data.get("message"):
+                 return jsonify({
                     'success': False,
                     'valid': True,
                     'message': user_data.get("message"),
@@ -829,11 +845,11 @@ def validate_handshake_route():
                 }), 403
 
             duration = time.time() - start_time
-            print(f"⏱️ Handshake Validation (Success): {duration:.4f}s for {email}")
+            print(f"⏱️ Handshake Validation (Success - Fat Token): {duration:.4f}s for {user_data.get('email')}")
             return jsonify({
                 'success': True,
                 'valid': True,
-                'email': email,
+                'email': user_data.get('email'),
                 'user': user_data
             }), 200
         else:

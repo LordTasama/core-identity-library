@@ -12,12 +12,11 @@ Key Objectives:
 4. Implement security policies (Password Strength, Rate Limiting, initial RBAC).
 """
 
-from flask import g, session, request
+from flask import request
 import jwt
 import datetime
 import time
 import secrets
-import string
 import secrets
 import bcrypt
 from src.services.seatable_service import seatable
@@ -25,7 +24,6 @@ from src.utils.logger import logger
 from config import Config
 from src.utils.i18n import t
 from flask import request
-import string
 from src.utils.logger import logger
 from src.utils.post_email_util import send_email
 import requests
@@ -41,7 +39,7 @@ import bcrypt
 
 # Caché global para contextos de usuario (Email + AppKey)
 _USER_CONTEXT_CACHE = {}  # { (email, app_key): (timestamp, data) }
-_CONTEXT_TTL = 900        # 15 minutes
+_CONTEXT_TTL = 3600       # 1 hour - Increased from 15 min for better cache reusability
 
 # Global cache for session validation
 _SESSION_VALIDATION_CACHE = {} # { (email, token): (timestamp, data) }
@@ -78,10 +76,12 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     Objective:
     - Query the authentication method, identity (Profile), and account status.
     - Dynamically resolve the App Key by URL and calculate RBAC permissions for that app.
-    - Implement a 15-minute cache layer to optimize recurrent requests.
+    - Implement a 1-hour cache layer to optimize recurrent requests.
     - Allows injecting 'initial_auth_row' to avoid the first redundant query.
     """
     from src.services.identity_service import identity_service
+    
+    t_start = time.time()
     
     # 1. Detectar App Key (O usar la inyectada si viene de un callback OAuth)
     if not app_key:
@@ -96,6 +96,8 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
         timestamp, cached_data = _USER_CONTEXT_CACHE[cache_key]
         if now - timestamp < _CONTEXT_TTL:
             logger.info(f"🚀 USER CONTEXT CACHE HIT for {email} [{app_key}]")
+            t_end = time.time()
+            logger.debug(f"⏱️ Cache hit took {(t_end - t_start)*1000:.0f}ms")
             
             # RE-VALIDAR acceso incluso en Cache (RBAC check rápido)
             has_roles = len(cached_data.get("dataModeInfo", {}).get("roles", [])) > 0
@@ -112,6 +114,7 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
             return cached_data
 
     logger.info(f"USER CONTEXT CACHE MISS for {email} [{app_key}] - Loading from SeaTable...")
+    t_load_start = time.time()
     
     escaped_email = email.replace("'", "''")
     row_auth = initial_auth_row
@@ -269,6 +272,9 @@ def _get_user_context(email, provider=None, bypass_cache=False, initial_auth_row
     
     # Guardar en Caché antes de retornar
     _USER_CONTEXT_CACHE[cache_key] = (now, identity_data)
+    
+    t_end = time.time()
+    logger.info(f"⏱️ _get_user_context for {email} took {(t_end - t_load_start)*1000:.0f}ms (Cache miss)")
     
     return identity_data
 
@@ -756,8 +762,8 @@ def process_mock_social_login(provider, email=None, app_key=None):
 
     print(f"🔍 Searching for Auth Methods to link session...")
     
-    # 1. Obtain context (Bypass cache for login and force provider)
-    user_context = _get_user_context(mock_userinfo['email'], provider=provider, bypass_cache=True, app_key=app_key)
+    # 1. Obtain context (Use cache to optimize)
+    user_context = _get_user_context(mock_userinfo['email'], provider=provider, bypass_cache=False, app_key=app_key)
     
     if not user_context:
         print("❌ Error obtaining context for mock user")
@@ -1135,8 +1141,8 @@ def login_with_password_and_email(email, password, login_type="manual"):
             print(f"✅ SUCCESSFUL BYPASS for {email}")
 
         # --- LOGIN SUCCESS ---
-        # 1. Obtain user context (In login, always real-time and specifying provider)
-        user_context = _get_user_context(email, provider="Email", bypass_cache=True)
+        # 1. Obtain user context (Using 1-hour cache for optimization)
+        user_context = _get_user_context(email, provider="Email", bypass_cache=False)
         if not user_context:
              return {"status": False, "message": "Error retrieving user context", "user": None}
 
@@ -2040,8 +2046,8 @@ def process_google_callback(code, state, expected_state):
             session['row_identity'] = row_identity_id
             session['vendor_email'] = userinfo['email']
             
-            # El contexto final se encarga de todo lo pesado
-            u_final = _get_user_context(userinfo['email'], provider="Google", bypass_cache=True, initial_auth_row=auth_row, app_key=app_key)
+            # El contexto final se encarga de todo lo pesado (usando cache)
+            u_final = _get_user_context(userinfo['email'], provider="Google", bypass_cache=False, initial_auth_row=auth_row, app_key=app_key)
             return {'success': True, 'user': u_final}
         
         return {'success': False, 'error': 'user_not_found'}
@@ -2138,8 +2144,8 @@ def process_microsoft_callback(code, state, expected_state):
             session['row_identity'] = row_identity_id
             session['vendor_email'] = final_userinfo['email']
 
-            # Obtain context injecting the previous result to save a query
-            u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=True, initial_auth_row=auth_row, app_key=app_key)
+            # Obtain context injecting the previous result to save a query (using cache)
+            u_final = _get_user_context(final_userinfo['email'], provider="Microsoft", bypass_cache=False, initial_auth_row=auth_row, app_key=app_key)
             return {'success': True, 'user': u_final}
             
         return {'success': False, 'error': 'user_not_found'}
@@ -2725,6 +2731,32 @@ def _clean_user_context_for_frontend(ctx):
     if not ctx: return None
     return ctx
 
+def _clear_user_context_cache(email):
+    """
+    Clears all cached context entries for a given email.
+    
+    Objective:
+    - Force a fresh context load on next login after logout.
+    - Ensures permission changes are reflected immediately.
+    - Clears both user context and team hierarchy caches.
+    """
+    global _USER_CONTEXT_CACHE, _TEAM_HIERARCHY_CACHE
+    
+    # Clear all app_keys for this email in user context cache
+    keys_to_remove = [key for key in _USER_CONTEXT_CACHE.keys() if key[0] == email]
+    for key in keys_to_remove:
+        del _USER_CONTEXT_CACHE[key]
+        logger.info(f"🗑️ Cleared context cache for {email} [{key[1]}]")
+    
+    # Clear all app_keys for this email in team hierarchy cache
+    team_keys_to_remove = [key for key in _TEAM_HIERARCHY_CACHE.keys() if key[0] == email]
+    for key in team_keys_to_remove:
+        del _TEAM_HIERARCHY_CACHE[key]
+        logger.info(f"🗑️ Cleared hierarchy cache for {email} [{key[1]}]")
+    
+    if keys_to_remove or team_keys_to_remove:
+        logger.info(f"✅ Cache cleared for {email} on logout - Next login will fetch fresh permissions")
+
 def logout_session(token):
     """
     Administratively invalidates a specific session.
@@ -2732,6 +2764,7 @@ def logout_session(token):
     Objective:
     - Change session status to 'Expired' in the database.
     - Ensure the JWT token is no longer accepted in future requests.
+    - Clear user context cache to force fresh data on next login.
     """
     """
     Marks a specific session as Expired in the database.
@@ -2752,6 +2785,17 @@ def logout_session(token):
                 base_data="core_identity"
             )
             print(f"✅ Session invalidated in DB: {token[:15]}...")
+            
+            # Extract email from token to clear cache
+            try:
+                import jwt
+                payload = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
+                email = payload.get("email")
+                if email:
+                    _clear_user_context_cache(email)
+            except Exception as e:
+                logger.debug(f"Could not extract email from token for cache clearing: {e}")
+            
             return True
         return False
     except Exception as e:
