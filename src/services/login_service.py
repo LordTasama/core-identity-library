@@ -43,7 +43,7 @@ _CONTEXT_TTL = 3600       # 1 hour - Increased from 15 min for better cache reus
 
 # Global cache for session validation
 _SESSION_VALIDATION_CACHE = {} # { (email, token): (timestamp, data) }
-_SESSION_TTL = 15              # 15 seconds (pseudo real-time)
+_SESSION_TTL = 300             # 5 minutes (reduced from real-time to optimize)
 
 import re
 
@@ -2568,7 +2568,8 @@ def verify_session(email=None, token=None):
 
         # 1. Search for token in Sessions (Real-time security step but with 1 less query)
         # We bring 'Auth Method' to be able to verify the real status of the account later
-        query = f"SELECT `_id`, `Status`, `Token`, `Auth Method` FROM `Sessions` WHERE `Token` = '{token}'"
+        # Optimization: Use SQL query once
+        query = f"SELECT `_id`, `Status`, `Token`, `Auth Method`, `Auth Method.Identity.Status` as `id_status` FROM `Sessions` WHERE `Token` = '{token}'"
         session_rows = seatable.sql_query(query, base_data="core_identity")
         
         if not session_rows:
@@ -2598,31 +2599,27 @@ def verify_session(email=None, token=None):
         except Exception as e:
             return {"success": False, "message": t('invalid_token', error=str(e))}
 
-        # 3. Verify REAL status of the user (Fresh from Auth Methods)
-        # Auth Method link display value in Sessions is usually the ID literal
-        auth_method_custom_id = sess.get("Auth Method")
-        if isinstance(auth_method_custom_id, list) and len(auth_method_custom_id) > 0:
-            auth_method_custom_id = auth_method_custom_id[0].get("display_value")
+        # 3. Verify REAL status of the user (Fresh from Auth Methods/Identity)
+        # SeaTable SQL dot notation allows fetching Identity.Status via link
+        user_status = sess.get("id_status", "Active")
         
-        user_status = "Active"
-        if auth_method_custom_id:
-             # The user indicates that the Status is in the Identity table.
-             # First we need the link to Identity from Auth Methods
-             auth_info = seatable.sql_query_one(f"SELECT `Identity` FROM `Auth Methods` WHERE `ID` = '{auth_method_custom_id}'", base_data="core_identity")
-             if auth_info:
-                 if isinstance(auth_info, list) and len(auth_info) > 0:
-                     auth_info = auth_info[0]
-                 
-                 identity_link = auth_info.get("Identity", [])
-                 if identity_link:
-                     identity_row_id = identity_link[0].get("row_id")
-                     identity_row = seatable.sql_query_one(f"SELECT `Status` FROM `Identity` WHERE `_id` = '{identity_row_id}'", base_data="core_identity")
-                     if identity_row:
-                         if isinstance(identity_row, list) and len(identity_row) > 0:
-                             user_status = identity_row[0].get("Status", "Active")
-                         else:
-                             user_status = identity_row.get("Status", "Active")
+        # Fallback if dot notation didn't work (depending on SeaTable version)
+        if not user_status or isinstance(user_status, list):
+             auth_method_custom_id = sess.get("Auth Method")
+             if isinstance(auth_method_custom_id, list) and len(auth_method_custom_id) > 0:
+                 auth_method_custom_id = auth_method_custom_id[0].get("display_value")
+             
+             if auth_method_custom_id:
+                  auth_info = seatable.sql_query_one(f"SELECT `Identity.Status` as `status` FROM `Auth Methods` WHERE `ID` = '{auth_method_custom_id}'", base_data="core_identity")
+                  if auth_info:
+                      if isinstance(auth_info, list) and len(auth_info) > 0:
+                          user_status = auth_info[0].get("status", "Active")
+                      else:
+                          user_status = auth_info.get("status", "Active")
         
+        if user_status and isinstance(user_status, list) and len(user_status) > 0:
+            user_status = user_status[0]
+
         if user_status and user_status != "Active":
             logger.warning(f"🚫 SESSION REJECTED: User {email} is {user_status}")
             return {"success": False, "message": t('account_blocked', status=user_status.lower()), "blocked": True}

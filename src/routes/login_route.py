@@ -753,25 +753,30 @@ def verify_session_route():
     """
     # Data already arrives validated and clean in 'g' thanks to the @login_required decorator
     email = g.current_email
-    token = g.current_token
-        
-    result = verify_session(email, token)
     
-    if result.get("success"):
-        # Extra verification: Does it have permissions in this specific App?
-        # verify_session is lightweight, but if we want to intercept permissions here we must load context
-        user_ctx = _get_user_context(email)
-        if user_ctx and not user_ctx.get("success"):
-            return jsonify({
-                "success": False,
-                "message": user_ctx.get("message"),
-                "apps": user_ctx.get("apps", [])
-            }), 403
+    # We use the result already validated by the decorator (available in g if we update the decorator later, 
+    # but for now we follow the existing pattern with optimization)
+    # result = verify_session(email, token) # REPLACED BY DECORATOR
+    
+    t_start = time.time()
+    user_ctx = _get_user_context(email)
+    
+    if user_ctx and not user_ctx.get("success"):
+        return jsonify({
+            "success": False,
+            "message": user_ctx.get("message"),
+            "apps": user_ctx.get("apps", [])
+        }), 403
 
-        result["handshake_code"] = generate_handshake_code(user_ctx)
-        return jsonify(result), 200
-    else:
-        return jsonify(result), 401
+    t_ctx = time.time() - t_start
+    print(f"⏱️ verify_session_route: Context retrieval took {t_ctx:.4f}s for {email}")
+
+    return jsonify({
+        "success": True,
+        "identity_id": g.current_user.get("identity_id") if g.current_user else None,
+        "email": email,
+        "handshake_code": generate_handshake_code(user_ctx)
+    }), 200
 
 @auth_bp.route('/user')
 @auth_bp.route('/me', methods=['GET', 'POST'])
