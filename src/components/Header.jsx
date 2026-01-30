@@ -39,6 +39,7 @@ export default function Header({
     onLanguageChange,
     navItems = [], // Array of { label, onClick, active }
     extraItems = [], // Array of components or items to render
+    userMenuExtraItems = [], // Array of { icon: ReactNode, label: string, onClick: function } for UserMenu
     apiBaseUrl,
     apiToken
 }) {
@@ -234,6 +235,7 @@ export default function Header({
                         onProfileClick={onProfileClick}
                         onChangePassword={onChangePassword}
                         onLogout={onLogout}
+                        extraItems={userMenuExtraItems}
                         apiBaseUrl={apiBaseUrl}
                         apiToken={apiToken}
                     />
