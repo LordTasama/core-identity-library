@@ -870,7 +870,7 @@ def send_manual_confirmation_email(email, auth_row_id=None):
         # Determine the frontend URL (Dynamic resolution via Identity Service)
         from src.services.identity_service import identity_service
         frontend_url = identity_service.get_frontend_url()
-        verification_link = f"{frontend_url}/verify-email?token={token}&view=email-verification&auth=1"
+        verification_link = f"{frontend_url}/verify-email?token={token}&view=email-verification&auth=1&email={email}"
 
         # HTML Body
         body_html = f"""\
@@ -1240,7 +1240,7 @@ def send_password_reset_email(email):
         # Determine the frontend URL (Dynamic resolution via Identity Service)
         from src.services.identity_service import identity_service
         frontend_url = identity_service.get_frontend_url()
-        reset_link = f"{frontend_url}/reset-password?token={reset_token}&view=reset-password&auth=1"
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}&view=reset-password&auth=1&email={email}"
 
         body_html = f"""\
         <html>
@@ -1426,7 +1426,8 @@ def process_welcome_email_flow(table_name, subject_template, body_html_template)
         # 2. Resolve App Name and Public URL info
         # We'll use this for rendering the emails later
         all_apps = seatable.sql_query("SELECT * FROM `Applications`", base_data="core_identity")
-        apps_map = {app.get("App Name"): app.get("Public URL") for app in all_apps if app.get("App Name")}
+        # Map: App Name -> {url, key}
+        apps_data_map = {app.get("App Name"): {"url": app.get("Public URL"), "key": app.get("App Key")} for app in all_apps if app.get("App Name")}
         
         # 3. Process each vendor (existence checks and classification)
         emails = [v.get("Email") for v in vendors if v.get("Email")]
@@ -1535,10 +1536,15 @@ def process_welcome_email_flow(table_name, subject_template, body_html_template)
                 app_name = "Core Identity"
             
             # Resolve URL strictly from Applications table
-            public_url = apps_map.get(app_name)
+            app_meta = apps_data_map.get(app_name, {})
+            public_url = app_meta.get("url", "")
+            app_key = app_meta.get("key")
+            
             if not public_url:
                 print(f"⚠️ Warning: No Public URL found for application '{app_name}' in SeaTable.")
-                public_url = "" # Empty if not found
+            
+            if not app_key:
+                print(f"⚠️ Warning: No App Key found for application '{app_name}' in SeaTable.")
             
             # Generate long secure token
             token = secrets.token_urlsafe(32)
@@ -1552,6 +1558,7 @@ def process_welcome_email_flow(table_name, subject_template, body_html_template)
                 "first_name": v_display_name,
                 "token": token,
                 "app_name": app_name,
+                "app_key": app_key,
                 "public_url": public_url
             }
             
@@ -1711,10 +1718,15 @@ def process_welcome_email_flow(table_name, subject_template, body_html_template)
             
             logger.info(f"Processing links for {email}: Identity={brid_i}, Auth={brid_a}, Vendor={brid_v}")
             print(f"------------------------Processing links for {email}: Identity={brid_i}, Auth={brid_a}, Vendor={brid_v}, table_name={table_name}")
-            # 1. Link Identity <-> Vendor
-            if brid_i and brid_v and table_name == "Vendors":
+            # 1. Link Identity <-> Vendor (ONLY if app is Vendor Portal as requested)
+            if brid_i and brid_v and table_name == "Vendors" and pv.get("app_name") == "Vendor Portal":
                 logger.info(f"Linking Identity {brid_i} to Vendor {brid_v}...")
                 seatable.perform_link_operation(link_id_v_id, brid_i, brid_v, "Identity", "Vendors", base_data="core_identity")
+            
+            # 1.5 Assign Default Role (Same as register)
+            if brid_i and pv.get("app_key"):
+                logger.info(f"Assigning default role for {email} in app {pv.get('app_key')}...")
+                _assign_default_role_to_identity(brid_i, app_key=pv.get("app_key"))
             
             # 2. Link Identity <-> Auth Method (Bidirectional)
             # Both columns must be linked if they are NOT the same relationship
@@ -1740,7 +1752,7 @@ def process_welcome_email_flow(table_name, subject_template, body_html_template)
                 rendered_body = body_html_template.replace("{{Application}}", pv["app_name"])
                 rendered_body = rendered_body.replace("{{FirstName}}", pv["first_name"])
                 rendered_body = rendered_body.replace("{{Email}}", pv["email"])
-                rendered_body = rendered_body.replace("{{Token}}", f"{pv['token']}&auth=1")
+                rendered_body = rendered_body.replace("{{Token}}", f"{pv['token']}&auth=1&email={pv['email']}")
                 rendered_body = rendered_body.replace("{{Public URL}}", pv["public_url"])
                 rendered_body = rendered_body.replace("{{Notifications Email}}", notifications_email)
                 
