@@ -1551,9 +1551,9 @@ function jA({ message: C }) {
 }
 function tC({
   apiBaseUrl: C,
-  token: s = "",
+  token: s = null,
   // The recovery code from URL/Email
-  authMode: o = "0",
+  authMode: o = null,
   // '1' means social reset, '0' means normal reset
   primaryColor: n = "#3b82f6",
   backgroundColor: i = "#ffffff",
@@ -2019,7 +2019,7 @@ function nC({
 }
 function aC({
   apiBaseUrl: C,
-  token: s,
+  token: s = null,
   user: o = {},
   primaryColor: n = "#3b82f6",
   backgroundColor: i = "#ffffff",

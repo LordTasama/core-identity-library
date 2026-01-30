@@ -16,8 +16,8 @@ import FormSuccess from './FormSuccess';
 
 export default function ResetPassword({
     apiBaseUrl,
-    token: initialToken = '', // The recovery code from URL/Email
-    authMode = '0', // '1' means social reset, '0' means normal reset
+    token: initialToken = null, // The recovery code from URL/Email
+    authMode = null, // '1' means social reset, '0' means normal reset
     primaryColor: propPrimaryColor = '#3b82f6',
     backgroundColor: propBackgroundColor = '#ffffff',
     onSuccess,

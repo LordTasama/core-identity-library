@@ -29,8 +29,8 @@ function App() {
     const [lang, setLang] = useState('en');
 
     // Token and AuthMode from URL for simulation
-    const urlToken = getUrlParam('token') || '';
-    const urlAuthMode = getUrlParam('auth') || '0';
+    const urlToken = getUrlParam('token');
+    const urlAuthMode = getUrlParam('auth');
 
     // Initialize state from localStorage (ONLY Email and Token as requested)
     const [userEmail, setUserEmail] = useState(() => localStorage.getItem('demo_user_email') || '');

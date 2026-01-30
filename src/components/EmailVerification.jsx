@@ -13,7 +13,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 export default function EmailVerification({
     apiBaseUrl,
-    token,
+    token = null,
     user = {},
     primaryColor: propPrimaryColor = '#3b82f6',
     backgroundColor: propBackgroundColor = '#ffffff',
