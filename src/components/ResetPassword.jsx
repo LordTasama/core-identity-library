@@ -162,7 +162,7 @@ export default function ResetPassword({
                 if (data.token) {
                     setCurrentAuthToken(data.token);
                 }
-                if (onSuccess) onSuccess(data);
+                if (onSuccess) onSuccess({ ...data, type: 'password_reset' });
             } else {
                 const errorMsg = data.message || data.error || (t.unknownError);
                 setLocalError(errorMsg);
@@ -347,7 +347,7 @@ export default function ResetPassword({
                                 user={user}
                                 primaryColor={primaryColor}
                                 onSuccess={(data) => {
-                                    if (onSuccess) onSuccess(data);
+                                    if (onSuccess) onSuccess({ ...data, type: 'login' });
                                 }}
                                 onError={(err) => {
                                     setLocalError(err);

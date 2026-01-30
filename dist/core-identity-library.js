@@ -1,4 +1,4 @@
-import nA, { useEffect as oA, useState as K, useRef as LA } from "react";
+import nA, { useEffect as oA, useState as w, useRef as LA } from "react";
 import { AlertTriangle as Sg, AlertCircle as sg, EyeOff as fA, Eye as FA, CheckCircle as Tg, User as cg, KeyRound as jg, LogOut as rg, Globe as Dg, Check as Wg, ChevronDown as Pg, Search as Ng, Bell as Mg, Sun as Xg, Moon as Vg, Settings as GA, Sparkles as Gg, Mail as Og, Key as Eg, Monitor as Ig, Smartphone as Hg, Tablet as Zg } from "lucide-react";
 var OA = { exports: {} }, bA = {};
 /**
@@ -14,13 +14,13 @@ var ig;
 function qg() {
   if (ig) return bA;
   ig = 1;
-  var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.fragment"), n = Object.prototype.hasOwnProperty, i = C.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner, a = { key: !0, ref: !0, __self: !0, __source: !0 };
-  function l(u, f, d) {
-    var Q, w = {}, c = null, e = null;
-    d !== void 0 && (c = "" + d), f.key !== void 0 && (c = "" + f.key), f.ref !== void 0 && (e = f.ref);
-    for (Q in f) n.call(f, Q) && !a.hasOwnProperty(Q) && (w[Q] = f[Q]);
-    if (u && u.defaultProps) for (Q in f = u.defaultProps, f) w[Q] === void 0 && (w[Q] = f[Q]);
-    return { $$typeof: s, type: u, key: c, ref: e, props: w, _owner: i.current };
+  var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.fragment"), a = Object.prototype.hasOwnProperty, i = C.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner, d = { key: !0, ref: !0, __self: !0, __source: !0 };
+  function l(f, F, u) {
+    var Q, U = {}, c = null, e = null;
+    u !== void 0 && (c = "" + u), F.key !== void 0 && (c = "" + F.key), F.ref !== void 0 && (e = F.ref);
+    for (Q in F) a.call(F, Q) && !d.hasOwnProperty(Q) && (U[Q] = F[Q]);
+    if (f && f.defaultProps) for (Q in F = f.defaultProps, F) U[Q] === void 0 && (U[Q] = F[Q]);
+    return { $$typeof: s, type: f, key: c, ref: e, props: U, _owner: i.current };
   }
   return bA.Fragment = o, bA.jsx = l, bA.jsxs = l, bA;
 }
@@ -37,51 +37,51 @@ var pA = {};
 var eg;
 function zg() {
   return eg || (eg = 1, process.env.NODE_ENV !== "production" && function() {
-    var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.portal"), n = Symbol.for("react.fragment"), i = Symbol.for("react.strict_mode"), a = Symbol.for("react.profiler"), l = Symbol.for("react.provider"), u = Symbol.for("react.context"), f = Symbol.for("react.forward_ref"), d = Symbol.for("react.suspense"), Q = Symbol.for("react.suspense_list"), w = Symbol.for("react.memo"), c = Symbol.for("react.lazy"), e = Symbol.for("react.offscreen"), F = Symbol.iterator, I = "@@iterator";
+    var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.portal"), a = Symbol.for("react.fragment"), i = Symbol.for("react.strict_mode"), d = Symbol.for("react.profiler"), l = Symbol.for("react.provider"), f = Symbol.for("react.context"), F = Symbol.for("react.forward_ref"), u = Symbol.for("react.suspense"), Q = Symbol.for("react.suspense_list"), U = Symbol.for("react.memo"), c = Symbol.for("react.lazy"), e = Symbol.for("react.offscreen"), K = Symbol.iterator, I = "@@iterator";
     function b(g) {
       if (g === null || typeof g != "object")
         return null;
-      var E = F && g[F] || g[I];
+      var E = K && g[K] || g[I];
       return typeof E == "function" ? E : null;
     }
     var B = C.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
     function r(g) {
       {
-        for (var E = arguments.length, t = new Array(E > 1 ? E - 1 : 0), J = 1; J < E; J++)
-          t[J - 1] = arguments[J];
-        h("error", g, t);
+        for (var E = arguments.length, n = new Array(E > 1 ? E - 1 : 0), J = 1; J < E; J++)
+          n[J - 1] = arguments[J];
+        h("error", g, n);
       }
     }
-    function h(g, E, t) {
+    function h(g, E, n) {
       {
-        var J = B.ReactDebugCurrentFrame, V = J.getStackAddendum();
-        V !== "" && (E += "%s", t = t.concat([V]));
-        var Z = t.map(function(N) {
+        var J = B.ReactDebugCurrentFrame, X = J.getStackAddendum();
+        X !== "" && (E += "%s", n = n.concat([X]));
+        var H = n.map(function(N) {
           return String(N);
         });
-        Z.unshift("Warning: " + E), Function.prototype.apply.call(console[g], console, Z);
+        H.unshift("Warning: " + E), Function.prototype.apply.call(console[g], console, H);
       }
     }
-    var v = !1, W = !1, k = !1, m = !1, j = !1, G;
+    var v = !1, P = !1, k = !1, x = !1, D = !1, G;
     G = Symbol.for("react.module.reference");
-    function P(g) {
-      return !!(typeof g == "string" || typeof g == "function" || g === n || g === a || j || g === i || g === d || g === Q || m || g === e || v || W || k || typeof g == "object" && g !== null && (g.$$typeof === c || g.$$typeof === w || g.$$typeof === l || g.$$typeof === u || g.$$typeof === f || // This needs to include all possible module reference object
+    function j(g) {
+      return !!(typeof g == "string" || typeof g == "function" || g === a || g === d || D || g === i || g === u || g === Q || x || g === e || v || P || k || typeof g == "object" && g !== null && (g.$$typeof === c || g.$$typeof === U || g.$$typeof === l || g.$$typeof === f || g.$$typeof === F || // This needs to include all possible module reference object
       // types supported by any Flight configuration anywhere since
       // we don't know which Flight build this will end up being used
       // with.
       g.$$typeof === G || g.getModuleId !== void 0));
     }
-    function M(g, E, t) {
+    function V(g, E, n) {
       var J = g.displayName;
       if (J)
         return J;
-      var V = E.displayName || E.name || "";
-      return V !== "" ? t + "(" + V + ")" : t;
+      var X = E.displayName || E.name || "";
+      return X !== "" ? n + "(" + X + ")" : n;
     }
     function T(g) {
       return g.displayName || "Context";
     }
-    function x(g) {
+    function R(g) {
       if (g == null)
         return null;
       if (typeof g.tag == "number" && r("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), typeof g == "function")
@@ -89,36 +89,36 @@ function zg() {
       if (typeof g == "string")
         return g;
       switch (g) {
-        case n:
+        case a:
           return "Fragment";
         case o:
           return "Portal";
-        case a:
+        case d:
           return "Profiler";
         case i:
           return "StrictMode";
-        case d:
+        case u:
           return "Suspense";
         case Q:
           return "SuspenseList";
       }
       if (typeof g == "object")
         switch (g.$$typeof) {
-          case u:
+          case f:
             var E = g;
             return T(E) + ".Consumer";
           case l:
-            var t = g;
-            return T(t._context) + ".Provider";
-          case f:
-            return M(g, g.render, "ForwardRef");
-          case w:
+            var n = g;
+            return T(n._context) + ".Provider";
+          case F:
+            return V(g, g.render, "ForwardRef");
+          case U:
             var J = g.displayName || null;
-            return J !== null ? J : x(g.type) || "Memo";
+            return J !== null ? J : R(g.type) || "Memo";
           case c: {
-            var V = g, Z = V._payload, N = V._init;
+            var X = g, H = X._payload, N = X._init;
             try {
-              return x(N(Z));
+              return R(N(H));
             } catch {
               return null;
             }
@@ -126,14 +126,14 @@ function zg() {
         }
       return null;
     }
-    var R = Object.assign, U = 0, p, O, EA, IA, gA, eA, z;
+    var t = Object.assign, m = 0, S, AA, EA, IA, gA, eA, q;
     function y() {
     }
     y.__reactDisabledLog = !0;
-    function Y() {
+    function p() {
       {
-        if (U === 0) {
-          p = console.log, O = console.info, EA = console.warn, IA = console.error, gA = console.group, eA = console.groupCollapsed, z = console.groupEnd;
+        if (m === 0) {
+          S = console.log, AA = console.info, EA = console.warn, IA = console.error, gA = console.group, eA = console.groupCollapsed, q = console.groupEnd;
           var g = {
             configurable: !0,
             enumerable: !0,
@@ -150,56 +150,56 @@ function zg() {
             groupEnd: g
           });
         }
-        U++;
+        m++;
       }
     }
-    function AA() {
+    function $() {
       {
-        if (U--, U === 0) {
+        if (m--, m === 0) {
           var g = {
             configurable: !0,
             enumerable: !0,
             writable: !0
           };
           Object.defineProperties(console, {
-            log: R({}, g, {
-              value: p
+            log: t({}, g, {
+              value: S
             }),
-            info: R({}, g, {
-              value: O
+            info: t({}, g, {
+              value: AA
             }),
-            warn: R({}, g, {
+            warn: t({}, g, {
               value: EA
             }),
-            error: R({}, g, {
+            error: t({}, g, {
               value: IA
             }),
-            group: R({}, g, {
+            group: t({}, g, {
               value: gA
             }),
-            groupCollapsed: R({}, g, {
+            groupCollapsed: t({}, g, {
               value: eA
             }),
-            groupEnd: R({}, g, {
-              value: z
+            groupEnd: t({}, g, {
+              value: q
             })
           });
         }
-        U < 0 && r("disabledDepth fell below zero. This is a bug in React. Please file an issue.");
+        m < 0 && r("disabledDepth fell below zero. This is a bug in React. Please file an issue.");
       }
     }
-    var X = B.ReactCurrentDispatcher, $;
-    function rA(g, E, t) {
+    var M = B.ReactCurrentDispatcher, _;
+    function rA(g, E, n) {
       {
-        if ($ === void 0)
+        if (_ === void 0)
           try {
             throw Error();
-          } catch (V) {
-            var J = V.stack.trim().match(/\n( *(at )?)/);
-            $ = J && J[1] || "";
+          } catch (X) {
+            var J = X.stack.trim().match(/\n( *(at )?)/);
+            _ = J && J[1] || "";
           }
         return `
-` + $ + g;
+` + _ + g;
       }
     }
     var tA = !1, dA;
@@ -211,16 +211,16 @@ function zg() {
       if (!g || tA)
         return "";
       {
-        var t = dA.get(g);
-        if (t !== void 0)
-          return t;
+        var n = dA.get(g);
+        if (n !== void 0)
+          return n;
       }
       var J;
       tA = !0;
-      var V = Error.prepareStackTrace;
+      var X = Error.prepareStackTrace;
       Error.prepareStackTrace = void 0;
-      var Z;
-      Z = X.current, X.current = null, Y();
+      var H;
+      H = M.current, M.current = null, p();
       try {
         if (E) {
           var N = function() {
@@ -255,37 +255,37 @@ function zg() {
         }
       } catch (QA) {
         if (QA && J && typeof QA.stack == "string") {
-          for (var D = QA.stack.split(`
+          for (var W = QA.stack.split(`
 `), BA = J.stack.split(`
-`), q = D.length - 1, _ = BA.length - 1; q >= 1 && _ >= 0 && D[q] !== BA[_]; )
-            _--;
-          for (; q >= 1 && _ >= 0; q--, _--)
-            if (D[q] !== BA[_]) {
-              if (q !== 1 || _ !== 1)
+`), Z = W.length - 1, z = BA.length - 1; Z >= 1 && z >= 0 && W[Z] !== BA[z]; )
+            z--;
+          for (; Z >= 1 && z >= 0; Z--, z--)
+            if (W[Z] !== BA[z]) {
+              if (Z !== 1 || z !== 1)
                 do
-                  if (q--, _--, _ < 0 || D[q] !== BA[_]) {
+                  if (Z--, z--, z < 0 || W[Z] !== BA[z]) {
                     var lA = `
-` + D[q].replace(" at new ", " at ");
+` + W[Z].replace(" at new ", " at ");
                     return g.displayName && lA.includes("<anonymous>") && (lA = lA.replace("<anonymous>", g.displayName)), typeof g == "function" && dA.set(g, lA), lA;
                   }
-                while (q >= 1 && _ >= 0);
+                while (Z >= 1 && z >= 0);
               break;
             }
         }
       } finally {
-        tA = !1, X.current = Z, AA(), Error.prepareStackTrace = V;
+        tA = !1, M.current = H, $(), Error.prepareStackTrace = X;
       }
       var vA = g ? g.displayName || g.name : "", yA = vA ? rA(vA) : "";
       return typeof g == "function" && dA.set(g, yA), yA;
     }
-    function JA(g, E, t) {
+    function JA(g, E, n) {
       return YA(g, !1);
     }
     function PA(g) {
       var E = g.prototype;
       return !!(E && E.isReactComponent);
     }
-    function xA(g, E, t) {
+    function xA(g, E, n) {
       if (g == null)
         return "";
       if (typeof g == "function")
@@ -293,21 +293,21 @@ function zg() {
       if (typeof g == "string")
         return rA(g);
       switch (g) {
-        case d:
+        case u:
           return rA("Suspense");
         case Q:
           return rA("SuspenseList");
       }
       if (typeof g == "object")
         switch (g.$$typeof) {
-          case f:
+          case F:
             return JA(g.render);
-          case w:
-            return xA(g.type, E, t);
+          case U:
+            return xA(g.type, E, n);
           case c: {
-            var J = g, V = J._payload, Z = J._init;
+            var J = g, X = J._payload, H = J._init;
             try {
-              return xA(Z(V), E, t);
+              return xA(H(X), E, n);
             } catch {
             }
           }
@@ -317,27 +317,27 @@ function zg() {
     var UA = Object.prototype.hasOwnProperty, hA = {}, kA = B.ReactDebugCurrentFrame;
     function uA(g) {
       if (g) {
-        var E = g._owner, t = xA(g.type, g._source, E ? E.type : null);
-        kA.setExtraStackFrame(t);
+        var E = g._owner, n = xA(g.type, g._source, E ? E.type : null);
+        kA.setExtraStackFrame(n);
       } else
         kA.setExtraStackFrame(null);
     }
-    function SA(g, E, t, J, V) {
+    function SA(g, E, n, J, X) {
       {
-        var Z = Function.call.bind(UA);
+        var H = Function.call.bind(UA);
         for (var N in g)
-          if (Z(g, N)) {
-            var D = void 0;
+          if (H(g, N)) {
+            var W = void 0;
             try {
               if (typeof g[N] != "function") {
-                var BA = Error((J || "React class") + ": " + t + " type `" + N + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof g[N] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.");
+                var BA = Error((J || "React class") + ": " + n + " type `" + N + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof g[N] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.");
                 throw BA.name = "Invariant Violation", BA;
               }
-              D = g[N](E, N, J, t, null, "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED");
-            } catch (q) {
-              D = q;
+              W = g[N](E, N, J, n, null, "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED");
+            } catch (Z) {
+              W = Z;
             }
-            D && !(D instanceof Error) && (uA(V), r("%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", J || "React class", t, N, typeof D), uA(null)), D instanceof Error && !(D.message in hA) && (hA[D.message] = !0, uA(V), r("Failed %s type: %s", t, D.message), uA(null));
+            W && !(W instanceof Error) && (uA(X), r("%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", J || "React class", n, N, typeof W), uA(null)), W instanceof Error && !(W.message in hA) && (hA[W.message] = !0, uA(X), r("Failed %s type: %s", n, W.message), uA(null));
           }
       }
     }
@@ -345,13 +345,13 @@ function zg() {
     function L(g) {
       return TA(g);
     }
-    function S(g) {
+    function Y(g) {
       {
-        var E = typeof Symbol == "function" && Symbol.toStringTag, t = E && g[Symbol.toStringTag] || g.constructor.name || "Object";
-        return t;
+        var E = typeof Symbol == "function" && Symbol.toStringTag, n = E && g[Symbol.toStringTag] || g.constructor.name || "Object";
+        return n;
       }
     }
-    function H(g) {
+    function O(g) {
       try {
         return CA(g), !1;
       } catch {
@@ -362,8 +362,8 @@ function zg() {
       return "" + g;
     }
     function jA(g) {
-      if (H(g))
-        return r("The provided key is an unsupported type %s. This value must be coerced to a string before before using it here.", S(g)), CA(g);
+      if (O(g))
+        return r("The provided key is an unsupported type %s. This value must be coerced to a string before before using it here.", Y(g)), CA(g);
     }
     var ZA = B.ReactCurrentOwner, ug = {
       key: !0,
@@ -392,78 +392,78 @@ function zg() {
     }
     function wg(g, E) {
       {
-        var t = function() {
+        var n = function() {
           qA || (qA = !0, r("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", E));
         };
-        t.isReactWarning = !0, Object.defineProperty(g, "key", {
-          get: t,
+        n.isReactWarning = !0, Object.defineProperty(g, "key", {
+          get: n,
           configurable: !0
         });
       }
     }
     function Ug(g, E) {
       {
-        var t = function() {
+        var n = function() {
           zA || (zA = !0, r("%s: `ref` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", E));
         };
-        t.isReactWarning = !0, Object.defineProperty(g, "ref", {
-          get: t,
+        n.isReactWarning = !0, Object.defineProperty(g, "ref", {
+          get: n,
           configurable: !0
         });
       }
     }
-    var yg = function(g, E, t, J, V, Z, N) {
-      var D = {
+    var yg = function(g, E, n, J, X, H, N) {
+      var W = {
         // This tag allows us to uniquely identify this as a React Element
         $$typeof: s,
         // Built-in properties that belong on the element
         type: g,
         key: E,
-        ref: t,
+        ref: n,
         props: N,
         // Record the component responsible for creating this element.
-        _owner: Z
+        _owner: H
       };
-      return D._store = {}, Object.defineProperty(D._store, "validated", {
+      return W._store = {}, Object.defineProperty(W._store, "validated", {
         configurable: !1,
         enumerable: !1,
         writable: !0,
         value: !1
-      }), Object.defineProperty(D, "_self", {
+      }), Object.defineProperty(W, "_self", {
         configurable: !1,
         enumerable: !1,
         writable: !1,
         value: J
-      }), Object.defineProperty(D, "_source", {
+      }), Object.defineProperty(W, "_source", {
         configurable: !1,
         enumerable: !1,
         writable: !1,
-        value: V
-      }), Object.freeze && (Object.freeze(D.props), Object.freeze(D)), D;
+        value: X
+      }), Object.freeze && (Object.freeze(W.props), Object.freeze(W)), W;
     };
-    function mg(g, E, t, J, V) {
+    function mg(g, E, n, J, X) {
       {
-        var Z, N = {}, D = null, BA = null;
-        t !== void 0 && (jA(t), D = "" + t), Fg(E) && (jA(E.key), D = "" + E.key), fg(E) && (BA = E.ref, Kg(E, V));
-        for (Z in E)
-          UA.call(E, Z) && !ug.hasOwnProperty(Z) && (N[Z] = E[Z]);
+        var H, N = {}, W = null, BA = null;
+        n !== void 0 && (jA(n), W = "" + n), Fg(E) && (jA(E.key), W = "" + E.key), fg(E) && (BA = E.ref, Kg(E, X));
+        for (H in E)
+          UA.call(E, H) && !ug.hasOwnProperty(H) && (N[H] = E[H]);
         if (g && g.defaultProps) {
-          var q = g.defaultProps;
-          for (Z in q)
-            N[Z] === void 0 && (N[Z] = q[Z]);
+          var Z = g.defaultProps;
+          for (H in Z)
+            N[H] === void 0 && (N[H] = Z[H]);
         }
-        if (D || BA) {
-          var _ = typeof g == "function" ? g.displayName || g.name || "Unknown" : g;
-          D && wg(N, _), BA && Ug(N, _);
+        if (W || BA) {
+          var z = typeof g == "function" ? g.displayName || g.name || "Unknown" : g;
+          W && wg(N, z), BA && Ug(N, z);
         }
-        return yg(g, D, BA, V, J, ZA.current, N);
+        return yg(g, W, BA, X, J, ZA.current, N);
       }
     }
     var NA = B.ReactCurrentOwner, _A = B.ReactDebugCurrentFrame;
     function RA(g) {
       if (g) {
-        var E = g._owner, t = xA(g.type, g._source, E ? E.type : null);
-        _A.setExtraStackFrame(t);
+        var E = g._owner, n = xA(g.type, g._source, E ? E.type : null);
+        _A.setExtraStackFrame(n);
       } else
         _A.setExtraStackFrame(null);
     }
@@ -475,7 +475,7 @@ function zg() {
     function $A() {
       {
         if (NA.current) {
-          var g = x(NA.current.type);
+          var g = R(NA.current.type);
           if (g)
             return `
 
@@ -492,10 +492,10 @@ Check the render method of \`` + g + "`.";
       {
         var E = $A();
         if (!E) {
-          var t = typeof g == "string" ? g : g.displayName || g.name;
-          t && (E = `
+          var n = typeof g == "string" ? g : g.displayName || g.name;
+          n && (E = `
 
-Check the top-level render call using <` + t + ">.");
+Check the top-level render call using <` + n + ">.");
         }
         return E;
       }
@@ -505,12 +505,12 @@ Check the top-level render call using <` + t + ">.");
         if (!g._store || g._store.validated || g.key != null)
           return;
         g._store.validated = !0;
-        var t = Rg(E);
-        if (Ag[t])
+        var n = Rg(E);
+        if (Ag[n])
           return;
-        Ag[t] = !0;
+        Ag[n] = !0;
         var J = "";
-        g && g._owner && g._owner !== NA.current && (J = " It was passed a child from " + x(g._owner.type) + "."), RA(g), r('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', t, J), RA(null);
+        g && g._owner && g._owner !== NA.current && (J = " It was passed a child from " + R(g._owner.type) + "."), RA(g), r('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', n, J), RA(null);
       }
     }
     function Cg(g, E) {
@@ -518,16 +518,16 @@ Check the top-level render call using <` + t + ">.");
         if (typeof g != "object")
           return;
         if (L(g))
-          for (var t = 0; t < g.length; t++) {
-            var J = g[t];
+          for (var n = 0; n < g.length; n++) {
+            var J = g[n];
             XA(J) && gg(J, E);
           }
         else if (XA(g))
           g._store && (g._store.validated = !0);
         else if (g) {
-          var V = b(g);
-          if (typeof V == "function" && V !== g.entries)
-            for (var Z = V.call(g), N; !(N = Z.next()).done; )
+          var X = b(g);
+          if (typeof X == "function" && X !== g.entries)
+            for (var H = X.call(g), N; !(N = H.next()).done; )
               XA(N.value) && gg(N.value, E);
         }
       }
@@ -537,30 +537,30 @@ Check the top-level render call using <` + t + ">.");
         var E = g.type;
         if (E == null || typeof E == "string")
           return;
-        var t;
+        var n;
         if (typeof E == "function")
-          t = E.propTypes;
-        else if (typeof E == "object" && (E.$$typeof === f || // Note: Memo only checks outer props here.
+          n = E.propTypes;
+        else if (typeof E == "object" && (E.$$typeof === F || // Note: Memo only checks outer props here.
         // Inner props are checked in the reconciler.
-        E.$$typeof === w))
-          t = E.propTypes;
+        E.$$typeof === U))
+          n = E.propTypes;
         else
           return;
-        if (t) {
-          var J = x(E);
-          SA(t, g.props, "prop", J, g);
+        if (n) {
+          var J = R(E);
+          SA(n, g.props, "prop", J, g);
         } else if (E.PropTypes !== void 0 && !MA) {
           MA = !0;
-          var V = x(E);
-          r("Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?", V || "Unknown");
+          var X = R(E);
+          r("Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?", X || "Unknown");
         }
         typeof E.getDefaultProps == "function" && !E.getDefaultProps.isReactClassApproved && r("getDefaultProps is only used on classic React.createClass definitions. Use a static property named `defaultProps` instead.");
       }
     }
     function Lg(g) {
       {
-        for (var E = Object.keys(g.props), t = 0; t < E.length; t++) {
-          var J = E[t];
+        for (var E = Object.keys(g.props), n = 0; n < E.length; n++) {
+          var J = E[n];
           if (J !== "children" && J !== "key") {
             RA(g), r("Invalid prop `%s` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.", J), RA(null);
             break;
@@ -570,20 +570,20 @@ Check the top-level render call using <` + t + ">.");
       }
     }
     var Bg = {};
-    function Qg(g, E, t, J, V, Z) {
+    function Qg(g, E, n, J, X, H) {
       {
-        var N = P(g);
+        var N = j(g);
         if (!N) {
-          var D = "";
-          (g === void 0 || typeof g == "object" && g !== null && Object.keys(g).length === 0) && (D += " You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.");
+          var W = "";
+          (g === void 0 || typeof g == "object" && g !== null && Object.keys(g).length === 0) && (W += " You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.");
           var BA = xg();
-          BA ? D += BA : D += $A();
-          var q;
-          g === null ? q = "null" : L(g) ? q = "array" : g !== void 0 && g.$$typeof === s ? (q = "<" + (x(g.type) || "Unknown") + " />", D = " Did you accidentally export a JSX literal instead of a component?") : q = typeof g, r("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", q, D);
+          BA ? W += BA : W += $A();
+          var Z;
+          g === null ? Z = "null" : L(g) ? Z = "array" : g !== void 0 && g.$$typeof === s ? (Z = "<" + (R(g.type) || "Unknown") + " />", W = " Did you accidentally export a JSX literal instead of a component?") : Z = typeof g, r("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", Z, W);
         }
-        var _ = mg(g, E, t, V, Z);
-        if (_ == null)
-          return _;
+        var z = mg(g, E, n, X, H);
+        if (z == null)
+          return z;
         if (N) {
           var lA = E.children;
           if (lA !== void 0)
@@ -598,7 +598,7 @@ Check the top-level render call using <` + t + ">.");
               Cg(lA, g);
         }
         if (UA.call(E, "key")) {
-          var yA = x(g), QA = Object.keys(E).filter(function(Yg) {
+          var yA = R(g), QA = Object.keys(E).filter(function(Yg) {
             return Yg !== "key";
           }), VA = QA.length > 0 ? "{key: someKey, " + QA.join(": ..., ") + ": ...}" : "{key: someKey}";
           if (!Bg[yA + VA]) {
@@ -611,17 +611,17 @@ React keys must be passed directly to JSX without using spread:
   <%s key={someKey} {...props} />`, VA, yA, pg, yA), Bg[yA + VA] = !0;
           }
         }
-        return g === n ? Lg(_) : vg(_), _;
+        return g === a ? Lg(z) : vg(z), z;
       }
     }
-    function Jg(g, E, t) {
-      return Qg(g, E, t, !0);
+    function Jg(g, E, n) {
+      return Qg(g, E, n, !0);
     }
-    function hg(g, E, t) {
-      return Qg(g, E, t, !1);
+    function hg(g, E, n) {
+      return Qg(g, E, n, !1);
     }
     var kg = hg, bg = Jg;
-    pA.Fragment = n, pA.jsx = kg, pA.jsxs = bg;
+    pA.Fragment = a, pA.jsx = kg, pA.jsxs = bg;
   }()), pA;
 }
 process.env.NODE_ENV === "production" ? OA.exports = qg() : OA.exports = zg();
@@ -633,7 +633,7 @@ var A = OA.exports, tg = {
   attr: void 0
 }, lg = nA.createContext && nA.createContext(tg), KA = function() {
   return KA = Object.assign || function(C) {
-    for (var s, o = 1, n = arguments.length; o < n; o++) {
+    for (var s, o = 1, a = arguments.length; o < a; o++) {
       s = arguments[o];
       for (var i in s) Object.prototype.hasOwnProperty.call(s, i) && (C[i] = s[i]);
     }
@@ -641,9 +641,9 @@ var A = OA.exports, tg = {
   }, KA.apply(this, arguments);
 }, _g = function(C, s) {
   var o = {};
-  for (var n in C) Object.prototype.hasOwnProperty.call(C, n) && s.indexOf(n) < 0 && (o[n] = C[n]);
-  if (C != null && typeof Object.getOwnPropertySymbols == "function") for (var i = 0, n = Object.getOwnPropertySymbols(C); i < n.length; i++)
-    s.indexOf(n[i]) < 0 && Object.prototype.propertyIsEnumerable.call(C, n[i]) && (o[n[i]] = C[n[i]]);
+  for (var a in C) Object.prototype.hasOwnProperty.call(C, a) && s.indexOf(a) < 0 && (o[a] = C[a]);
+  if (C != null && typeof Object.getOwnPropertySymbols == "function") for (var i = 0, a = Object.getOwnPropertySymbols(C); i < a.length; i++)
+    s.indexOf(a[i]) < 0 && Object.prototype.propertyIsEnumerable.call(C, a[i]) && (o[a[i]] = C[a[i]]);
   return o;
 };
 function ng(C) {
@@ -662,20 +662,20 @@ function ag(C) {
 }
 function $g(C) {
   var s = function(o) {
-    var n = C.attr, i = C.size, a = C.title, l = _g(C, ["attr", "size", "title"]), u = i || o.size || "1em", f;
-    return o.className && (f = o.className), C.className && (f = (f ? f + " " : "") + C.className), nA.createElement("svg", KA({
+    var a = C.attr, i = C.size, d = C.title, l = _g(C, ["attr", "size", "title"]), f = i || o.size || "1em", F;
+    return o.className && (F = o.className), C.className && (F = (F ? F + " " : "") + C.className), nA.createElement("svg", KA({
       stroke: "currentColor",
       fill: "currentColor",
       strokeWidth: "0"
-    }, o.attr, n, l, {
-      className: f,
+    }, o.attr, a, l, {
+      className: F,
       style: KA(KA({
         color: C.color || o.color
       }, o.style), C.style),
-      height: u,
-      width: u,
+      height: f,
+      width: f,
       xmlns: "http://www.w3.org/2000/svg"
-    }), a && nA.createElement("title", null, a), C.children);
+    }), d && nA.createElement("title", null, d), C.children);
   };
   return lg !== void 0 ? nA.createElement(lg.Consumer, null, function(o) {
     return s(o);
@@ -857,8 +857,8 @@ function wA(C) {
   return s || console.warn("⚠️ Core Identity Library: Falta el token de autorización (apiToken) en las props del componente."), { isAuthorized: s, apiToken: C };
 }
 function cA(C, s) {
-  const { isAuthorized: o } = wA(s), n = async (c, e = {}) => {
-    const { token: F, ...I } = e;
+  const { isAuthorized: o } = wA(s), a = async (c, e = {}) => {
+    const { token: K, ...I } = e;
     try {
       const b = {
         "Content-Type": "application/json",
@@ -866,7 +866,7 @@ function cA(C, s) {
         "X-REQUEST-URL": typeof window < "u" ? window.location.origin.replace(/\/$/, "") : "",
         ...e.headers
       };
-      F && (b.Authorization = `Bearer ${F}`);
+      K && (b.Authorization = `Bearer ${K}`);
       const B = await fetch(`${C}${c}`, {
         ...I,
         headers: b,
@@ -894,25 +894,25 @@ function cA(C, s) {
       }
       throw b;
     }
-  }, i = async (c, e, F = {}) => n(c, {
+  }, i = async (c, e, K = {}) => a(c, {
     method: "POST",
     body: e ? JSON.stringify(e) : void 0,
-    ...F
-  }), a = async (c, e = {}) => n(c, {
+    ...K
+  }), d = async (c, e = {}) => a(c, {
     method: "GET",
     ...e
   });
   return {
     post: i,
-    get: a,
+    get: d,
     verifySession: async (c, e) => i("/verify-session", { email: e }, { token: c }),
     getUserContext: async (c, e) => i("/user-context", { email: e }, { token: c }),
     logout: async (c, e) => i("/logout", { email: e }, { token: c }),
     changePassword: async (c) => {
-      const { token: e, ...F } = c;
-      return i("/change-password", F, { token: e });
+      const { token: e, ...K } = c;
+      return i("/change-password", K, { token: e });
     },
-    getAppColors: async () => a("/colors-app"),
+    getAppColors: async () => d("/colors-app"),
     getMe: async (c, e) => i("/me", { email: c }, { token: e })
   };
 }
@@ -920,32 +920,32 @@ function HA({
   apiBaseUrl: C,
   user: s = {},
   primaryColor: o = "#3b82f6",
-  onSuccess: n,
+  onSuccess: a,
   onError: i,
-  lang: a = "en",
+  lang: d = "en",
   apiToken: l,
-  texts: u = {}
+  texts: f = {}
 }) {
   var e;
-  const f = { ...iA[a], ...u }, { post: d } = cA(C, l), Q = ((e = s.app_info) == null ? void 0 : e.primaryColor) || o;
+  const F = { ...iA[d], ...f }, { post: u } = cA(C, l), Q = ((e = s.app_info) == null ? void 0 : e.primaryColor) || o;
   oA(() => {
-    const F = (I) => {
+    const K = (I) => {
       let b, B;
       try {
         const v = new URL(C);
         b = v.origin;
-        const W = v.hostname.split(".");
-        W.length >= 2 && (B = W.slice(-2).join("."));
+        const P = v.hostname.split(".");
+        P.length >= 2 && (B = P.slice(-2).join("."));
       } catch {
       }
       const r = B && I.origin.endsWith(B) || b && I.origin === b;
       if (I.origin === window.location.origin || r) {
         if (I.data.type === "OAUTH_SUCCESS") {
-          const { token: v, handshake_code: W, user: k } = I.data.payload;
-          console.log("OAuth Login Successful:", k), n && n({
+          const { token: v, handshake_code: P, user: k } = I.data.payload;
+          console.log("OAuth Login Successful:", k), a && a({
             success: !0,
             token: v,
-            handshake_code: W,
+            handshake_code: P,
             user: k,
             email: k == null ? void 0 : k.email,
             // Ensure compatibility with existing success handlers
@@ -957,11 +957,11 @@ function HA({
         }
       }
     };
-    return window.addEventListener("message", F, !1), () => window.removeEventListener("message", F);
-  }, [n, i, C]);
-  const w = (F) => {
-    d("/login", {
-      provider: F,
+    return window.addEventListener("message", K, !1), () => window.removeEventListener("message", K);
+  }, [a, i, C]);
+  const U = (K) => {
+    u("/login", {
+      provider: K,
       frontend_origin: window.location.origin
     }).then((I) => {
       const b = I.auth_url || I.redirect_url;
@@ -973,7 +973,7 @@ function HA({
           `width=600,height=700,left=${h},top=${v},status=no,resizable=yes,scrollbars=yes`
         );
       } else {
-        const B = I.error || I.message || (a === "es" ? "Error al iniciar sesión social" : "Social login error");
+        const B = I.error || I.message || (d === "es" ? "Error al iniciar sesión social" : "Social login error");
         i && i(B);
       }
     }).catch((I) => {
@@ -987,12 +987,12 @@ function HA({
         type: "button",
         className: "cil-w-full cil-flex cil-items-center cil-justify-center cil-gap-2 cil-px-4 cil-py-2 cil-border cil-rounded-md cil-hover:bg-gray-50 cil-transition-colors",
         style: c,
-        onClick: () => w("Google"),
+        onClick: () => U("Google"),
         "data-testid": "button-google-login",
         children: [
           /* @__PURE__ */ A.jsx(AC, { className: "cil-h-4 cil-w-4" }),
           /* @__PURE__ */ A.jsxs("span", { children: [
-            f.continueWith,
+            F.continueWith,
             " Google"
           ] })
         ]
@@ -1004,12 +1004,12 @@ function HA({
         type: "button",
         className: "cil-w-full cil-flex cil-items-center cil-justify-center cil-gap-2 cil-px-4 cil-py-2 cil-border cil-rounded-md cil-hover:bg-gray-50 cil-transition-colors",
         style: c,
-        onClick: () => w("Microsoft"),
+        onClick: () => U("Microsoft"),
         "data-testid": "button-microsoft-login",
         children: [
           /* @__PURE__ */ A.jsx("svg", { className: "cil-h-4 cil-w-4", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ A.jsx("path", { d: "M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" }) }),
           /* @__PURE__ */ A.jsxs("span", { children: [
-            f.continueWith,
+            F.continueWith,
             " Microsoft"
           ] })
         ]
@@ -1038,7 +1038,7 @@ function sA({
   color: s = "currentColor",
   className: o = ""
 }) {
-  const n = {
+  const a = {
     xs: "cil-w-3 cil-h-3",
     sm: "cil-w-4 cil-h-4",
     md: "cil-w-6 cil-h-6",
@@ -1054,7 +1054,7 @@ function sA({
   return /* @__PURE__ */ A.jsx("div", { className: `cil-flex cil-items-center cil-justify-center ${o}`, children: /* @__PURE__ */ A.jsxs(
     "svg",
     {
-      className: `cil-animate-spin ${n[C] || n.md}`,
+      className: `cil-animate-spin ${a[C] || a.md}`,
       xmlns: "http://www.w3.org/2000/svg",
       fill: "none",
       viewBox: "0 0 24 24",
@@ -1086,44 +1086,44 @@ function sC({
   apiBaseUrl: C,
   user: s = {},
   primaryColor: o = "#3b82f6",
-  backgroundColor: n = "#ffffff",
+  backgroundColor: a = "#ffffff",
   onSuccess: i,
-  onError: a,
+  onError: d,
   onNavigate: l,
-  apiToken: u,
-  lang: f = "en",
-  texts: d = {}
+  apiToken: f,
+  lang: F = "en",
+  texts: u = {}
 }) {
-  const Q = { ...iA[f], ...d }, { isAuthorized: w } = wA(u), c = o, e = n, { post: F } = cA(C, u), [I, b] = K(""), [B, r] = K(""), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K("");
-  if (!w)
-    return /* @__PURE__ */ A.jsx(mA, { lang: f });
-  const G = (R) => {
-    i && i(R);
-  }, P = async (R) => {
-    R.preventDefault(), k(!0), j("");
+  const Q = { ...iA[F], ...u }, { isAuthorized: U } = wA(f), c = o, e = a, { post: K } = cA(C, f), [I, b] = w(""), [B, r] = w(""), [h, v] = w(!1), [P, k] = w(!1), [x, D] = w("");
+  if (!U)
+    return /* @__PURE__ */ A.jsx(mA, { lang: F });
+  const G = (t) => {
+    i && i({ ...t, type: "login" });
+  }, j = async (t) => {
+    t.preventDefault(), k(!0), D("");
     try {
-      const U = await F("/login", {
+      const m = await K("/login", {
         provider: "Email",
         email: I,
         password: B
       });
-      if (U.success)
-        G({ ...U, email: I });
+      if (m.success)
+        G({ ...m, email: I });
       else {
-        const p = U.message || U.error || Q.unknownError;
-        j(p), a && a(p), k(!1);
+        const S = m.message || m.error || Q.unknownError;
+        D(S), d && d(S), k(!1);
       }
-    } catch (U) {
-      console.error("⚠️ Login Error:", U);
-      let p = U.message;
-      U.isConnectionError ? p = Q.connectionError : U.status >= 500 ? p = Q.serverError : (!p || p === "Error " + U.status) && (p = Q.unknownError), j(p), a && a(p), k(!1);
+    } catch (m) {
+      console.error("⚠️ Login Error:", m);
+      let S = m.message;
+      m.isConnectionError ? S = Q.connectionError : m.status >= 500 ? S = Q.serverError : (!S || S === "Error " + m.status) && (S = Q.unknownError), D(S), d && d(S), k(!1);
     }
-  }, M = {
+  }, V = {
     backgroundColor: c,
     color: "#ffffff"
   }, T = {
     backgroundColor: e
-  }, x = {
+  }, R = {
     color: c
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: T, children: [
@@ -1139,20 +1139,20 @@ function sC({
           user: s,
           primaryColor: c,
           onSuccess: G,
-          onError: (R) => {
-            j(R), a && a(R);
+          onError: (t) => {
+            D(t), d && d(t);
           },
-          lang: f,
-          apiToken: u,
-          texts: d
+          lang: F,
+          apiToken: f,
+          texts: u
         }
       ),
       /* @__PURE__ */ A.jsxs("div", { className: "cil-relative cil-py-2", children: [
         /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-inset-0 cil-flex cil-items-center", children: /* @__PURE__ */ A.jsx("div", { className: "cil-w-full cil-border-t cil-border-gray-200" }) }),
         /* @__PURE__ */ A.jsx("div", { className: "cil-relative cil-flex cil-justify-center cil-text-xs cil-uppercase", children: /* @__PURE__ */ A.jsx("span", { className: "cil-px-2 cil-text-gray-500", style: T, children: Q.or }) })
       ] }),
-      /* @__PURE__ */ A.jsxs("form", { onSubmit: P, className: "cil-space-y-4", children: [
-        /* @__PURE__ */ A.jsx(aA, { message: m }),
+      /* @__PURE__ */ A.jsxs("form", { onSubmit: j, className: "cil-space-y-4", children: [
+        /* @__PURE__ */ A.jsx(aA, { message: x }),
         /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-2", children: [
           /* @__PURE__ */ A.jsx("label", { htmlFor: "auth-email", className: "cil-text-sm cil-font-medium cil-leading-none", children: Q.email }),
           /* @__PURE__ */ A.jsx(
@@ -1163,8 +1163,8 @@ function sC({
               placeholder: "user@example.com",
               className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2",
               value: I,
-              onChange: (R) => {
-                b(R.target.value), m && j("");
+              onChange: (t) => {
+                b(t.target.value), x && D("");
               },
               required: !0
             }
@@ -1180,8 +1180,8 @@ function sC({
                 type: h ? "text" : "password",
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10",
                 value: B,
-                onChange: (R) => {
-                  r(R.target.value), m && j("");
+                onChange: (t) => {
+                  r(t.target.value), x && D("");
                 },
                 required: !0
               }
@@ -1203,7 +1203,7 @@ function sC({
             type: "button",
             onClick: () => l && l("forgot-password"),
             className: "cil-text-sm cil-hover:underline",
-            style: x,
+            style: R,
             children: Q.forgotPassword
           }
         ) }),
@@ -1212,9 +1212,9 @@ function sC({
           {
             type: "submit",
             className: "cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed",
-            style: M,
-            disabled: W,
-            children: W ? /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-2", children: [
+            style: V,
+            disabled: P,
+            children: P ? /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-2", children: [
               /* @__PURE__ */ A.jsx(sA, { size: "sm", color: "#ffffff" }),
               /* @__PURE__ */ A.jsx("span", { children: Q.loading })
             ] }) : Q.loginButton
@@ -1231,7 +1231,7 @@ function sC({
           type: "button",
           onClick: () => l && l("signup"),
           className: "cil-font-medium cil-hover:underline",
-          style: x,
+          style: R,
           children: Q.signUp
         }
       )
@@ -1242,61 +1242,59 @@ function cC({
   apiBaseUrl: C,
   user: s = {},
   primaryColor: o = "#3b82f6",
-  backgroundColor: n = "#ffffff",
+  backgroundColor: a = "#ffffff",
   onSuccess: i,
-  onError: a,
+  onError: d,
   onNavigate: l,
-  apiToken: u,
-  lang: f = "en",
-  texts: d = {}
+  apiToken: f,
+  lang: F = "en",
+  texts: u = {}
 }) {
-  const Q = { ...iA[f], ...d }, { isAuthorized: w } = wA(u), c = o, e = n, { post: F } = cA(C, u), [I, b] = K(!1), [B, r] = K(""), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K({
+  const Q = { ...iA[F], ...u }, { isAuthorized: U } = wA(f), c = o, e = a, { post: K } = cA(C, f), [I, b] = w(!1), [B, r] = w(""), [h, v] = w(!1), [P, k] = w(!1), [x, D] = w({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
-  if (!w)
-    return /* @__PURE__ */ A.jsx(mA, { lang: f });
-  const G = (U) => {
-    i && i(U);
-  }, P = async (U) => {
-    if (U.preventDefault(), r(""), m.password !== m.confirmPassword) {
-      const p = Q.passwordsDontMatch;
-      r(p), a && a(p);
+  if (!U)
+    return /* @__PURE__ */ A.jsx(mA, { lang: F });
+  const G = async (t) => {
+    if (t.preventDefault(), r(""), x.password !== x.confirmPassword) {
+      const m = Q.passwordsDontMatch;
+      r(m), d && d(m);
       return;
     }
     b(!0);
     try {
-      const p = await F("/register", {
-        firstName: m.firstName,
-        lastName: m.lastName,
-        email: m.email,
-        password: m.password
+      const m = await K("/register", {
+        firstName: x.firstName,
+        lastName: x.lastName,
+        email: x.email,
+        password: x.password
       });
-      if (p.success)
-        G({ ...p, email: m.email });
+      if (m.success)
+        i && i({ ...m, email: x.email, type: "signup" });
       else {
-        const O = p.message || p.error || Q.unknownError;
-        r(O), a && a(O), b(!1);
+        const S = m.message || m.error || Q.unknownError;
+        r(S), d && d(S), b(!1);
       }
-    } catch (p) {
-      console.error("⚠️ SignUp Error:", p);
-      let O = p.message;
-      p.isConnectionError ? O = Q.connectionError : p.status >= 500 ? O = Q.serverError : (!O || O === "Error " + p.status) && (O = Q.unknownError), r(O), a && a(O), b(!1);
+    } catch (m) {
+      console.error("⚠️ SignUp Error:", m);
+      let S = m.message;
+      m.isConnectionError ? S = Q.connectionError : m.status >= 500 ? S = Q.serverError : (!S || S === "Error " + m.status) && (S = Q.unknownError), r(S), d && d(S), b(!1);
     }
-  }, M = (U, p) => {
-    j((O) => ({ ...O, [U]: p })), B && r("");
-  }, T = {
+  }, j = (t, m) => {
+    D((S) => ({ ...S, [t]: m })), B && r("");
+  }, V = {
     backgroundColor: c,
     color: "#ffffff"
-  }, x = {
+  }, T = {
     backgroundColor: e
   }, R = {
     color: c
   };
-  return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: x, children: [
+  return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: T, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6 cil-text-center", children: [
       /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: Q.createAccount }),
       /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: Q.createAccountSubtitle })
@@ -1308,20 +1306,22 @@ function cC({
           apiBaseUrl: C,
           user: s,
           primaryColor: c,
-          onSuccess: G,
-          onError: (U) => {
-            r(U), a && a(U);
+          onSuccess: (t) => {
+            i && i({ ...t, type: "login" });
           },
-          lang: f,
-          apiToken: u,
-          texts: d
+          onError: (t) => {
+            r(t), d && d(t);
+          },
+          lang: F,
+          apiToken: f,
+          texts: u
         }
       ),
       /* @__PURE__ */ A.jsxs("div", { className: "cil-relative cil-py-2", children: [
         /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-inset-0 cil-flex cil-items-center", children: /* @__PURE__ */ A.jsx("div", { className: "cil-w-full cil-border-t cil-border-gray-200" }) }),
-        /* @__PURE__ */ A.jsx("div", { className: "cil-relative cil-flex cil-justify-center cil-text-xs cil-uppercase", children: /* @__PURE__ */ A.jsx("span", { className: "cil-px-2 cil-text-gray-500", style: x, children: Q.or }) })
+        /* @__PURE__ */ A.jsx("div", { className: "cil-relative cil-flex cil-justify-center cil-text-xs cil-uppercase", children: /* @__PURE__ */ A.jsx("span", { className: "cil-px-2 cil-text-gray-500", style: T, children: Q.or }) })
       ] }),
-      /* @__PURE__ */ A.jsxs("form", { onSubmit: P, className: "cil-space-y-4", children: [
+      /* @__PURE__ */ A.jsxs("form", { onSubmit: G, className: "cil-space-y-4", children: [
         /* @__PURE__ */ A.jsx(aA, { message: B }),
         /* @__PURE__ */ A.jsxs("div", { className: "cil-grid cil-grid-cols-2 cil-gap-4", children: [
           /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-2", children: [
@@ -1329,8 +1329,8 @@ function cC({
             /* @__PURE__ */ A.jsx(
               "input",
               {
-                value: m.firstName,
-                onChange: (U) => M("firstName", U.target.value),
+                value: x.firstName,
+                onChange: (t) => j("firstName", t.target.value),
                 required: !0,
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
               }
@@ -1341,8 +1341,8 @@ function cC({
             /* @__PURE__ */ A.jsx(
               "input",
               {
-                value: m.lastName,
-                onChange: (U) => M("lastName", U.target.value),
+                value: x.lastName,
+                onChange: (t) => j("lastName", t.target.value),
                 required: !0,
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
               }
@@ -1355,8 +1355,8 @@ function cC({
             "input",
             {
               type: "email",
-              value: m.email,
-              onChange: (U) => M("email", U.target.value),
+              value: x.email,
+              onChange: (t) => j("email", t.target.value),
               required: !0,
               className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
             }
@@ -1369,8 +1369,8 @@ function cC({
               "input",
               {
                 type: h ? "text" : "password",
-                value: m.password,
-                onChange: (U) => M("password", U.target.value),
+                value: x.password,
+                onChange: (t) => j("password", t.target.value),
                 required: !0,
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
               }
@@ -1392,9 +1392,9 @@ function cC({
             /* @__PURE__ */ A.jsx(
               "input",
               {
-                type: W ? "text" : "password",
-                value: m.confirmPassword,
-                onChange: (U) => M("confirmPassword", U.target.value),
+                type: P ? "text" : "password",
+                value: x.confirmPassword,
+                onChange: (t) => j("confirmPassword", t.target.value),
                 required: !0,
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
               }
@@ -1404,8 +1404,8 @@ function cC({
               {
                 type: "button",
                 className: "cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700",
-                onClick: () => k(!W),
-                children: W ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
+                onClick: () => k(!P),
+                children: P ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
               }
             )
           ] })
@@ -1415,7 +1415,7 @@ function cC({
           {
             type: "submit",
             className: "cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed",
-            style: T,
+            style: V,
             disabled: I,
             children: I ? /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-2", children: [
               /* @__PURE__ */ A.jsx(sA, { size: "sm", color: "#ffffff" }),
@@ -1445,38 +1445,38 @@ function rC({
   apiBaseUrl: C,
   user: s = {},
   primaryColor: o = "#3b82f6",
-  backgroundColor: n = "#ffffff",
+  backgroundColor: a = "#ffffff",
   onSuccess: i,
-  onError: a,
+  onError: d,
   onNavigate: l,
-  apiToken: u,
-  lang: f = "en",
-  texts: d = {}
+  apiToken: f,
+  lang: F = "en",
+  texts: u = {}
 }) {
-  const Q = { ...iA[f], ...d }, { isAuthorized: w } = wA(u), c = o, e = n, { post: F } = cA(C, u), [I, b] = K(""), [B, r] = K(!1), [h, v] = K(!1), [W, k] = K("");
-  if (!w)
-    return /* @__PURE__ */ A.jsx(mA, { lang: f });
-  const m = async (M) => {
-    M.preventDefault(), r(!0), k("");
+  const Q = { ...iA[F], ...u }, { isAuthorized: U } = wA(f), c = o, e = a, { post: K } = cA(C, f), [I, b] = w(""), [B, r] = w(!1), [h, v] = w(!1), [P, k] = w("");
+  if (!U)
+    return /* @__PURE__ */ A.jsx(mA, { lang: F });
+  const x = async (V) => {
+    V.preventDefault(), r(!0), k("");
     try {
-      const T = await F("/forgot-password", { email: I });
+      const T = await K("/forgot-password", { email: I });
       if (T.success)
         v(!0), i && i({ ...T, email: I });
       else {
-        const x = T.message || T.error || Q.unknownError;
-        k(x), a && a(x), r(!1);
+        const R = T.message || T.error || Q.unknownError;
+        k(R), d && d(R), r(!1);
       }
     } catch (T) {
       console.error("⚠️ ForgotPassword Error:", T);
-      let x = T.message;
-      T.isConnectionError ? x = Q.connectionError : T.status >= 500 ? x = Q.serverError : (!x || x === "Error " + T.status) && (x = Q.unknownError), k(x), a && a(x), r(!1);
+      let R = T.message;
+      T.isConnectionError ? R = Q.connectionError : T.status >= 500 ? R = Q.serverError : (!R || R === "Error " + T.status) && (R = Q.unknownError), k(R), d && d(R), r(!1);
     }
-  }, j = {
+  }, D = {
     backgroundColor: c,
     color: "#ffffff"
   }, G = {
     backgroundColor: e
-  }, P = {
+  }, j = {
     color: c
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: G, children: [
@@ -1498,8 +1498,8 @@ function rC({
           children: Q.backToLogin
         }
       ) })
-    ] }) : /* @__PURE__ */ A.jsxs("form", { onSubmit: m, className: "cil-space-y-4", children: [
-      /* @__PURE__ */ A.jsx(aA, { message: W }),
+    ] }) : /* @__PURE__ */ A.jsxs("form", { onSubmit: x, className: "cil-space-y-4", children: [
+      /* @__PURE__ */ A.jsx(aA, { message: P }),
       /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-2", children: [
         /* @__PURE__ */ A.jsx("label", { htmlFor: "auth-forgot-email", className: "cil-text-sm cil-font-medium", children: Q.email }),
         /* @__PURE__ */ A.jsx(
@@ -1510,8 +1510,8 @@ function rC({
             placeholder: "user@example.com",
             className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2",
             value: I,
-            onChange: (M) => {
-              b(M.target.value), W && k("");
+            onChange: (V) => {
+              b(V.target.value), P && k("");
             },
             required: !0
           }
@@ -1522,7 +1522,7 @@ function rC({
         {
           type: "submit",
           className: "cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed",
-          style: j,
+          style: D,
           disabled: B,
           children: B ? /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-2", children: [
             /* @__PURE__ */ A.jsx(sA, { size: "sm", color: "#ffffff" }),
@@ -1536,7 +1536,7 @@ function rC({
           type: "button",
           onClick: () => l && l("login"),
           className: "cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center",
-          style: P,
+          style: j,
           children: Q.backToLogin
         }
       )
@@ -1555,107 +1555,107 @@ function tC({
   // The recovery code from URL/Email
   authMode: o = null,
   // '1' means social reset, '0' means normal reset
-  primaryColor: n = "#3b82f6",
+  primaryColor: a = "#3b82f6",
   backgroundColor: i = "#ffffff",
-  onSuccess: a,
+  onSuccess: d,
   onError: l,
-  onNavigate: u,
-  apiToken: f,
-  lang: d = "en",
+  onNavigate: f,
+  apiToken: F,
+  lang: u = "en",
   email: Q = "",
-  authToken: w = "",
+  authToken: U = "",
   // Auth token passed from consumer
   user: c = {},
   initialWaitSeconds: e = 0,
-  texts: F = {}
+  texts: K = {}
 }) {
-  const I = { ...iA[d], ...F }, { isAuthorized: b } = wA(f), B = n, r = i, { post: h } = cA(C, f), v = typeof window < "u" ? new URLSearchParams(window.location.search) : null, W = s || (v == null ? void 0 : v.get("token")) || "", k = o || (v == null ? void 0 : v.get("auth")) || "0", [m, j] = K({
-    token: W,
+  const I = { ...iA[u], ...K }, { isAuthorized: b } = wA(F), B = a, r = i, { post: h } = cA(C, F), v = typeof window < "u" ? new URLSearchParams(window.location.search) : null, P = s || (v == null ? void 0 : v.get("token")) || "", k = o || (v == null ? void 0 : v.get("auth")) || "0", [x, D] = w({
+    token: P,
     newPassword: "",
     confirmPassword: ""
-  }), [G, P] = K(!1), [M, T] = K(!1), [x, R] = K(!1), [U, p] = K(!1), [O, EA] = K(!1), [IA, gA] = K([]), [eA, z] = K(!1), [y, Y] = K(""), [AA, X] = K(""), [$, rA] = K(w), [tA, dA] = K(e), [WA, YA] = K(I.resetPasswordSubtitle), JA = LA(null);
+  }), [G, j] = w(!1), [V, T] = w(!1), [R, t] = w(!1), [m, S] = w(!1), [AA, EA] = w(!1), [IA, gA] = w([]), [eA, q] = w(!1), [y, p] = w(""), [$, M] = w(""), [_, rA] = w(U), [tA, dA] = w(e), [WA, YA] = w(I.resetPasswordSubtitle), JA = LA(null);
   if (oA(() => (tA > 0 && (JA.current = setInterval(() => {
     dA((L) => L <= 1 ? (clearInterval(JA.current), 0) : L - 1);
   }, 1e3)), () => clearInterval(JA.current)), [tA]), oA(() => {
-    w && rA(w);
-  }, [w]), !b)
-    return /* @__PURE__ */ A.jsx(mA, { lang: d });
+    U && rA(U);
+  }, [U]), !b)
+    return /* @__PURE__ */ A.jsx(mA, { lang: u });
   const PA = (L) => {
-    const S = Math.floor(L / 60), H = L % 60;
-    return `${S.toString().padStart(2, "0")}:${H.toString().padStart(2, "0")}`;
+    const Y = Math.floor(L / 60), O = L % 60;
+    return `${Y.toString().padStart(2, "0")}:${O.toString().padStart(2, "0")}`;
   }, xA = async () => {
     if (!(!Q || tA > 0)) {
-      T(!0), Y("");
+      T(!0), p("");
       try {
         const L = await h("/forgot-password", { email: Q });
         if (L.success)
           L.wait_seconds && dA(L.wait_seconds), YA(L.message || I.resendSent);
         else {
-          const S = L.message || L.error || I.connectionError;
-          Y(S), L.wait_seconds && dA(L.wait_seconds), l && l(S);
+          const Y = L.message || L.error || I.connectionError;
+          p(Y), L.wait_seconds && dA(L.wait_seconds), l && l(Y);
         }
       } catch (L) {
         console.error("⚠️ Resend Reset Error:", L);
-        let S = L.message;
-        L.isConnectionError ? S = I.connectionError : L.status >= 500 ? S = I.serverError : (!S || S === "Error " + L.status) && (S = I.unknownError), Y(S), l && l(S);
+        let Y = L.message;
+        L.isConnectionError ? Y = I.connectionError : L.status >= 500 ? Y = I.serverError : (!Y || Y === "Error " + L.status) && (Y = I.unknownError), p(Y), l && l(Y);
       } finally {
         T(!1);
       }
     }
   }, UA = async (L) => {
-    if (L.preventDefault(), Y(""), m.newPassword !== m.confirmPassword) {
-      const S = I.passwordsDontMatch;
-      Y(S), l && l(S);
+    if (L.preventDefault(), p(""), x.newPassword !== x.confirmPassword) {
+      const Y = I.passwordsDontMatch;
+      p(Y), l && l(Y);
       return;
     }
-    if (!m.token) {
-      const S = I.enterRecoveryCode;
-      Y(S), l && l(S);
+    if (!x.token) {
+      const Y = I.enterRecoveryCode;
+      p(Y), l && l(Y);
       return;
     }
-    P(!0);
+    j(!0);
     try {
-      const S = await h("/reset-password", {
-        token: m.token,
-        newPassword: m.newPassword,
-        confirmPassword: m.confirmPassword
+      const Y = await h("/reset-password", {
+        token: x.token,
+        newPassword: x.newPassword,
+        confirmPassword: x.confirmPassword
       });
-      if (S.success || S.status)
-        EA(!0), S.active_sessions && gA(S.active_sessions), S.token && rA(S.token), a && a(S);
+      if (Y.success || Y.status)
+        EA(!0), Y.active_sessions && gA(Y.active_sessions), Y.token && rA(Y.token), d && d({ ...Y, type: "password_reset" });
       else {
-        const H = S.message || S.error || I.unknownError;
-        Y(H), l && l(H), P(!1);
+        const O = Y.message || Y.error || I.unknownError;
+        p(O), l && l(O), j(!1);
       }
-    } catch (S) {
-      console.error("⚠️ ResetPassword Error:", S);
-      let H = S.message;
-      S.isConnectionError ? H = I.connectionError : S.status >= 500 ? H = I.serverError : (!H || H === "Error " + S.status) && (H = I.unknownError), Y(H), l && l(H), P(!1);
+    } catch (Y) {
+      console.error("⚠️ ResetPassword Error:", Y);
+      let O = Y.message;
+      Y.isConnectionError ? O = I.connectionError : Y.status >= 500 ? O = I.serverError : (!O || O === "Error " + Y.status) && (O = I.unknownError), p(O), l && l(O), j(!1);
     }
-  }, hA = async (L = !1, S = []) => {
-    if (!$) {
-      const H = I.noSessions;
-      Y(H), l && l(H);
+  }, hA = async (L = !1, Y = []) => {
+    if (!_) {
+      const O = I.noSessions;
+      p(O), l && l(O);
       return;
     }
-    z(!0), Y(""), X("");
+    q(!0), p(""), M("");
     try {
-      const H = await h("/logout_sessions", {
+      const O = await h("/logout_sessions", {
         email: Q || "",
         all_sessions: L,
-        session_ids: S
-      }, { token: $ });
-      if (H.success)
-        gA(L ? [] : (CA) => CA.filter((jA) => !S.includes(jA._id))), X(I.logoutSuccess);
+        session_ids: Y
+      }, { token: _ });
+      if (O.success)
+        gA(L ? [] : (CA) => CA.filter((jA) => !Y.includes(jA._id))), M(I.logoutSuccess);
       else {
-        const CA = H.message || H.error || "Logout failed";
-        Y(CA), l && l(CA);
+        const CA = O.message || O.error || "Logout failed";
+        p(CA), l && l(CA);
       }
-    } catch (H) {
-      console.error("⚠️ Logout Sessions Error:", H);
-      let CA = H.message;
-      H.isConnectionError ? CA = I.connectionError : H.status >= 500 ? CA = I.serverError : (!CA || CA === "Error " + H.status) && (CA = I.unknownError), Y(CA), l && l(CA);
+    } catch (O) {
+      console.error("⚠️ Logout Sessions Error:", O);
+      let CA = O.message;
+      O.isConnectionError ? CA = I.connectionError : O.status >= 500 ? CA = I.serverError : (!CA || CA === "Error " + O.status) && (CA = I.unknownError), p(CA), l && l(CA);
     } finally {
-      z(!1);
+      q(!1);
     }
   }, kA = {
     backgroundColor: B,
@@ -1665,14 +1665,14 @@ function tC({
   }, SA = {
     color: B
   };
-  if (O)
+  if (AA)
     return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: uA, children: [
       /* @__PURE__ */ A.jsxs("div", { className: "cil-text-center cil-mb-6", children: [
         /* @__PURE__ */ A.jsx("div", { className: "cil-w-16 cil-h-16 cil-mx-auto cil-rounded-full cil-bg-green-50 cil-flex cil-items-center cil-justify-center cil-text-green-500 cil-mb-4", children: /* @__PURE__ */ A.jsx("svg", { className: "cil-w-8 cil-h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ A.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M5 13l4 4L19 7" }) }) }),
         /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: I.resetSuccessTitle }),
         /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: I.resetSuccessSubtitle })
       ] }),
-      /* @__PURE__ */ A.jsx(DA, { message: AA }),
+      /* @__PURE__ */ A.jsx(DA, { message: $ }),
       /* @__PURE__ */ A.jsx(aA, { message: y }),
       IA.length > 0 && /* @__PURE__ */ A.jsxs("div", { className: "cil-mt-8 cil-space-y-4 cil-border-t cil-pt-6", children: [
         /* @__PURE__ */ A.jsxs("div", { className: "cil-text-left", children: [
@@ -1680,10 +1680,10 @@ function tC({
           /* @__PURE__ */ A.jsx("p", { className: "cil-text-xs cil-text-gray-500", children: I.sessionsSubtitle })
         ] }),
         /* @__PURE__ */ A.jsx("div", { className: "cil-space-y-3 cil-max-h-60 cil-overflow-y-auto cil-pr-1", children: IA.map((L) => {
-          var S;
+          var Y;
           return /* @__PURE__ */ A.jsxs("div", { className: "cil-p-3 cil-border cil-rounded-md cil-text-xs cil-bg-gray-50 cil-flex cil-justify-between cil-items-center", children: [
             /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1", children: [
-              /* @__PURE__ */ A.jsx("div", { className: "cil-font-semibold cil-text-gray-700 cil-truncate cil-max-w-[180px]", title: L["Device Name"], children: ((S = L["Device Name"]) == null ? void 0 : S.split(" ")[0]) || I.deviceName }),
+              /* @__PURE__ */ A.jsx("div", { className: "cil-font-semibold cil-text-gray-700 cil-truncate cil-max-w-[180px]", title: L["Device Name"], children: ((Y = L["Device Name"]) == null ? void 0 : Y.split(" ")[0]) || I.deviceName }),
               /* @__PURE__ */ A.jsx("div", { className: "cil-text-gray-500", children: L.IP }),
               L["Expiration Date"] && /* @__PURE__ */ A.jsxs("div", { className: "cil-text-gray-400 cil-italic", children: [
                 I.expiry,
@@ -1718,7 +1718,7 @@ function tC({
       /* @__PURE__ */ A.jsx("div", { className: "cil-mt-8 cil-pt-6 cil-border-t", children: /* @__PURE__ */ A.jsx(
         "button",
         {
-          onClick: () => u && u("login"),
+          onClick: () => f && f("login"),
           className: "cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors",
           style: kA,
           children: I.goToLogin
@@ -1742,14 +1742,14 @@ function tC({
               user: c,
               primaryColor: B,
               onSuccess: (L) => {
-                a && a(L);
+                d && d({ ...L, type: "login" });
               },
               onError: (L) => {
-                Y(L), l && l(L);
+                p(L), l && l(L);
               },
-              lang: d,
-              apiToken: f,
-              texts: F
+              lang: u,
+              apiToken: F,
+              texts: K
             }
           )
         ] }),
@@ -1766,9 +1766,9 @@ function tC({
             /* @__PURE__ */ A.jsx(
               "input",
               {
-                type: x ? "text" : "password",
-                value: m.newPassword,
-                onChange: (L) => j({ ...m, newPassword: L.target.value }),
+                type: R ? "text" : "password",
+                value: x.newPassword,
+                onChange: (L) => D({ ...x, newPassword: L.target.value }),
                 required: !0,
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10",
                 placeholder: I.min8Chars
@@ -1779,8 +1779,8 @@ function tC({
               {
                 type: "button",
                 className: "cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700",
-                onClick: () => R(!x),
-                children: x ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
+                onClick: () => t(!R),
+                children: R ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
               }
             )
           ] })
@@ -1791,9 +1791,9 @@ function tC({
             /* @__PURE__ */ A.jsx(
               "input",
               {
-                type: U ? "text" : "password",
-                value: m.confirmPassword,
-                onChange: (L) => j({ ...m, confirmPassword: L.target.value }),
+                type: m ? "text" : "password",
+                value: x.confirmPassword,
+                onChange: (L) => D({ ...x, confirmPassword: L.target.value }),
                 required: !0,
                 className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
               }
@@ -1803,8 +1803,8 @@ function tC({
               {
                 type: "button",
                 className: "cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700",
-                onClick: () => p(!U),
-                children: U ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
+                onClick: () => S(!m),
+                children: m ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
               }
             )
           ] })
@@ -1815,7 +1815,7 @@ function tC({
             type: "submit",
             className: "cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed",
             style: kA,
-            disabled: G || !m.token && !W,
+            disabled: G || !x.token && !P,
             children: G ? /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-2", children: [
               /* @__PURE__ */ A.jsx(sA, { size: "sm", color: "#ffffff" }),
               /* @__PURE__ */ A.jsx("span", { children: I.resetting })
@@ -1824,7 +1824,7 @@ function tC({
         ),
         /* @__PURE__ */ A.jsxs("div", { className: "cil-pt-2 cil-text-center cil-space-y-3", children: [
           /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-flex-col cil-gap-2", children: [
-            /* @__PURE__ */ A.jsx("span", { className: "cil-text-xs cil-text-gray-500", children: I.dontReceiveEmail || (d === "es" ? "¿No recibiste el correo?" : "Didn't receive the email?") }),
+            /* @__PURE__ */ A.jsx("span", { className: "cil-text-xs cil-text-gray-500", children: I.dontReceiveEmail || (u === "es" ? "¿No recibiste el correo?" : "Didn't receive the email?") }),
             Q ? tA > 0 ? /* @__PURE__ */ A.jsxs("div", { className: "cil-text-xs cil-text-gray-500 cil-font-mono", children: [
               I.resendCodeIn,
               /* @__PURE__ */ A.jsx("span", { className: "cil-font-bold", children: PA(tA) })
@@ -1833,16 +1833,16 @@ function tC({
               {
                 type: "button",
                 onClick: xA,
-                disabled: M,
+                disabled: V,
                 className: "cil-text-sm cil-font-medium cil-hover:underline",
                 style: SA,
-                children: M ? I.loading : I.resendCode
+                children: V ? I.loading : I.resendCode
               }
             ) : /* @__PURE__ */ A.jsx(
               "button",
               {
                 type: "button",
-                onClick: () => u && u("forgot-password"),
+                onClick: () => f && f("forgot-password"),
                 className: "cil-text-sm cil-font-medium cil-hover:underline",
                 style: SA,
                 children: I.sendResetLink || I.resendCode
@@ -1853,7 +1853,7 @@ function tC({
             "button",
             {
               type: "button",
-              onClick: () => u && u("login"),
+              onClick: () => f && f("login"),
               className: "cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500",
               children: I.backToLogin
             }
@@ -1867,71 +1867,71 @@ function nC({
   apiBaseUrl: C,
   user: s = {},
   primaryColor: o = "#3b82f6",
-  backgroundColor: n = "#ffffff",
+  backgroundColor: a = "#ffffff",
   onSuccess: i,
-  onError: a,
+  onError: d,
   onNavigate: l,
-  apiToken: u,
+  apiToken: f,
   // X-API-KEY for headers
-  authToken: f,
+  authToken: F,
   // User session token
-  email: d,
+  email: u,
   // User email
   lang: Q = "en",
-  texts: w = {}
+  texts: U = {}
 }) {
-  const c = { ...iA[Q], ...w }, { isAuthorized: e } = wA(u), F = o, I = n, { changePassword: b } = cA(C, u), [B, r] = K({
+  const c = { ...iA[Q], ...U }, { isAuthorized: e } = wA(f), K = o, I = a, { changePassword: b } = cA(C, f), [B, r] = w({
     oldPassword: "",
     newPassword: "",
     confirmPassword: ""
-  }), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K(""), [G, P] = K(""), [M, T] = K(!1), [x, R] = K(!1), [U, p] = K(!1);
+  }), [h, v] = w(!1), [P, k] = w(!1), [x, D] = w(""), [G, j] = w(""), [V, T] = w(!1), [R, t] = w(!1), [m, S] = w(!1);
   if (!e)
     return /* @__PURE__ */ A.jsx(mA, { lang: Q });
-  const O = async (z) => {
-    if (z.preventDefault(), j(""), P(""), B.newPassword !== B.confirmPassword) {
+  const AA = async (q) => {
+    if (q.preventDefault(), D(""), j(""), B.newPassword !== B.confirmPassword) {
       const y = c.passwordsDontMatch;
-      j(y), a && a(y);
+      D(y), d && d(y);
       return;
     }
     v(!0);
     try {
       const y = await b({
-        email: d || s.email,
+        email: u || s.email,
         old_password: B.oldPassword,
         new_password: B.newPassword,
-        token: f
+        token: F
         // Now using user session token, not api key
       });
       if (y.success)
-        k(!0), P(c.passwordChanged), i && i(y), r({ oldPassword: "", newPassword: "", confirmPassword: "" }), setTimeout(() => P(""), 5e3);
+        k(!0), j(c.passwordChanged), i && i(y), r({ oldPassword: "", newPassword: "", confirmPassword: "" }), setTimeout(() => j(""), 5e3);
       else {
-        const Y = y.message || y.error || c.unknownError;
-        j(Y), a && a(Y);
+        const p = y.message || y.error || c.unknownError;
+        D(p), d && d(p);
       }
     } catch (y) {
       console.error("⚠️ ChangePassword Error:", y);
-      let Y = y.message;
-      y.isConnectionError ? Y = c.connectionError : y.status >= 500 ? Y = c.serverError : (!Y || Y === "Error " + y.status) && (Y = c.unknownError), j(Y), a && a(Y);
+      let p = y.message;
+      y.isConnectionError ? p = c.connectionError : y.status >= 500 ? p = c.serverError : (!p || p === "Error " + y.status) && (p = c.unknownError), D(p), d && d(p);
     } finally {
       v(!1);
     }
-  }, EA = (z, y) => {
-    r((Y) => ({ ...Y, [z]: y })), m && j("");
+  }, EA = (q, y) => {
+    r((p) => ({ ...p, [q]: y })), x && D("");
   }, IA = {
-    backgroundColor: F,
+    backgroundColor: K,
     color: "#ffffff"
   }, gA = {
     backgroundColor: I
   }, eA = {
-    color: F
+    color: K
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: gA, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6 cil-text-center", children: [
       /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: c.changePassword }),
       /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: c.changePasswordSubtitle })
     ] }),
-    /* @__PURE__ */ A.jsxs("form", { onSubmit: O, className: "cil-space-y-4", children: [
-      /* @__PURE__ */ A.jsx(aA, { message: m }),
+    /* @__PURE__ */ A.jsxs("form", { onSubmit: AA, className: "cil-space-y-4", children: [
+      /* @__PURE__ */ A.jsx(aA, { message: x }),
       /* @__PURE__ */ A.jsx(DA, { message: G }),
       /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-2", children: [
         /* @__PURE__ */ A.jsx("label", { className: "cil-text-sm cil-font-medium", children: c.oldPassword }),
@@ -1939,9 +1939,9 @@ function nC({
           /* @__PURE__ */ A.jsx(
             "input",
             {
-              type: M ? "text" : "password",
+              type: V ? "text" : "password",
               value: B.oldPassword,
-              onChange: (z) => EA("oldPassword", z.target.value),
+              onChange: (q) => EA("oldPassword", q.target.value),
               required: !0,
               className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
             }
@@ -1951,8 +1951,8 @@ function nC({
             {
               type: "button",
               className: "cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700",
-              onClick: () => T(!M),
-              children: M ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
+              onClick: () => T(!V),
+              children: V ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
             }
           )
         ] })
@@ -1963,9 +1963,9 @@ function nC({
           /* @__PURE__ */ A.jsx(
             "input",
             {
-              type: x ? "text" : "password",
+              type: R ? "text" : "password",
               value: B.newPassword,
-              onChange: (z) => EA("newPassword", z.target.value),
+              onChange: (q) => EA("newPassword", q.target.value),
               required: !0,
               className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
             }
@@ -1975,8 +1975,8 @@ function nC({
             {
               type: "button",
               className: "cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700",
-              onClick: () => R(!x),
-              children: x ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
+              onClick: () => t(!R),
+              children: R ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
             }
           )
         ] })
@@ -1987,9 +1987,9 @@ function nC({
           /* @__PURE__ */ A.jsx(
             "input",
             {
-              type: U ? "text" : "password",
+              type: m ? "text" : "password",
               value: B.confirmPassword,
-              onChange: (z) => EA("confirmPassword", z.target.value),
+              onChange: (q) => EA("confirmPassword", q.target.value),
               required: !0,
               className: "cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
             }
@@ -1999,8 +1999,8 @@ function nC({
             {
               type: "button",
               className: "cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700",
-              onClick: () => p(!U),
-              children: U ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
+              onClick: () => S(!m),
+              children: m ? /* @__PURE__ */ A.jsx(fA, { size: 18 }) : /* @__PURE__ */ A.jsx(FA, { size: 18 })
             }
           )
         ] })
@@ -2035,46 +2035,46 @@ function aC({
   apiBaseUrl: C,
   token: s = null,
   user: o = {},
-  primaryColor: n = "#3b82f6",
+  primaryColor: a = "#3b82f6",
   backgroundColor: i = "#ffffff",
-  onSuccess: a,
+  onSuccess: d,
   onError: l,
-  onNavigate: u,
-  lang: f = "en",
-  apiToken: d,
+  onNavigate: f,
+  lang: F = "en",
+  apiToken: u,
   texts: Q = {}
 }) {
-  const w = { ...iA[f], ...Q }, { isAuthorized: c } = wA(d), e = n, F = i, { post: I } = cA(C, d), b = typeof window < "u" ? new URLSearchParams(window.location.search) : null, B = s || (b == null ? void 0 : b.get("token")) || "", [r, h] = K(B ? "verifying" : "idle"), [v, W] = K(""), [k, m] = K("");
+  const U = { ...iA[F], ...Q }, { isAuthorized: c } = wA(u), e = a, K = i, { post: I } = cA(C, u), b = typeof window < "u" ? new URLSearchParams(window.location.search) : null, B = s || (b == null ? void 0 : b.get("token")) || "", [r, h] = w(B ? "verifying" : "idle"), [v, P] = w(""), [k, x] = w("");
   if (oA(() => {
-    B && r === "verifying" && j(B);
+    B && r === "verifying" && D(B);
   }, [s, B]), !c)
-    return /* @__PURE__ */ A.jsx(mA, { lang: f });
-  const j = async (M) => {
-    m("");
+    return /* @__PURE__ */ A.jsx(mA, { lang: F });
+  const D = async (V) => {
+    x("");
     try {
-      const T = await I("/verify-email", { token: M });
+      const T = await I("/verify-email", { token: V });
       if (T.success)
-        h("success"), W(T.message || w.verifySuccess), a && a(T);
+        h("success"), P(T.message || U.verifySuccess), d && d(T);
       else {
         h("error");
-        const x = T.message || T.error || w.verifyError;
-        W(x), m(x), l && l(x);
+        const R = T.message || T.error || U.verifyError;
+        P(R), x(R), l && l(R);
       }
     } catch (T) {
       console.error("⚠️ Verification Error:", T), h("error");
-      const x = w.connectionError;
-      W(x), m(x), l && l(x);
+      const R = U.connectionError;
+      P(R), x(R), l && l(R);
     }
   }, G = {
     backgroundColor: e,
     color: "#ffffff"
-  }, P = {
-    backgroundColor: F
+  }, j = {
+    backgroundColor: K
   };
-  return B ? /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: P, children: [
+  return B ? /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: j, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6", children: [
-      /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: r === "verifying" ? w.verifying : w.emailVerification }),
-      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: r === "verifying" ? w.verifyingSubtitle : v })
+      /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: r === "verifying" ? U.verifying : U.emailVerification }),
+      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: r === "verifying" ? U.verifyingSubtitle : v })
     ] }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-py-6 cil-flex cil-flex-col cil-items-center", children: [
       /* @__PURE__ */ A.jsx(aA, { message: k }),
@@ -2085,26 +2085,26 @@ function aC({
     r !== "verifying" && /* @__PURE__ */ A.jsx(
       "button",
       {
-        onClick: () => u && u("login"),
+        onClick: () => f && f("login"),
         className: "cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors",
         style: G,
-        children: w.backToLogin
+        children: U.backToLogin
       }
     )
-  ] }) : /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: P, children: [
+  ] }) : /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: j, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6", children: [
-      /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: w.emailVerification }),
-      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: w.checkEmail })
+      /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: U.emailVerification }),
+      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: U.checkEmail })
     ] }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-6 cil-py-4 cil-flex cil-flex-col cil-items-center", children: [
       /* @__PURE__ */ A.jsx("div", { className: "cil-w-16 cil-h-16 cil-rounded-full cil-bg-blue-50 cil-flex cil-items-center cil-justify-center cil-text-blue-500", children: /* @__PURE__ */ A.jsx("svg", { className: "cil-w-8 cil-h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ A.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) }),
-      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500 cil-max-w-sm", children: w.verifyEmailMessage }),
+      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500 cil-max-w-sm", children: U.verifyEmailMessage }),
       /* @__PURE__ */ A.jsx(
         "button",
         {
-          onClick: () => u && u("login"),
+          onClick: () => f && f("login"),
           className: "cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-border cil-border-gray-200 cil-hover:bg-gray-50",
-          children: w.backToLogin
+          children: U.backToLogin
         }
       )
     ] })
@@ -2114,44 +2114,44 @@ function dC({
   apiBaseUrl: C,
   user: s = {},
   primaryColor: o = "#3b82f6",
-  backgroundColor: n = "#ffffff",
+  backgroundColor: a = "#ffffff",
   onNavigate: i,
-  lang: a = "en",
+  lang: d = "en",
   userEmail: l,
-  initialMessage: u,
-  initialWaitSeconds: f = 0,
-  onSuccess: d,
+  initialMessage: f,
+  initialWaitSeconds: F = 0,
+  onSuccess: u,
   onError: Q,
-  apiToken: w,
+  apiToken: U,
   texts: c = {}
 }) {
-  const e = { ...iA[a], ...c }, { isAuthorized: F } = wA(w), I = o, b = n, { post: B } = cA(C, w), [r, h] = K(!1), [v, W] = K(!1), [k, m] = K(""), [j, G] = K(u || e.waitingConfirmationMsg), [P, M] = K(f), [T, x] = K(!1), [R, U] = K(!1), [p, O] = K(""), [EA, IA] = K(""), gA = LA(null);
-  if (oA(() => (P > 0 && (gA.current = setInterval(() => {
-    M((X) => X <= 1 ? (clearInterval(gA.current), 0) : X - 1);
-  }, 1e3)), () => clearInterval(gA.current)), [P]), oA(() => {
-    P === 0 && (f > 0 || T) && (G(e.waitingConfirmationMsg), x(!1));
-  }, [P, f, e.waitingConfirmationMsg]), !F)
-    return /* @__PURE__ */ A.jsx(mA, { lang: a });
-  const eA = (X) => {
-    const $ = Math.floor(X / 60), rA = X % 60;
-    return `${$.toString().padStart(2, "0")}:${rA.toString().padStart(2, "0")}`;
-  }, z = async () => {
-    if (!(!l || P > 0)) {
-      h(!0), x(!1), O(""), IA("");
+  const e = { ...iA[d], ...c }, { isAuthorized: K } = wA(U), I = o, b = a, { post: B } = cA(C, U), [r, h] = w(!1), [v, P] = w(!1), [k, x] = w(""), [D, G] = w(f || e.waitingConfirmationMsg), [j, V] = w(F), [T, R] = w(!1), [t, m] = w(!1), [S, AA] = w(""), [EA, IA] = w(""), gA = LA(null);
+  if (oA(() => (j > 0 && (gA.current = setInterval(() => {
+    V((M) => M <= 1 ? (clearInterval(gA.current), 0) : M - 1);
+  }, 1e3)), () => clearInterval(gA.current)), [j]), oA(() => {
+    j === 0 && (F > 0 || T) && (G(e.waitingConfirmationMsg), R(!1));
+  }, [j, F, e.waitingConfirmationMsg]), !K)
+    return /* @__PURE__ */ A.jsx(mA, { lang: d });
+  const eA = (M) => {
+    const _ = Math.floor(M / 60), rA = M % 60;
+    return `${_.toString().padStart(2, "0")}:${rA.toString().padStart(2, "0")}`;
+  }, q = async () => {
+    if (!(!l || j > 0)) {
+      h(!0), R(!1), AA(""), IA("");
       try {
-        const X = await B("/resend-confirmation", { email: l });
-        if (X.success) {
-          x(!0);
-          const $ = X.message || e.resendSent;
-          IA($), X.wait_seconds && M(X.wait_seconds);
+        const M = await B("/resend-confirmation", { email: l });
+        if (M.success) {
+          R(!0);
+          const _ = M.message || e.resendSent;
+          IA(_), M.wait_seconds && V(M.wait_seconds);
         } else {
-          const $ = X.message || X.error || e.connectionError;
-          O($), X.wait_seconds && M(X.wait_seconds), Q && Q($);
+          const _ = M.message || M.error || e.connectionError;
+          AA(_), M.wait_seconds && V(M.wait_seconds), Q && Q(_);
         }
-      } catch (X) {
-        console.error("⚠️ Resend Error:", X);
-        const $ = e.connectionError;
-        O($), Q && Q($);
+      } catch (M) {
+        console.error("⚠️ Resend Error:", M);
+        const _ = e.connectionError;
+        AA(_), Q && Q(_);
       } finally {
         h(!1);
       }
@@ -2159,12 +2159,12 @@ function dC({
   }, y = {
     backgroundColor: I,
     color: "#ffffff"
-  }, Y = {
+  }, p = {
     backgroundColor: b
-  }, AA = {
+  }, $ = {
     color: I
   };
-  return R ? /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: Y, children: [
+  return t ? /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: p, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6", children: [
       /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: e.verifySuccess }),
       /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: e.verifySuccess })
@@ -2179,26 +2179,26 @@ function dC({
         children: e.goToLogin
       }
     )
-  ] }) : /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: Y, children: [
+  ] }) : /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: p, children: [
     /* @__PURE__ */ A.jsx("div", { className: "cil-flex cil-items-center cil-justify-center cil-mb-6", children: v ? /* @__PURE__ */ A.jsx(sA, { size: "lg", color: I }) : /* @__PURE__ */ A.jsx("div", { className: "cil-w-16 cil-h-16 cil-rounded-full cil-bg-blue-50 cil-flex cil-items-center cil-justify-center cil-text-blue-500", children: /* @__PURE__ */ A.jsx("svg", { className: "cil-w-8 cil-h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ A.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) }) }),
     /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold cil-mb-2", children: e.waitingConfirmation }),
-    /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-mb-6 cil-text-gray-500", children: j }),
+    /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-mb-6 cil-text-gray-500", children: D }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-mb-4", children: [
       /* @__PURE__ */ A.jsx(DA, { message: EA }),
-      /* @__PURE__ */ A.jsx(aA, { message: p })
+      /* @__PURE__ */ A.jsx(aA, { message: S })
     ] }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-border-t cil-pt-6 cil-space-y-3", children: [
-      P > 0 ? /* @__PURE__ */ A.jsxs("div", { className: "cil-p-2 cil-rounded cil-bg-gray-50 cil-text-gray-700 cil-text-xs cil-font-mono cil-border cil-inline-block", children: [
+      j > 0 ? /* @__PURE__ */ A.jsxs("div", { className: "cil-p-2 cil-rounded cil-bg-gray-50 cil-text-gray-700 cil-text-xs cil-font-mono cil-border cil-inline-block", children: [
         e.resendCodeIn,
-        /* @__PURE__ */ A.jsx("span", { className: "cil-font-bold", children: eA(P) })
+        /* @__PURE__ */ A.jsx("span", { className: "cil-font-bold", children: eA(j) })
       ] }) : /* @__PURE__ */ A.jsx(
         "button",
         {
           type: "button",
-          onClick: z,
+          onClick: q,
           disabled: r || !l,
           className: "cil-text-sm cil-font-medium cil-hover:underline cil-flex cil-items-center cil-justify-center cil-gap-2 cil-mx-auto",
-          style: AA,
+          style: $,
           children: r ? /* @__PURE__ */ A.jsxs(A.Fragment, { children: [
             /* @__PURE__ */ A.jsx(sA, { size: "xs", color: I }),
             e.loading
@@ -2217,51 +2217,51 @@ function dC({
     ] })
   ] });
 }
-function gC(C, s, o, n, i = null) {
-  const { getMe: a } = cA(C, s), [l, u] = K({
+function gC(C, s, o, a, i = null) {
+  const { getMe: d } = cA(C, s), [l, f] = w({
     user: i,
     isLoading: !i,
     error: null
   });
   return oA(() => {
     if (i && l.user === i && !l.error) {
-      l.isLoading && u((d) => ({ ...d, isLoading: !1 }));
+      l.isLoading && f((u) => ({ ...u, isLoading: !1 }));
       return;
     }
-    if (!o || !n || !C) {
-      u({
+    if (!o || !a || !C) {
+      f({
         user: i || null,
         isLoading: !1,
-        error: o && n ? null : "Missing authentication credentials"
+        error: o && a ? null : "Missing authentication credentials"
       });
       return;
     }
     (async () => {
-      u((d) => ({ ...d, isLoading: !0, error: null }));
+      f((u) => ({ ...u, isLoading: !0, error: null }));
       try {
-        const d = await a(n, o);
-        if (d.success) {
-          const Q = d.user ? { ...d.user, ...Object.fromEntries(Object.entries(d).filter(([w]) => w !== "user" && w !== "success")) } : d;
-          u({
+        const u = await d(a, o);
+        if (u.success) {
+          const Q = u.user ? { ...u.user, ...Object.fromEntries(Object.entries(u).filter(([U]) => U !== "user" && U !== "success")) } : u;
+          f({
             user: Q,
             isLoading: !1,
             error: null
           });
         } else
-          u({
+          f({
             user: i || null,
             isLoading: !1,
-            error: d.message || "Failed to load profile"
+            error: u.message || "Failed to load profile"
           });
-      } catch (d) {
-        console.error("Failed to fetch user profile:", d), u({
+      } catch (u) {
+        console.error("Failed to fetch user profile:", u), f({
           user: i || null,
           isLoading: !1,
-          error: d.message || "Connection error"
+          error: u.message || "Connection error"
         });
       }
     })();
-  }, [o, n, C, s, i]), l;
+  }, [o, a, C, s, i]), l;
 }
 function CC(C) {
   return ag({ attr: { viewBox: "0 0 24 24", strokeWidth: "2", stroke: "currentColor", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" }, child: [{ tag: "path", attr: { stroke: "none", d: "M0 0h24v24H0z", fill: "none" } }, { tag: "path", attr: { d: "M5 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M19 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }, { tag: "path", attr: { d: "M19 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" } }] })(C);
@@ -2282,35 +2282,35 @@ function BC({
   apps: C = [],
   user: s = {},
   customLabels: o = {},
-  backgroundColor: n = "#ffffff",
+  backgroundColor: a = "#ffffff",
   primaryColor: i = "#3b82f6",
-  apiBaseUrl: a,
+  apiBaseUrl: d,
   apiToken: l,
-  onAppClick: u,
-  lang: f = "en",
-  texts: d = {}
+  onAppClick: f,
+  lang: F = "en",
+  texts: u = {}
 }) {
-  const [Q, w] = K(!1), c = LA(null), e = { ...iA[f], ...d };
+  const [Q, U] = w(!1), c = LA(null), e = { ...iA[F], ...u };
   oA(() => {
     const B = (r) => {
-      c.current && !c.current.contains(r.target) && w(!1);
+      c.current && !c.current.contains(r.target) && U(!1);
     };
     return Q && document.addEventListener("mousedown", B), () => document.removeEventListener("mousedown", B);
   }, [Q]);
-  const F = (B) => B ? B.charAt(0).toUpperCase() : "?", I = (B) => {
+  const K = (B) => B ? B.charAt(0).toUpperCase() : "?", I = (B) => {
     let r = 0;
     for (let h = 0; h < B.length; h++)
       r = B.charCodeAt(h) + ((r << 5) - r);
     return og[Math.abs(r) % og.length];
   }, b = (B) => {
-    u && u(B), w(!1), B.publicUrl && window.open(B.publicUrl, "_blank");
+    f && f(B), U(!1), B.publicUrl && window.open(B.publicUrl, "_blank");
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-relative cil-inline-block cil-text-left", ref: c, children: [
     /* @__PURE__ */ A.jsx(
       "button",
       {
         type: "button",
-        onClick: () => w(!Q),
+        onClick: () => U(!Q),
         className: "cil-flex cil-items-center cil-justify-center cil-p-2 cil-rounded-full cil-transition-all cil-duration-200 cil-hover:bg-white/10 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2",
         style: {
           color: "#ffffff"
@@ -2339,7 +2339,7 @@ function BC({
                       filter: "brightness(1.1) grayscale(0.2)"
                       // Adjusted for white icons feeling
                     },
-                    children: /* @__PURE__ */ A.jsx("span", { className: "cil-filter cil-brightness-0 cil-invert", children: F(B.appKey) })
+                    children: /* @__PURE__ */ A.jsx("span", { className: "cil-filter cil-brightness-0 cil-invert", children: K(B.appKey) })
                   }
                 ),
                 /* @__PURE__ */ A.jsx("span", { className: "cil-text-[10px] cil-font-bold cil-text-gray-700 cil-uppercase cil-tracking-wider cil-text-center cil-truncate cil-w-full cil-px-1", children: o[B.appKey] ? o[B.appKey] : B.appKey.replace(/_/g, " ").length > 9 ? `${B.appKey.replace(/_/g, " ").substring(0, 9)}...` : B.appKey.replace(/_/g, " ") }),
@@ -2386,41 +2386,41 @@ function EC({
   user: C = {},
   backgroundColor: s = "#ffffff",
   primaryColor: o = "#3b82f6",
-  onLogout: n,
+  onLogout: a,
   onChangePassword: i,
-  onProfileClick: a,
+  onProfileClick: d,
   // Added onProfileClick
   extraItems: l = [],
   // Array of { icon: ReactNode, label: string, onClick: function }
-  lang: u = "en",
-  texts: f = {}
+  lang: f = "en",
+  texts: F = {}
 }) {
-  var W;
-  const [d, Q] = K(!1), [w, c] = K(!1), e = LA(null), F = { ...iA[u], ...f }, I = o, b = s;
+  var P;
+  const [u, Q] = w(!1), [U, c] = w(!1), e = LA(null), K = { ...iA[f], ...F }, I = o, b = s;
   oA(() => {
-    const k = (m) => {
-      e.current && !e.current.contains(m.target) && Q(!1);
+    const k = (x) => {
+      e.current && !e.current.contains(x.target) && Q(!1);
     };
-    return d && document.addEventListener("mousedown", k), () => document.removeEventListener("mousedown", k);
-  }, [d]);
+    return u && document.addEventListener("mousedown", k), () => document.removeEventListener("mousedown", k);
+  }, [u]);
   const B = dg(C), r = () => {
     const k = C["Full Name"] || C.fullName || C.full_name || C.firstName || C.first_name;
     return k ? k.trim().charAt(0).toUpperCase() : C.email ? C.email.charAt(0).toUpperCase() : "U";
-  }, h = C["Full Name"] || C.fullName || C.full_name || C.firstName || C.first_name || ((W = C.email) == null ? void 0 : W.split("@")[0]) || "User", v = ({ icon: k, label: m, onClick: j, className: G = "", color: P = "cil-text-gray-600", hoverColor: M }) => {
-    const [T, x] = K(!1), R = T ? { backgroundColor: M || `${I}10` } : {};
+  }, h = C["Full Name"] || C.fullName || C.full_name || C.firstName || C.first_name || ((P = C.email) == null ? void 0 : P.split("@")[0]) || "User", v = ({ icon: k, label: x, onClick: D, className: G = "", color: j = "cil-text-gray-600", hoverColor: V }) => {
+    const [T, R] = w(!1), t = T ? { backgroundColor: V || `${I}10` } : {};
     return /* @__PURE__ */ A.jsxs(
       "button",
       {
         onClick: () => {
-          Q(!1), j && j();
+          Q(!1), D && D();
         },
-        onMouseEnter: () => x(!0),
-        onMouseLeave: () => x(!1),
-        style: R,
-        className: `cil-w-full cil-flex cil-items-center cil-gap-3 cil-px-4 cil-py-3 cil-text-sm cil-transition-colors cil-group ${P} ${G}`,
+        onMouseEnter: () => R(!0),
+        onMouseLeave: () => R(!1),
+        style: t,
+        className: `cil-w-full cil-flex cil-items-center cil-gap-3 cil-px-4 cil-py-3 cil-text-sm cil-transition-colors cil-group ${j} ${G}`,
         children: [
           k && /* @__PURE__ */ A.jsx(k, { className: "cil-w-5 cil-h-5 cil-transition-transform cil-group-hover:scale-105" }),
-          /* @__PURE__ */ A.jsx("span", { className: "cil-flex-1 cil-text-left cil-font-medium", children: m })
+          /* @__PURE__ */ A.jsx("span", { className: "cil-flex-1 cil-text-left cil-font-medium", children: x })
         ]
       }
     );
@@ -2430,14 +2430,14 @@ function EC({
       "button",
       {
         type: "button",
-        onClick: () => Q(!d),
+        onClick: () => Q(!u),
         className: "cil-flex cil-items-center cil-justify-center cil-w-10 cil-h-10 cil-rounded-full cil-border-2 cil-transition-all cil-duration-200 cil-hover:shadow-md cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-overflow-hidden",
         style: {
           borderColor: I,
           backgroundColor: b,
           color: I
         },
-        children: B && !w ? /* @__PURE__ */ A.jsx(
+        children: B && !U ? /* @__PURE__ */ A.jsx(
           "img",
           {
             src: B,
@@ -2450,7 +2450,7 @@ function EC({
         ) : /* @__PURE__ */ A.jsx("span", { className: "cil-block cil-text-sm cil-font-bold", children: r() })
       }
     ),
-    d && /* @__PURE__ */ A.jsxs(
+    u && /* @__PURE__ */ A.jsxs(
       "div",
       {
         className: "cil-absolute cil-right-0 cil-mt-1 cil-w-64 cil-origin-top-right cil-rounded-md cil-bg-white cil-shadow-2xl cil-border cil-border-gray-100 cil-z-50 cil-overflow-hidden",
@@ -2464,34 +2464,34 @@ function EC({
               v,
               {
                 icon: cg,
-                label: F.profile,
-                onClick: a
+                label: K.profile,
+                onClick: d
               }
             ),
             /* @__PURE__ */ A.jsx(
               v,
               {
                 icon: jg,
-                label: F.changePassword,
+                label: K.changePassword,
                 onClick: i
               }
             ),
-            l.map((k, m) => /* @__PURE__ */ A.jsx(
+            l.map((k, x) => /* @__PURE__ */ A.jsx(
               v,
               {
                 icon: k.icon,
                 label: k.label,
                 onClick: k.onClick
               },
-              `extra-${m}`
+              `extra-${x}`
             )),
             /* @__PURE__ */ A.jsx("div", { className: "cil-my-1 cil-border-t cil-border-gray-100" }),
             /* @__PURE__ */ A.jsx(
               v,
               {
                 icon: rg,
-                label: F.logoutThisSession,
-                onClick: n,
+                label: K.logoutThisSession,
+                onClick: a,
                 color: "cil-text-gray-700",
                 hoverColor: "#fff1f2"
               }
@@ -2507,47 +2507,47 @@ function IC({
   onLanguageChange: s,
   variant: o = "header",
   // 'header' or 'default'
-  primaryColor: n = "#3b82f6"
+  primaryColor: a = "#3b82f6"
 }) {
-  const [i, a] = K(!1), l = LA(null);
+  const [i, d] = w(!1), l = LA(null);
   oA(() => {
-    const d = (Q) => {
-      l.current && !l.current.contains(Q.target) && a(!1);
+    const u = (Q) => {
+      l.current && !l.current.contains(Q.target) && d(!1);
     };
-    return i && document.addEventListener("mousedown", d), () => document.removeEventListener("mousedown", d);
+    return i && document.addEventListener("mousedown", u), () => document.removeEventListener("mousedown", u);
   }, [i]);
-  const u = [
+  const f = [
     { code: "en", label: "English", flag: "US" },
     { code: "es", label: "Español", flag: "ES" }
   ];
-  u.find((d) => d.code === C) || u[0];
-  const f = o === "header" ? { color: "#ffffff" } : { color: n };
+  f.find((u) => u.code === C) || f[0];
+  const F = o === "header" ? { color: "#ffffff" } : { color: a };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-relative cil-inline-block cil-text-left", ref: l, children: [
     /* @__PURE__ */ A.jsx(
       "button",
       {
         type: "button",
-        onClick: () => a(!i),
+        onClick: () => d(!i),
         className: "cil-flex cil-items-center cil-justify-center cil-p-2 cil-rounded-full cil-transition-all cil-duration-200 cil-hover:bg-white/10 cil-focus:outline-none",
-        style: f,
+        style: F,
         "aria-label": "Change Language",
         children: /* @__PURE__ */ A.jsx(Dg, { className: "cil-w-6 cil-h-6" })
       }
     ),
-    i && /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-right-0 cil-mt-2 cil-w-48 cil-origin-top-right cil-rounded-xl cil-bg-white cil-shadow-lg cil-border cil-border-gray-200 cil-z-[100] cil-overflow-hidden", children: /* @__PURE__ */ A.jsx("div", { className: "cil-py-1", children: u.map((d) => /* @__PURE__ */ A.jsxs(
+    i && /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-right-0 cil-mt-2 cil-w-48 cil-origin-top-right cil-rounded-xl cil-bg-white cil-shadow-lg cil-border cil-border-gray-200 cil-z-[100] cil-overflow-hidden", children: /* @__PURE__ */ A.jsx("div", { className: "cil-py-1", children: f.map((u) => /* @__PURE__ */ A.jsxs(
       "button",
       {
         onClick: () => {
-          s && s(d.code), a(!1);
+          s && s(u.code), d(!1);
         },
-        className: `cil-w-full cil-flex cil-items-center cil-gap-3 cil-px-4 cil-py-3 cil-text-sm cil-transition-colors ${C === d.code ? "cil-bg-green-50 cil-text-green-600" : "cil-text-gray-700 cil-hover:bg-gray-50"}`,
+        className: `cil-w-full cil-flex cil-items-center cil-gap-3 cil-px-4 cil-py-3 cil-text-sm cil-transition-colors ${C === u.code ? "cil-bg-green-50 cil-text-green-600" : "cil-text-gray-700 cil-hover:bg-gray-50"}`,
         children: [
-          /* @__PURE__ */ A.jsx("span", { className: "cil-w-6 cil-text-[10px] cil-font-bold cil-text-gray-400 cil-uppercase", children: d.flag }),
-          /* @__PURE__ */ A.jsx("span", { className: "cil-flex-1 cil-text-left cil-font-medium", children: d.label }),
-          C === d.code && /* @__PURE__ */ A.jsx(Wg, { className: "cil-w-4 cil-h-4" })
+          /* @__PURE__ */ A.jsx("span", { className: "cil-w-6 cil-text-[10px] cil-font-bold cil-text-gray-400 cil-uppercase", children: u.flag }),
+          /* @__PURE__ */ A.jsx("span", { className: "cil-flex-1 cil-text-left cil-font-medium", children: u.label }),
+          C === u.code && /* @__PURE__ */ A.jsx(Wg, { className: "cil-w-4 cil-h-4" })
         ]
       },
-      d.code
+      u.code
     )) }) })
   ] });
 }
@@ -2556,18 +2556,18 @@ function uC({
   logo: C,
   customers: s = [],
   selectedCustomers: o = [],
-  onCustomerChange: n,
+  onCustomerChange: a,
   onSearch: i,
-  theme: a = "light",
+  theme: d = "light",
   onTheme: l,
-  notificationsEnabled: u = !1,
-  onNotification: f,
-  notificationData: d = [],
+  notificationsEnabled: f = !1,
+  onNotification: F,
+  notificationData: u = [],
   onSettings: Q,
-  user: w,
+  user: U,
   onProfileClick: c,
   onChangePassword: e,
-  onLogout: F,
+  onLogout: K,
   apps: I,
   primaryColor: b = "#10b981",
   // Por defecto el verde de la imagen
@@ -2577,75 +2577,75 @@ function uC({
   // Array of { label, onClick, active }
   extraItems: v = [],
   // Array of components or items to render
-  userMenuExtraItems: W = [],
+  userMenuExtraItems: P = [],
   // Array of { icon: ReactNode, label: string, onClick: function } for UserMenu
   apiBaseUrl: k,
-  apiToken: m
+  apiToken: x
 }) {
-  const [j, G] = K(!1), P = LA(null);
+  const [D, G] = w(!1), j = LA(null);
   oA(() => {
-    const R = (U) => {
-      P.current && !P.current.contains(U.target) && G(!1);
+    const t = (m) => {
+      j.current && !j.current.contains(m.target) && G(!1);
     };
-    return j && document.addEventListener("mousedown", R), () => document.removeEventListener("mousedown", R);
-  }, [j]);
-  const M = {
+    return D && document.addEventListener("mousedown", t), () => document.removeEventListener("mousedown", t);
+  }, [D]);
+  const V = {
     backgroundColor: b,
     color: "#ffffff"
-  }, T = (R) => {
-    if (!n) return;
-    const U = o.includes(R);
-    let p;
-    U ? p = o.filter((O) => O !== R) : p = [...o, R], n(p);
-  }, x = () => o.length === 0 ? "All Customers" : o.length === 1 ? o[0] : `${o.length} Customers`;
+  }, T = (t) => {
+    if (!a) return;
+    const m = o.includes(t);
+    let S;
+    m ? S = o.filter((AA) => AA !== t) : S = [...o, t], a(S);
+  }, R = () => o.length === 0 ? "All Customers" : o.length === 1 ? o[0] : `${o.length} Customers`;
   return /* @__PURE__ */ A.jsxs(
     "header",
     {
       className: "cil-w-full cil-h-16 cil-flex cil-items-center cil-px-6 cil-shadow-md cil-relative cil-z-[1000] cil-gap-4",
-      style: M,
+      style: V,
       children: [
         /* @__PURE__ */ A.jsx("div", { className: "cil-flex cil-items-center cil-gap-2 cil-min-w-fit", children: C ? typeof C == "string" ? /* @__PURE__ */ A.jsx("img", { src: C, alt: "Logo", className: "cil-h-14" }) : C : /* @__PURE__ */ A.jsx("img", { src: iC, alt: "The Prism Group", className: "cil-h-14" }) }),
-        h && h.length > 0 && /* @__PURE__ */ A.jsx("nav", { className: "cil-flex cil-items-center cil-gap-6 cil-ml-4 cil-min-w-fit", children: h.map((R, U) => /* @__PURE__ */ A.jsx(
+        h && h.length > 0 && /* @__PURE__ */ A.jsx("nav", { className: "cil-flex cil-items-center cil-gap-6 cil-ml-4 cil-min-w-fit", children: h.map((t, m) => /* @__PURE__ */ A.jsx(
           "button",
           {
-            onClick: R.onClick,
-            className: `cil-text-sm cil-transition-colors cil-hover:text-white ${R.active ? "cil-text-white cil-font-bold" : "cil-text-white/90"}`,
-            children: R.label
+            onClick: t.onClick,
+            className: `cil-text-sm cil-transition-colors cil-hover:text-white ${t.active ? "cil-text-white cil-font-bold" : "cil-text-white/90"}`,
+            children: t.label
           },
-          `nav-${U}`
+          `nav-${m}`
         )) }),
-        n && s.length > 0 && /* @__PURE__ */ A.jsxs("div", { className: "cil-relative", ref: P, children: [
+        a && s.length > 0 && /* @__PURE__ */ A.jsxs("div", { className: "cil-relative", ref: j, children: [
           /* @__PURE__ */ A.jsxs(
             "button",
             {
-              onClick: () => G(!j),
+              onClick: () => G(!D),
               className: "cil-flex cil-items-center cil-gap-2 cil-px-3 cil-py-1.5 cil-rounded-lg cil-hover:bg-white/10 cil-transition-colors cil-text-sm cil-font-medium",
               children: [
-                /* @__PURE__ */ A.jsx("span", { children: x() }),
-                /* @__PURE__ */ A.jsx(Pg, { className: `cil-w-6 cil-h-6 cil-transition-transform ${j ? "cil-rotate-180" : ""}` })
+                /* @__PURE__ */ A.jsx("span", { children: R() }),
+                /* @__PURE__ */ A.jsx(Pg, { className: `cil-w-6 cil-h-6 cil-transition-transform ${D ? "cil-rotate-180" : ""}` })
               ]
             }
           ),
-          j && /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-left-0 cil-mt-2 cil-w-64 cil-bg-white cil-rounded-xl cil-shadow-xl cil-border cil-border-gray-200 cil-p-2 cil-text-gray-800", children: /* @__PURE__ */ A.jsxs("div", { className: "cil-max-h-60 cil-overflow-y-auto", children: [
+          D && /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-left-0 cil-mt-2 cil-w-64 cil-bg-white cil-rounded-xl cil-shadow-xl cil-border cil-border-gray-200 cil-p-2 cil-text-gray-800", children: /* @__PURE__ */ A.jsxs("div", { className: "cil-max-h-60 cil-overflow-y-auto", children: [
             /* @__PURE__ */ A.jsx(
               "button",
               {
-                onClick: () => n && n([]),
+                onClick: () => a && a([]),
                 className: `cil-w-full cil-text-left cil-px-3 cil-py-2 cil-rounded-lg cil-text-sm cil-mb-1 ${o.length === 0 ? "cil-bg-gray-100 cil-font-bold" : "cil-hover:bg-gray-50"}`,
                 children: "All Customers"
               }
             ),
-            s.map((R, U) => /* @__PURE__ */ A.jsxs(
+            s.map((t, m) => /* @__PURE__ */ A.jsxs(
               "button",
               {
-                onClick: () => T(R),
-                className: `cil-w-full cil-text-left cil-px-3 cil-py-2 cil-rounded-lg cil-text-sm cil-flex cil-items-center cil-gap-2 ${o.includes(R) ? "cil-bg-gray-100 cil-font-bold" : "cil-hover:bg-gray-50"}`,
+                onClick: () => T(t),
+                className: `cil-w-full cil-text-left cil-px-3 cil-py-2 cil-rounded-lg cil-text-sm cil-flex cil-items-center cil-gap-2 ${o.includes(t) ? "cil-bg-gray-100 cil-font-bold" : "cil-hover:bg-gray-50"}`,
                 children: [
-                  /* @__PURE__ */ A.jsx("div", { className: `cil-w-4 cil-h-4 cil-rounded cil-border cil-flex cil-items-center cil-justify-center ${o.includes(R) ? "cil-bg-green-500 cil-border-green-500" : "cil-border-gray-300"}`, children: o.includes(R) && /* @__PURE__ */ A.jsx(eC, { className: "cil-w-3 cil-h-3 cil-text-white" }) }),
-                  R
+                  /* @__PURE__ */ A.jsx("div", { className: `cil-w-4 cil-h-4 cil-rounded cil-border cil-flex cil-items-center cil-justify-center ${o.includes(t) ? "cil-bg-green-500 cil-border-green-500" : "cil-border-gray-300"}`, children: o.includes(t) && /* @__PURE__ */ A.jsx(eC, { className: "cil-w-3 cil-h-3 cil-text-white" }) }),
+                  t
                 ]
               },
-              U
+              m
             ))
           ] }) })
         ] }),
@@ -2656,7 +2656,7 @@ function uC({
             {
               type: "text",
               placeholder: "Type / to search",
-              onChange: (R) => i && i(R.target.value),
+              onChange: (t) => i && i(t.target.value),
               className: "cil-w-full cil-bg-white/20 cil-border-none cil-rounded-lg cil-py-2 cil-pl-12 cil-pr-4 cil-text-sm cil-placeholder-white/70 cil-text-white cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-white/30 cil-transition-all"
             }
           )
@@ -2666,26 +2666,26 @@ function uC({
             BC,
             {
               apps: I,
-              user: w,
+              user: U,
               primaryColor: "#ffffff",
               backgroundColor: "#ffffff",
               lang: B,
               apiBaseUrl: k,
-              apiToken: m
+              apiToken: x
             }
           ),
-          u && /* @__PURE__ */ A.jsxs(
+          f && /* @__PURE__ */ A.jsxs(
             "button",
             {
-              onClick: () => f && f(),
+              onClick: () => F && F(),
               className: "cil-p-2 cil-rounded-full cil-hover:bg-white/10 cil-transition-colors cil-relative",
               children: [
                 /* @__PURE__ */ A.jsx(Mg, { className: "cil-w-6 cil-h-6" }),
-                d.length > 0 && /* @__PURE__ */ A.jsx("span", { className: "cil-absolute cil-top-1 cil-right-1 cil-w-2 cil-h-2 cil-bg-red-500 cil-rounded-full" })
+                u.length > 0 && /* @__PURE__ */ A.jsx("span", { className: "cil-absolute cil-top-1 cil-right-1 cil-w-2 cil-h-2 cil-bg-red-500 cil-rounded-full" })
               ]
             }
           ),
-          v.map((R, U) => /* @__PURE__ */ A.jsx("div", { className: "cil-flex cil-items-center", children: R }, `header-extra-${U}`)),
+          v.map((t, m) => /* @__PURE__ */ A.jsx("div", { className: "cil-flex cil-items-center", children: t }, `header-extra-${m}`)),
           /* @__PURE__ */ A.jsx(
             IC,
             {
@@ -2699,7 +2699,7 @@ function uC({
             {
               onClick: () => l && l(),
               className: "cil-p-2 cil-rounded-full cil-hover:bg-white/10 cil-transition-colors",
-              children: a === "dark" ? /* @__PURE__ */ A.jsx(Xg, { className: "cil-w-6 cil-h-6" }) : /* @__PURE__ */ A.jsx(Vg, { className: "cil-w-6 cil-h-6" })
+              children: d === "dark" ? /* @__PURE__ */ A.jsx(Xg, { className: "cil-w-6 cil-h-6" }) : /* @__PURE__ */ A.jsx(Vg, { className: "cil-w-6 cil-h-6" })
             }
           ),
           Q && /* @__PURE__ */ A.jsx(
@@ -2710,19 +2710,19 @@ function uC({
               children: /* @__PURE__ */ A.jsx(GA, { className: "cil-w-6 cil-h-6" })
             }
           ),
-          w && /* @__PURE__ */ A.jsx(
+          U && /* @__PURE__ */ A.jsx(
             EC,
             {
-              user: w,
+              user: U,
               primaryColor: b,
               backgroundColor: "#ffffff",
               lang: B,
               onProfileClick: c,
               onChangePassword: e,
-              onLogout: F,
-              extraItems: W,
+              onLogout: K,
+              extraItems: P,
               apiBaseUrl: k,
-              apiToken: m
+              apiToken: x
             }
           )
         ] })
@@ -2750,25 +2750,25 @@ function fC({
   apiBaseUrl: C,
   apiToken: s,
   authToken: o,
-  userEmail: n,
+  userEmail: a,
   primaryColor: i = "#3b82f6",
-  backgroundColor: a = "#ffffff",
+  backgroundColor: d = "#ffffff",
   onClose: l,
-  onNavigate: u,
-  onError: f,
-  onSuccess: d,
+  onNavigate: f,
+  onError: F,
+  onSuccess: u,
   lang: Q = "en",
-  user: w,
+  user: U,
   texts: c = {}
 }) {
-  const e = { ...iA[Q], ...c }, { user: F, isLoading: I, error: b } = gC(C, s, o, n, w), B = i, r = a, { post: h } = cA(C, s), [v, W] = K([]), [k, m] = K(!1), [j, G] = K(""), [P, M] = K(""), [T, x] = K(!1);
+  const e = { ...iA[Q], ...c }, { user: K, isLoading: I, error: b } = gC(C, s, o, a, U), B = i, r = d, { post: h } = cA(C, s), [v, P] = w([]), [k, x] = w(!1), [D, G] = w(""), [j, V] = w(""), [T, R] = w(!1);
   oA(() => {
-    F != null && F.active_sessions ? W(F.active_sessions) : F != null && F.sessions && W(F.sessions);
-  }, [F]);
-  const R = (y) => y ? y.includes("Mozilla/") ? y.includes("iPhone") ? "iPhone" : y.includes("Android") ? "Android Device" : y.includes("Windows") ? "Windows PC" : y.includes("Macintosh") ? "Mac" : y.includes("iPad") ? "iPad" : "Web Browser" : y : e.deviceName, U = (y) => {
+    K != null && K.active_sessions ? P(K.active_sessions) : K != null && K.sessions && P(K.sessions);
+  }, [K]);
+  const t = (y) => y ? y.includes("Mozilla/") ? y.includes("iPhone") ? "iPhone" : y.includes("Android") ? "Android Device" : y.includes("Windows") ? "Windows PC" : y.includes("Macintosh") ? "Mac" : y.includes("iPad") ? "iPad" : "Web Browser" : y : e.deviceName, m = (y) => {
     if (!y) return /* @__PURE__ */ A.jsx(Ig, { className: "w-5 h-5" });
-    const Y = y.toLowerCase();
-    return Y.includes("iphone") || Y.includes("android") ? /* @__PURE__ */ A.jsx(Hg, { className: "w-5 h-5" }) : Y.includes("ipad") || Y.includes("tablet") ? /* @__PURE__ */ A.jsx(Zg, { className: "w-5 h-5" }) : /* @__PURE__ */ A.jsx(Ig, { className: "w-5 h-5" });
+    const p = y.toLowerCase();
+    return p.includes("iphone") || p.includes("android") ? /* @__PURE__ */ A.jsx(Hg, { className: "w-5 h-5" }) : p.includes("ipad") || p.includes("tablet") ? /* @__PURE__ */ A.jsx(Zg, { className: "w-5 h-5" }) : /* @__PURE__ */ A.jsx(Ig, { className: "w-5 h-5" });
   };
   if (I)
     return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-5xl cil-mx-auto cil-animate-pulse", children: [
@@ -2790,7 +2790,7 @@ function fC({
           ] })
         }
       ),
-      /* @__PURE__ */ A.jsx("div", { className: "cil-rounded-b-[2.5rem] cil-shadow-2xl cil-border cil-p-8 md:cil-p-12", style: { backgroundColor: a }, children: /* @__PURE__ */ A.jsxs("div", { className: "cil-grid cil-grid-cols-1 lg:cil-grid-cols-2 cil-gap-10", children: [
+      /* @__PURE__ */ A.jsx("div", { className: "cil-rounded-b-[2.5rem] cil-shadow-2xl cil-border cil-p-8 md:cil-p-12", style: { backgroundColor: d }, children: /* @__PURE__ */ A.jsxs("div", { className: "cil-grid cil-grid-cols-1 lg:cil-grid-cols-2 cil-gap-10", children: [
         /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-8", children: [
           /* @__PURE__ */ A.jsx("div", { className: "cil-h-8 cil-w-48 cil-bg-gray-100 cil-rounded-lg" }),
           /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-4", children: [
@@ -2807,7 +2807,7 @@ function fC({
         ] })
       ] }) })
     ] });
-  if (b || !F)
+  if (b || !K)
     return /* @__PURE__ */ A.jsx("div", { className: "cil-w-full cil-max-w-4xl cil-mx-auto cil-p-8", children: /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-flex-col cil-items-center cil-justify-center cil-py-20 cil-space-y-4", children: [
       /* @__PURE__ */ A.jsx(sg, { className: "cil-w-16 cil-h-16 cil-text-red-500" }),
       /* @__PURE__ */ A.jsx("p", { className: "cil-text-lg cil-font-semibold cil-text-red-600", children: b || e.failedLoadProfile }),
@@ -2821,29 +2821,29 @@ function fC({
         }
       )
     ] }) });
-  const p = F["Full Name"] || F.fullName || F.full_name || `${F.firstName || ""} ${F.lastName || ""}`.trim() || "User", O = F.Roles || [], EA = F.permissions || [], IA = F.biography || F.bio || "", gA = dg(F), eA = () => p.charAt(0).toUpperCase(), z = async (y = !1, Y = []) => {
+  const S = K["Full Name"] || K.fullName || K.full_name || `${K.firstName || ""} ${K.lastName || ""}`.trim() || "User", AA = K.Roles || [], EA = K.permissions || [], IA = K.biography || K.bio || "", gA = dg(K), eA = () => S.charAt(0).toUpperCase(), q = async (y = !1, p = []) => {
     if (!o) {
-      const AA = e.noSessions;
-      G(AA);
+      const $ = e.noSessions;
+      G($);
       return;
     }
-    m(!0), G(""), M("");
+    x(!0), G(""), V("");
     try {
-      const AA = await h("/logout_sessions", {
-        email: F.email || n || "",
+      const $ = await h("/logout_sessions", {
+        email: K.email || a || "",
         all_sessions: y,
-        session_ids: Y
+        session_ids: p
       }, { token: o });
-      if (AA.success)
-        W(y ? [] : (X) => X.filter(($) => !Y.includes($._id))), M(e.logoutSuccess), d && d(AA);
+      if ($.success)
+        P(y ? [] : (M) => M.filter((_) => !p.includes(_._id))), V(e.logoutSuccess), u && u($);
       else {
-        const X = AA.message || AA.error || "Logout failed";
-        G(X), f && f(X);
+        const M = $.message || $.error || "Logout failed";
+        G(M), F && F(M);
       }
-    } catch (AA) {
-      console.error("⚠️ Logout Sessions Error:", AA), G(e.connectionError);
+    } catch ($) {
+      console.error("⚠️ Logout Sessions Error:", $), G(e.connectionError);
     } finally {
-      m(!1);
+      x(!1);
     }
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-5xl cil-mx-auto", children: [
@@ -2875,11 +2875,11 @@ function fC({
                 "img",
                 {
                   src: gA,
-                  alt: p,
+                  alt: S,
                   className: "cil-w-32 cil-h-32 md:cil-w-40 md:cil-h-40 cil-rounded-3xl cil-object-cover cil-shadow-2xl cil-ring-4 cil-ring-white cil-transition-transform cil-group-hover:scale-105",
                   style: { filter: "none" },
                   referrerPolicy: "no-referrer",
-                  onError: () => x(!0)
+                  onError: () => R(!0)
                 }
               ) }) : /* @__PURE__ */ A.jsx(
                 "div",
@@ -2902,17 +2902,17 @@ function fC({
               )
             ] }),
             /* @__PURE__ */ A.jsxs("div", { className: "cil-flex-1 cil-text-center md:cil-text-left cil-space-y-3", children: [
-              /* @__PURE__ */ A.jsx("h1", { className: "cil-text-4xl md:cil-text-5xl cil-font-black cil-text-gray-900 cil-tracking-tight", children: p }),
+              /* @__PURE__ */ A.jsx("h1", { className: "cil-text-4xl md:cil-text-5xl cil-font-black cil-text-gray-900 cil-tracking-tight", children: S }),
               /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-justify-center md:cil-justify-start cil-gap-2 cil-text-gray-600", children: [
                 /* @__PURE__ */ A.jsx(Og, { className: "cil-w-5 cil-h-5" }),
-                /* @__PURE__ */ A.jsx("span", { className: "cil-text-lg cil-font-medium", children: F.email || n })
+                /* @__PURE__ */ A.jsx("span", { className: "cil-text-lg cil-font-medium", children: K.email || a })
               ] }),
               IA && /* @__PURE__ */ A.jsxs("p", { className: "cil-text-gray-600 cil-max-w-2xl cil-leading-relaxed cil-italic", children: [
                 '"',
                 IA,
                 '"'
               ] }),
-              O.length > 0 && /* @__PURE__ */ A.jsx("div", { className: "cil-flex cil-flex-wrap cil-gap-2 cil-justify-center md:cil-justify-start cil-pt-2", children: O.map((y, Y) => /* @__PURE__ */ A.jsx(
+              AA.length > 0 && /* @__PURE__ */ A.jsx("div", { className: "cil-flex cil-flex-wrap cil-gap-2 cil-justify-center md:cil-justify-start cil-pt-2", children: AA.map((y, p) => /* @__PURE__ */ A.jsx(
                 "span",
                 {
                   className: "cil-px-4 cil-py-1.5 cil-rounded-full cil-text-xs cil-font-bold cil-uppercase cil-tracking-wider cil-shadow-sm cil-transition-all cil-hover:scale-105 cil-hover:shadow-md",
@@ -2923,7 +2923,7 @@ function fC({
                   },
                   children: y.replace(/_/g, " ")
                 },
-                Y
+                p
               )) })
             ] })
           ] })
@@ -2936,8 +2936,8 @@ function fC({
         className: "cil-rounded-b-[2.5rem] cil-shadow-2xl cil-border-x cil-border-b cil-border-gray-100 cil-p-8 md:cil-p-12",
         style: { backgroundColor: r },
         children: [
-          /* @__PURE__ */ A.jsx(aA, { message: j }),
-          /* @__PURE__ */ A.jsx(DA, { message: P }),
+          /* @__PURE__ */ A.jsx(aA, { message: D }),
+          /* @__PURE__ */ A.jsx(DA, { message: j }),
           /* @__PURE__ */ A.jsxs("div", { className: "cil-grid cil-grid-cols-1 lg:cil-grid-cols-2 cil-gap-10", children: [
             /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-8", children: [
               /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-4", children: [
@@ -2948,11 +2948,11 @@ function fC({
                 /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-4 cil-pl-2", children: [
                   /* @__PURE__ */ A.jsxs("div", { className: "cil-group", children: [
                     /* @__PURE__ */ A.jsx("p", { className: "cil-text-xs cil-uppercase cil-font-bold cil-text-gray-400 cil-tracking-widest cil-mb-1.5", children: e.fullNameLabel }),
-                    /* @__PURE__ */ A.jsx("p", { className: "cil-text-base cil-font-bold cil-text-gray-800 cil-group-hover:text-gray-900 cil-transition-colors", children: p })
+                    /* @__PURE__ */ A.jsx("p", { className: "cil-text-base cil-font-bold cil-text-gray-800 cil-group-hover:text-gray-900 cil-transition-colors", children: S })
                   ] }),
                   /* @__PURE__ */ A.jsxs("div", { className: "cil-group", children: [
                     /* @__PURE__ */ A.jsx("p", { className: "cil-text-xs cil-uppercase cil-font-bold cil-text-gray-400 cil-tracking-widest cil-mb-1.5", children: e.email }),
-                    /* @__PURE__ */ A.jsx("p", { className: "cil-text-base cil-font-semibold cil-text-gray-700 cil-group-hover:text-gray-900 cil-transition-colors", children: F.email || n })
+                    /* @__PURE__ */ A.jsx("p", { className: "cil-text-base cil-font-semibold cil-text-gray-700 cil-group-hover:text-gray-900 cil-transition-colors", children: K.email || a })
                   ] })
                 ] })
               ] }),
@@ -2961,8 +2961,8 @@ function fC({
                   /* @__PURE__ */ A.jsx("div", { className: "cil-p-2 cil-rounded-xl", style: { backgroundColor: `${B}15` }, children: /* @__PURE__ */ A.jsx(Eg, { className: "cil-w-6 cil-h-6", style: { color: B } }) }),
                   /* @__PURE__ */ A.jsx("h2", { className: "cil-text-xl cil-font-black cil-text-gray-800 cil-uppercase cil-tracking-wide", children: e.permissionsLabel })
                 ] }),
-                /* @__PURE__ */ A.jsx("div", { className: "cil-grid cil-grid-cols-1 cil-gap-3 cil-max-h-[400px] cil-overflow-y-auto cil-pr-2 cil-custom-scrollbar", children: EA.length > 0 ? EA.map((y, Y) => {
-                  var AA, X;
+                /* @__PURE__ */ A.jsx("div", { className: "cil-grid cil-grid-cols-1 cil-gap-3 cil-max-h-[400px] cil-overflow-y-auto cil-pr-2 cil-custom-scrollbar", children: EA.length > 0 ? EA.map((y, p) => {
+                  var $, M;
                   return /* @__PURE__ */ A.jsxs(
                     "div",
                     {
@@ -2972,8 +2972,8 @@ function fC({
                         borderColor: `${B}20`
                       },
                       children: [
-                        /* @__PURE__ */ A.jsx("p", { className: "cil-text-xs cil-font-bold cil-uppercase cil-tracking-wider", style: { color: B }, children: ((AA = y["Permission ID"]) == null ? void 0 : AA.split(".")[0]) || "App" }),
-                        /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-font-bold cil-text-gray-800", children: ((X = y["Permission ID"]) == null ? void 0 : X.split(".").slice(1).join(" ")) || y["Permission ID"] }),
+                        /* @__PURE__ */ A.jsx("p", { className: "cil-text-xs cil-font-bold cil-uppercase cil-tracking-wider", style: { color: B }, children: (($ = y["Permission ID"]) == null ? void 0 : $.split(".")[0]) || "App" }),
+                        /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-font-bold cil-text-gray-800", children: ((M = y["Permission ID"]) == null ? void 0 : M.split(".").slice(1).join(" ")) || y["Permission ID"] }),
                         /* @__PURE__ */ A.jsx(
                           "span",
                           {
@@ -2984,7 +2984,7 @@ function fC({
                         )
                       ]
                     },
-                    Y
+                    p
                   );
                 }) : /* @__PURE__ */ A.jsxs("div", { className: "cil-py-8 cil-text-center", children: [
                   /* @__PURE__ */ A.jsx(Eg, { className: "cil-w-12 cil-h-12 cil-mx-auto cil-mb-3 cil-text-gray-300" }),
@@ -3007,9 +3007,9 @@ function fC({
                   },
                   children: [
                     /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-3 cil-flex-1", children: [
-                      /* @__PURE__ */ A.jsx("div", { className: "cil-p-2 cil-rounded-xl", style: { backgroundColor: `${B}10`, color: B }, children: U(y["Device Name"]) }),
+                      /* @__PURE__ */ A.jsx("div", { className: "cil-p-2 cil-rounded-xl", style: { backgroundColor: `${B}10`, color: B }, children: m(y["Device Name"]) }),
                       /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1.5 cil-flex-1", children: [
-                        /* @__PURE__ */ A.jsx("div", { className: "cil-font-black cil-text-gray-800 cil-text-sm", title: y["Device Name"], children: R(y["Device Name"]) }),
+                        /* @__PURE__ */ A.jsx("div", { className: "cil-font-black cil-text-gray-800 cil-text-sm", title: y["Device Name"], children: t(y["Device Name"]) }),
                         /* @__PURE__ */ A.jsxs("div", { className: "cil-text-xs cil-text-gray-600 cil-font-semibold cil-flex cil-items-center cil-gap-2", children: [
                           /* @__PURE__ */ A.jsx("span", { className: "cil-w-2 cil-h-2 cil-rounded-full cil-bg-green-500" }),
                           y.IP
@@ -3024,7 +3024,7 @@ function fC({
                     /* @__PURE__ */ A.jsx(
                       "button",
                       {
-                        onClick: () => z(!1, [y._id]),
+                        onClick: () => q(!1, [y._id]),
                         disabled: k,
                         className: "cil-p-3 cil-text-red-500 cil-hover:bg-red-50 cil-rounded-xl cil-transition-all cil-opacity-0 cil-group-hover:opacity-100 cil-focus:opacity-100 cil-hover:scale-110",
                         title: e.logoutThisSession,
@@ -3041,7 +3041,7 @@ function fC({
               v.length > 1 && /* @__PURE__ */ A.jsx(
                 "button",
                 {
-                  onClick: () => z(!0),
+                  onClick: () => q(!0),
                   disabled: k,
                   className: "cil-w-full cil-py-3 cil-text-sm cil-uppercase cil-tracking-widest cil-font-extrabold cil-text-white cil-rounded-2xl cil-transition-all cil-active:scale-95 cil-hover:brightness-110 cil-shadow-lg",
                   style: { backgroundColor: "#ef4444" },
@@ -3065,7 +3065,7 @@ function fC({
             /* @__PURE__ */ A.jsx(
               "button",
               {
-                onClick: () => u && u("change-password"),
+                onClick: () => f && f("change-password"),
                 className: "cil-px-10 cil-py-4 cil-rounded-2xl cil-font-bold cil-text-base cil-text-white cil-shadow-lg cil-transition-all cil-active:scale-95 cil-hover:brightness-110 cil-hover:shadow-xl",
                 style: { backgroundColor: B },
                 children: e.changePassword
