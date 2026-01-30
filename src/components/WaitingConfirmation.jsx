@@ -203,6 +203,7 @@ export default function WaitingConfirmation({
                 <FormError message={localError} />
             </div>
 
+            {/* 
             <form onSubmit={handleVerifyCode} className="cil-mb-8 cil-space-y-4">
                 <div className="cil-space-y-2">
                     <label className="cil-text-sm cil-font-medium cil-text-gray-700 cil-block cil-text-left cil-px-1">
@@ -211,7 +212,7 @@ export default function WaitingConfirmation({
                     <input
                         type="text"
                         placeholder="XXXXXX"
-                        className="cil-flex cil-h-12 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-center cil-text-lg cil-font-mono cil-tracking-widest cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2"
+                        className="cil-flex cil-h-12 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-center cil-text-lg cil-font-mono cil-tracking-widest cil-focus:outline-none cil-ring-2 cil-focus:ring-offset-2"
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
                         required
@@ -231,6 +232,7 @@ export default function WaitingConfirmation({
                     ) : t.verifyButton}
                 </button>
             </form>
+            */}
 
             <div className="cil-border-t cil-pt-6 cil-space-y-3">
                 {countdown > 0 ? (

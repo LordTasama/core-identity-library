@@ -16,9 +16,21 @@ import {
 } from '../src/index';
 import '../src/styles/identity-layer.css';
 
+// Demo Helper: Parse URL params
+const getUrlParam = (name) => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+};
+
 function App() {
-    const [view, setView] = useState('login');
+    // Initial view from URL or default to 'login'
+    const initialView = getUrlParam('view') || 'login';
+    const [view, setView] = useState(initialView);
     const [lang, setLang] = useState('en');
+
+    // Token and AuthMode from URL for simulation
+    const urlToken = getUrlParam('token') || '';
+    const urlAuthMode = getUrlParam('auth') || '0';
 
     // Initialize state from localStorage (ONLY Email and Token as requested)
     const [userEmail, setUserEmail] = useState(() => localStorage.getItem('demo_user_email') || '');
@@ -48,7 +60,8 @@ function App() {
     const {
         getUserContext: apiGetContext,
         logout: apiLogout,
-        getAppColors
+        getAppColors,
+        get: apiGet
     } = useAuthApi(apiBaseUrl, apiToken);
 
     // Diagnostic Log
@@ -210,6 +223,22 @@ function App() {
             if (data.backgroundColor) setBackgroundColor(data.backgroundColor);
         }).catch(() => { });
     };
+    
+    // Test helper for specific X-REQUEST-URL headers
+    const handleRequestWithUrl = async (url) => {
+        try {
+            console.log(`🚀 Requesting branding for: ${url}`);
+            const data = await apiGet('/colors-app', {
+                headers: { 'X-REQUEST-URL': url }
+            });
+            console.log(`✅ Success [${url}]:`, data);
+            if (data.primaryColor) setPrimaryColor(data.primaryColor);
+            if (data.backgroundColor) setBackgroundColor(data.backgroundColor);
+        } catch (err) {
+            console.error(`❌ Error [${url}]:`, err);
+            alert(`Failed to fetch colors for ${url}\nError: ${err.message}`);
+        }
+    };
 
 
     const renderView = () => {
@@ -241,7 +270,6 @@ function App() {
             case 'login': return <Login {...commonProps} />;
             case 'signup': return <SignUp {...commonProps} />;
             case 'forgot-password': return <ForgotPassword {...commonProps} />;
-            case 'reset-password': return <ResetPassword {...commonProps} initialWaitSeconds={waitSeconds} />;
             case 'change-password': return <ChangePassword {...commonProps} onNavigate={() => setView('login')} />;
             case 'profile': return (
                 <UserProfile
@@ -251,7 +279,22 @@ function App() {
                     onClose={() => setView('login')}
                 />
             );
-            case 'email-verification': return <EmailVerification {...commonProps} />;
+            case 'reset-password': return (
+                <ResetPassword
+                    {...commonProps}
+                    token={urlToken}
+                    authMode={urlAuthMode}
+                    email={userEmail}
+                    onNavigate={handleNavigate}
+                />
+            );
+            case 'email-verification': return (
+                <EmailVerification
+                    {...commonProps}
+                    token={urlToken}
+                    onNavigate={handleNavigate}
+                />
+            );
             case 'waiting-confirmation': return <WaitingConfirmation {...commonProps} userEmail={userEmail} initialMessage={initialMsg} initialWaitSeconds={waitSeconds} />;
             default: return <Login {...commonProps} />;
         }
@@ -339,6 +382,55 @@ function App() {
 
                 <div className={`cil-w-full cil-transition-all cil-duration-500 ${view === 'profile' ? 'cil-max-w-5xl' : 'cil-max-w-md'}`}>
                     {renderView()}
+                </div>
+            </div>
+
+            {/* Simulation Controls Overlay (Dev only) */}
+            <div className="cil-fixed cil-bottom-4 cil-left-4 cil-flex cil-flex-col cil-gap-2 cil-z-[100]">
+                <div className="cil-bg-black/80 cil-text-white cil-p-3 cil-rounded-lg cil-text-[10px] cil-font-mono cil-shadow-2xl">
+                    <p className="cil-font-bold cil-mb-1 cil-text-blue-400">Simulation Tools</p>
+                    <button
+                        onClick={() => window.location.href = '?view=email-verification&token=DEMO_TOKEN'}
+                        className="cil-block cil-hover:text-blue-300 cil-mb-1"
+                    >
+                        &gt; Verify Email (Link)
+                    </button>
+                    <button
+                        onClick={() => window.location.href = '?view=reset-password&token=DEMO_TOKEN&auth=0'}
+                        className="cil-block cil-hover:text-blue-300 cil-mb-1"
+                    >
+                        &gt; Reset Pass (Normal)
+                    </button>
+                    <button
+                        onClick={() => window.location.href = '?view=reset-password&token=DEMO_TOKEN&auth=1'}
+                        className="cil-block cil-hover:text-blue-300"
+                    >
+                        &gt; Reset Pass (Social)
+                    </button>
+
+                    <div className="cil-mt-2 cil-pt-2 cil-border-t cil-border-white/10">
+                        <p className="cil-font-bold cil-mb-1 cil-text-green-400">Branding Tests</p>
+                        <button
+                            onClick={() => handleRequestWithUrl('https://eprcrm.prismgrp.com')}
+                            className="cil-block cil-hover:text-green-300 cil-mb-1"
+                        >
+                            &gt; EPR CRM Branding
+                        </button>
+                        <button
+                            onClick={() => handleRequestWithUrl('https://insights.prismgrp.com')}
+                            className="cil-block cil-hover:text-green-300"
+                        >
+                            &gt; Insights Branding
+                        </button>
+                    </div>
+                    <div className="cil-mt-2 cil-pt-2 cil-border-t cil-border-white/10">
+                        <button
+                            onClick={() => window.location.href = '/'}
+                            className="cil-text-red-400 cil-hover:text-red-300"
+                        >
+                            [ Clear All ]
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

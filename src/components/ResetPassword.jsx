@@ -8,6 +8,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
+import SocialAuthButtons from './SocialAuthButtons';
 import AuthError from './AuthError';
 import FormError from './FormError';
 import LoadingSpinner from './LoadingSpinner';
@@ -16,6 +17,7 @@ import FormSuccess from './FormSuccess';
 export default function ResetPassword({
     apiBaseUrl,
     token: initialToken = '', // The recovery code from URL/Email
+    authMode = '0', // '1' means social reset, '0' means normal reset
     primaryColor: propPrimaryColor = '#3b82f6',
     backgroundColor: propBackgroundColor = '#ffffff',
     onSuccess,
@@ -318,110 +320,148 @@ export default function ResetPassword({
         );
     }
 
+    const isSocialReset = authMode === '1';
+
     return (
         <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
             <div className="cil-space-y-1 cil-mb-6 cil-text-center">
                 <h2 className="cil-text-2xl cil-font-semibold">{t.resetPasswordTitle}</h2>
-                <p className="cil-text-sm cil-text-gray-500">{statusMessage}</p>
+                <p className="cil-text-sm cil-text-gray-500">
+                    {isSocialReset ? t.socialLoginSubtitle || 'Verify your identity' : statusMessage}
+                </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="cil-space-y-4">
-                <FormError message={localError} />
-                <div className="cil-space-y-2">
-                    <label className="cil-text-sm cil-font-medium">{t.verificationCode}</label>
-                    <input
-                        type="text"
-                        value={formData.token}
-                        onChange={(e) => setFormData({ ...formData, token: e.target.value })}
-                        required
-                        className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-font-mono cil-tracking-widest cil-text-center"
-                        placeholder="XXXXXX"
+            {isSocialReset ? (
+                <div className="cil-space-y-6">
+                    <p className="cil-text-sm cil-text-center cil-text-gray-600">
+                        {t.socialResetMsg || 'Please use your social account to finish the reset process.'}
+                    </p>
+                    <SocialAuthButtons
+                        apiBaseUrl={apiBaseUrl}
+                        user={user}
+                        primaryColor={primaryColor}
+                        onSuccess={onSuccess}
+                        onError={(err) => {
+                            setLocalError(err);
+                            if (onError) onError(err);
+                        }}
+                        lang={lang}
+                        apiToken={apiToken}
+                        texts={customTexts}
                     />
-                </div>
-
-                <div className="cil-space-y-2">
-                    <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
-                    <div className="cil-relative">
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            value={formData.newPassword}
-                            onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                            required
-                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
-                            placeholder={t.min8Chars}
-                        />
+                    <div className="cil-pt-2 cil-text-center">
                         <button
                             type="button"
-                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
-                            onClick={() => setShowPassword(!showPassword)}
+                            onClick={() => onNavigate && onNavigate('login')}
+                            className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500"
                         >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {t.backToLogin}
                         </button>
                     </div>
                 </div>
+            ) : (
+                <form onSubmit={handleSubmit} className="cil-space-y-4">
+                    <FormError message={localError} />
 
-                <div className="cil-space-y-2">
-                    <label className="cil-text-sm cil-font-medium">{t.confirmPassword}</label>
-                    <div className="cil-relative">
+                    {/* Manual token input commented out as requested */}
+                    {/* 
+                    <div className="cil-space-y-2">
+                        <label className="cil-text-sm cil-font-medium">{t.verificationCode}</label>
                         <input
-                            type={showConfirmPassword ? "text" : "password"}
-                            value={formData.confirmPassword}
-                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            type="text"
+                            value={formData.token}
+                            onChange={(e) => setFormData({ ...formData, token: e.target.value })}
                             required
-                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-ring-2 cil-focus:ring-offset-2 cil-font-mono cil-tracking-widest cil-text-center"
+                            placeholder="XXXXXX"
                         />
-                        <button
-                            type="button"
-                            className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        >
-                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
                     </div>
-                </div>
+                    */}
 
-                <button
-                    type="submit"
-                    className="cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed"
-                    style={primaryButtonStyle}
-                    disabled={isLoading || !formData.token}
-                >
-                    {isLoading ? (
-                        <div className="cil-flex cil-items-center cil-gap-2">
-                            <LoadingSpinner size="sm" color="#ffffff" />
-                            <span>{t.resetting}</span>
+                    <div className="cil-space-y-2">
+                        <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
+                        <div className="cil-relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={formData.newPassword}
+                                onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                                required
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                                placeholder={t.min8Chars}
+                            />
+                            <button
+                                type="button"
+                                className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
-                    ) : t.resetPasswordTitle}
-                </button>
+                    </div>
 
-
-                <div className="cil-pt-2 cil-text-center cil-space-y-3">
-                    {countdown > 0 ? (
-                        <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
-                            {t.resendCodeIn}
-                            <span className="cil-font-bold">{formatTime(countdown)}</span>
+                    <div className="cil-space-y-2">
+                        <label className="cil-text-sm cil-font-medium">{t.confirmPassword}</label>
+                        <div className="cil-relative">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={formData.confirmPassword}
+                                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                required
+                                className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-pr-10"
+                            />
+                            <button
+                                type="button"
+                                className="cil-absolute cil-right-3 cil-top-1/2 cil--translate-y-1/2 cil-text-gray-500 cil-hover:text-gray-700"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={handleResendCode}
-                            disabled={isResending || !userEmail}
-                            className="cil-text-sm cil-font-medium cil-hover:underline"
-                            style={primaryTextStyle}
-                        >
-                            {isResending ? t.loading : t.resendCode}
-                        </button>
-                    )}
+                    </div>
 
                     <button
-                        type="button"
-                        onClick={() => onNavigate && onNavigate('login')}
-                        className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500"
+                        type="submit"
+                        className="cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed"
+                        style={primaryButtonStyle}
+                        disabled={isLoading || (!formData.token && !initialToken)}
                     >
-                        {t.backToLogin}
+                        {isLoading ? (
+                            <div className="cil-flex cil-items-center cil-gap-2">
+                                <LoadingSpinner size="sm" color="#ffffff" />
+                                <span>{t.resetting}</span>
+                            </div>
+                        ) : t.resetPasswordTitle}
                     </button>
-                </div>
-            </form>
+
+
+                    <div className="cil-pt-2 cil-text-center cil-space-y-3">
+                        {countdown > 0 ? (
+                            <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
+                                {t.resendCodeIn}
+                                <span className="cil-font-bold">{formatTime(countdown)}</span>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleResendCode}
+                                disabled={isResending || !userEmail}
+                                className="cil-text-sm cil-font-medium cil-hover:underline"
+                                style={primaryTextStyle}
+                            >
+                                {isResending ? t.loading : t.resendCode}
+                            </button>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={() => onNavigate && onNavigate('login')}
+                            className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500"
+                        >
+                            {t.backToLogin}
+                        </button>
+                    </div>
+                </form>
+            )}
         </div>
     );
 }
