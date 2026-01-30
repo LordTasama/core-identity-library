@@ -15,12 +15,12 @@ function qg() {
   if (ig) return bA;
   ig = 1;
   var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.fragment"), n = Object.prototype.hasOwnProperty, i = C.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner, a = { key: !0, ref: !0, __self: !0, __source: !0 };
-  function l(F, u, d) {
+  function l(u, f, d) {
     var Q, w = {}, c = null, e = null;
-    d !== void 0 && (c = "" + d), u.key !== void 0 && (c = "" + u.key), u.ref !== void 0 && (e = u.ref);
-    for (Q in u) n.call(u, Q) && !a.hasOwnProperty(Q) && (w[Q] = u[Q]);
-    if (F && F.defaultProps) for (Q in u = F.defaultProps, u) w[Q] === void 0 && (w[Q] = u[Q]);
-    return { $$typeof: s, type: F, key: c, ref: e, props: w, _owner: i.current };
+    d !== void 0 && (c = "" + d), f.key !== void 0 && (c = "" + f.key), f.ref !== void 0 && (e = f.ref);
+    for (Q in f) n.call(f, Q) && !a.hasOwnProperty(Q) && (w[Q] = f[Q]);
+    if (u && u.defaultProps) for (Q in f = u.defaultProps, f) w[Q] === void 0 && (w[Q] = f[Q]);
+    return { $$typeof: s, type: u, key: c, ref: e, props: w, _owner: i.current };
   }
   return bA.Fragment = o, bA.jsx = l, bA.jsxs = l, bA;
 }
@@ -37,11 +37,11 @@ var pA = {};
 var eg;
 function zg() {
   return eg || (eg = 1, process.env.NODE_ENV !== "production" && function() {
-    var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.portal"), n = Symbol.for("react.fragment"), i = Symbol.for("react.strict_mode"), a = Symbol.for("react.profiler"), l = Symbol.for("react.provider"), F = Symbol.for("react.context"), u = Symbol.for("react.forward_ref"), d = Symbol.for("react.suspense"), Q = Symbol.for("react.suspense_list"), w = Symbol.for("react.memo"), c = Symbol.for("react.lazy"), e = Symbol.for("react.offscreen"), f = Symbol.iterator, I = "@@iterator";
+    var C = nA, s = Symbol.for("react.element"), o = Symbol.for("react.portal"), n = Symbol.for("react.fragment"), i = Symbol.for("react.strict_mode"), a = Symbol.for("react.profiler"), l = Symbol.for("react.provider"), u = Symbol.for("react.context"), f = Symbol.for("react.forward_ref"), d = Symbol.for("react.suspense"), Q = Symbol.for("react.suspense_list"), w = Symbol.for("react.memo"), c = Symbol.for("react.lazy"), e = Symbol.for("react.offscreen"), F = Symbol.iterator, I = "@@iterator";
     function b(g) {
       if (g === null || typeof g != "object")
         return null;
-      var E = f && g[f] || g[I];
+      var E = F && g[F] || g[I];
       return typeof E == "function" ? E : null;
     }
     var B = C.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
@@ -65,7 +65,7 @@ function zg() {
     var v = !1, W = !1, k = !1, m = !1, j = !1, G;
     G = Symbol.for("react.module.reference");
     function P(g) {
-      return !!(typeof g == "string" || typeof g == "function" || g === n || g === a || j || g === i || g === d || g === Q || m || g === e || v || W || k || typeof g == "object" && g !== null && (g.$$typeof === c || g.$$typeof === w || g.$$typeof === l || g.$$typeof === F || g.$$typeof === u || // This needs to include all possible module reference object
+      return !!(typeof g == "string" || typeof g == "function" || g === n || g === a || j || g === i || g === d || g === Q || m || g === e || v || W || k || typeof g == "object" && g !== null && (g.$$typeof === c || g.$$typeof === w || g.$$typeof === l || g.$$typeof === u || g.$$typeof === f || // This needs to include all possible module reference object
       // types supported by any Flight configuration anywhere since
       // we don't know which Flight build this will end up being used
       // with.
@@ -104,13 +104,13 @@ function zg() {
       }
       if (typeof g == "object")
         switch (g.$$typeof) {
-          case F:
+          case u:
             var E = g;
             return T(E) + ".Consumer";
           case l:
             var t = g;
             return T(t._context) + ".Provider";
-          case u:
+          case f:
             return M(g, g.render, "ForwardRef");
           case w:
             var J = g.displayName || null;
@@ -204,8 +204,8 @@ function zg() {
     }
     var tA = !1, dA;
     {
-      var DA = typeof WeakMap == "function" ? WeakMap : Map;
-      dA = new DA();
+      var WA = typeof WeakMap == "function" ? WeakMap : Map;
+      dA = new WA();
     }
     function YA(g, E) {
       if (!g || tA)
@@ -281,7 +281,7 @@ function zg() {
     function JA(g, E, t) {
       return YA(g, !1);
     }
-    function WA(g) {
+    function PA(g) {
       var E = g.prototype;
       return !!(E && E.isReactComponent);
     }
@@ -289,7 +289,7 @@ function zg() {
       if (g == null)
         return "";
       if (typeof g == "function")
-        return YA(g, WA(g));
+        return YA(g, PA(g));
       if (typeof g == "string")
         return rA(g);
       switch (g) {
@@ -300,7 +300,7 @@ function zg() {
       }
       if (typeof g == "object")
         switch (g.$$typeof) {
-          case u:
+          case f:
             return JA(g.render);
           case w:
             return xA(g.type, E, t);
@@ -322,7 +322,7 @@ function zg() {
       } else
         kA.setExtraStackFrame(null);
     }
-    function PA(g, E, t, J, V) {
+    function SA(g, E, t, J, V) {
       {
         var Z = Function.call.bind(UA);
         for (var N in g)
@@ -341,9 +341,9 @@ function zg() {
           }
       }
     }
-    var SA = Array.isArray;
+    var TA = Array.isArray;
     function L(g) {
-      return SA(g);
+      return TA(g);
     }
     function S(g) {
       {
@@ -361,7 +361,7 @@ function zg() {
     function CA(g) {
       return "" + g;
     }
-    function TA(g) {
+    function jA(g) {
       if (H(g))
         return r("The provided key is an unsupported type %s. This value must be coerced to a string before before using it here.", S(g)), CA(g);
     }
@@ -444,7 +444,7 @@ function zg() {
     function mg(g, E, t, J, V) {
       {
         var Z, N = {}, D = null, BA = null;
-        t !== void 0 && (TA(t), D = "" + t), Fg(E) && (TA(E.key), D = "" + E.key), fg(E) && (BA = E.ref, Kg(E, V));
+        t !== void 0 && (jA(t), D = "" + t), Fg(E) && (jA(E.key), D = "" + E.key), fg(E) && (BA = E.ref, Kg(E, V));
         for (Z in E)
           UA.call(E, Z) && !ug.hasOwnProperty(Z) && (N[Z] = E[Z]);
         if (g && g.defaultProps) {
@@ -540,7 +540,7 @@ Check the top-level render call using <` + t + ">.");
         var t;
         if (typeof E == "function")
           t = E.propTypes;
-        else if (typeof E == "object" && (E.$$typeof === u || // Note: Memo only checks outer props here.
+        else if (typeof E == "object" && (E.$$typeof === f || // Note: Memo only checks outer props here.
         // Inner props are checked in the reconciler.
         E.$$typeof === w))
           t = E.propTypes;
@@ -548,7 +548,7 @@ Check the top-level render call using <` + t + ">.");
           return;
         if (t) {
           var J = x(E);
-          PA(t, g.props, "prop", J, g);
+          SA(t, g.props, "prop", J, g);
         } else if (E.PropTypes !== void 0 && !MA) {
           MA = !0;
           var V = x(E);
@@ -662,18 +662,18 @@ function ag(C) {
 }
 function $g(C) {
   var s = function(o) {
-    var n = C.attr, i = C.size, a = C.title, l = _g(C, ["attr", "size", "title"]), F = i || o.size || "1em", u;
-    return o.className && (u = o.className), C.className && (u = (u ? u + " " : "") + C.className), nA.createElement("svg", KA({
+    var n = C.attr, i = C.size, a = C.title, l = _g(C, ["attr", "size", "title"]), u = i || o.size || "1em", f;
+    return o.className && (f = o.className), C.className && (f = (f ? f + " " : "") + C.className), nA.createElement("svg", KA({
       stroke: "currentColor",
       fill: "currentColor",
       strokeWidth: "0"
     }, o.attr, n, l, {
-      className: u,
+      className: f,
       style: KA(KA({
         color: C.color || o.color
       }, o.style), C.style),
-      height: F,
-      width: F,
+      height: u,
+      width: u,
       xmlns: "http://www.w3.org/2000/svg"
     }), a && nA.createElement("title", null, a), C.children);
   };
@@ -764,8 +764,8 @@ const iA = {
     enterRecoveryCode: "Enter recovery code",
     enterCodeAndPassword: "Enter code and password",
     min8Chars: "At least 8 characters",
-    resendCode: "Resend Code",
-    resendCodeIn: "Resend code in: ",
+    resendCode: "Resend Link",
+    resendCodeIn: "Resend link in: ",
     close: "Close"
   },
   es: {
@@ -847,8 +847,8 @@ const iA = {
     enterRecoveryCode: "Ingresa el código de recuperación",
     enterCodeAndPassword: "Ingresar código y contraseña",
     min8Chars: "Mínimo 8 caracteres",
-    resendCode: "Reenviar Código",
-    resendCodeIn: "Reenviar código en: ",
+    resendCode: "Reenviar Enlace",
+    resendCodeIn: "Reenviar enlace en: ",
     close: "Cerrar"
   }
 };
@@ -858,7 +858,7 @@ function wA(C) {
 }
 function cA(C, s) {
   const { isAuthorized: o } = wA(s), n = async (c, e = {}) => {
-    const { token: f, ...I } = e;
+    const { token: F, ...I } = e;
     try {
       const b = {
         "Content-Type": "application/json",
@@ -866,7 +866,7 @@ function cA(C, s) {
         "X-REQUEST-URL": typeof window < "u" ? window.location.origin.replace(/\/$/, "") : "",
         ...e.headers
       };
-      f && (b.Authorization = `Bearer ${f}`);
+      F && (b.Authorization = `Bearer ${F}`);
       const B = await fetch(`${C}${c}`, {
         ...I,
         headers: b,
@@ -894,10 +894,10 @@ function cA(C, s) {
       }
       throw b;
     }
-  }, i = async (c, e, f = {}) => n(c, {
+  }, i = async (c, e, F = {}) => n(c, {
     method: "POST",
     body: e ? JSON.stringify(e) : void 0,
-    ...f
+    ...F
   }), a = async (c, e = {}) => n(c, {
     method: "GET",
     ...e
@@ -909,8 +909,8 @@ function cA(C, s) {
     getUserContext: async (c, e) => i("/user-context", { email: e }, { token: c }),
     logout: async (c, e) => i("/logout", { email: e }, { token: c }),
     changePassword: async (c) => {
-      const { token: e, ...f } = c;
-      return i("/change-password", f, { token: e });
+      const { token: e, ...F } = c;
+      return i("/change-password", F, { token: e });
     },
     getAppColors: async () => a("/colors-app"),
     getMe: async (c, e) => i("/me", { email: c }, { token: e })
@@ -924,12 +924,12 @@ function HA({
   onError: i,
   lang: a = "en",
   apiToken: l,
-  texts: F = {}
+  texts: u = {}
 }) {
   var e;
-  const u = { ...iA[a], ...F }, { post: d } = cA(C, l), Q = ((e = s.app_info) == null ? void 0 : e.primaryColor) || o;
+  const f = { ...iA[a], ...u }, { post: d } = cA(C, l), Q = ((e = s.app_info) == null ? void 0 : e.primaryColor) || o;
   oA(() => {
-    const f = (I) => {
+    const F = (I) => {
       let b, B;
       try {
         const v = new URL(C);
@@ -957,11 +957,11 @@ function HA({
         }
       }
     };
-    return window.addEventListener("message", f, !1), () => window.removeEventListener("message", f);
+    return window.addEventListener("message", F, !1), () => window.removeEventListener("message", F);
   }, [n, i, C]);
-  const w = (f) => {
+  const w = (F) => {
     d("/login", {
-      provider: f,
+      provider: F,
       frontend_origin: window.location.origin
     }).then((I) => {
       const b = I.auth_url || I.redirect_url;
@@ -992,7 +992,7 @@ function HA({
         children: [
           /* @__PURE__ */ A.jsx(AC, { className: "cil-h-4 cil-w-4" }),
           /* @__PURE__ */ A.jsxs("span", { children: [
-            u.continueWith,
+            f.continueWith,
             " Google"
           ] })
         ]
@@ -1009,7 +1009,7 @@ function HA({
         children: [
           /* @__PURE__ */ A.jsx("svg", { className: "cil-h-4 cil-w-4", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ A.jsx("path", { d: "M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" }) }),
           /* @__PURE__ */ A.jsxs("span", { children: [
-            u.continueWith,
+            f.continueWith,
             " Microsoft"
           ] })
         ]
@@ -1090,19 +1090,19 @@ function sC({
   onSuccess: i,
   onError: a,
   onNavigate: l,
-  apiToken: F,
-  lang: u = "en",
+  apiToken: u,
+  lang: f = "en",
   texts: d = {}
 }) {
-  const Q = { ...iA[u], ...d }, { isAuthorized: w } = wA(F), c = o, e = n, { post: f } = cA(C, F), [I, b] = K(""), [B, r] = K(""), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K("");
+  const Q = { ...iA[f], ...d }, { isAuthorized: w } = wA(u), c = o, e = n, { post: F } = cA(C, u), [I, b] = K(""), [B, r] = K(""), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K("");
   if (!w)
-    return /* @__PURE__ */ A.jsx(mA, { lang: u });
+    return /* @__PURE__ */ A.jsx(mA, { lang: f });
   const G = (R) => {
     i && i(R);
   }, P = async (R) => {
     R.preventDefault(), k(!0), j("");
     try {
-      const U = await f("/login", {
+      const U = await F("/login", {
         provider: "Email",
         email: I,
         password: B
@@ -1142,8 +1142,8 @@ function sC({
           onError: (R) => {
             j(R), a && a(R);
           },
-          lang: u,
-          apiToken: F,
+          lang: f,
+          apiToken: u,
           texts: d
         }
       ),
@@ -1246,11 +1246,11 @@ function cC({
   onSuccess: i,
   onError: a,
   onNavigate: l,
-  apiToken: F,
-  lang: u = "en",
+  apiToken: u,
+  lang: f = "en",
   texts: d = {}
 }) {
-  const Q = { ...iA[u], ...d }, { isAuthorized: w } = wA(F), c = o, e = n, { post: f } = cA(C, F), [I, b] = K(!1), [B, r] = K(""), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K({
+  const Q = { ...iA[f], ...d }, { isAuthorized: w } = wA(u), c = o, e = n, { post: F } = cA(C, u), [I, b] = K(!1), [B, r] = K(""), [h, v] = K(!1), [W, k] = K(!1), [m, j] = K({
     firstName: "",
     lastName: "",
     email: "",
@@ -1258,7 +1258,7 @@ function cC({
     confirmPassword: ""
   });
   if (!w)
-    return /* @__PURE__ */ A.jsx(mA, { lang: u });
+    return /* @__PURE__ */ A.jsx(mA, { lang: f });
   const G = (U) => {
     i && i(U);
   }, P = async (U) => {
@@ -1269,7 +1269,7 @@ function cC({
     }
     b(!0);
     try {
-      const p = await f("/register", {
+      const p = await F("/register", {
         firstName: m.firstName,
         lastName: m.lastName,
         email: m.email,
@@ -1312,8 +1312,8 @@ function cC({
           onError: (U) => {
             r(U), a && a(U);
           },
-          lang: u,
-          apiToken: F,
+          lang: f,
+          apiToken: u,
           texts: d
         }
       ),
@@ -1449,17 +1449,17 @@ function rC({
   onSuccess: i,
   onError: a,
   onNavigate: l,
-  apiToken: F,
-  lang: u = "en",
+  apiToken: u,
+  lang: f = "en",
   texts: d = {}
 }) {
-  const Q = { ...iA[u], ...d }, { isAuthorized: w } = wA(F), c = o, e = n, { post: f } = cA(C, F), [I, b] = K(""), [B, r] = K(!1), [h, v] = K(!1), [W, k] = K("");
+  const Q = { ...iA[f], ...d }, { isAuthorized: w } = wA(u), c = o, e = n, { post: F } = cA(C, u), [I, b] = K(""), [B, r] = K(!1), [h, v] = K(!1), [W, k] = K("");
   if (!w)
-    return /* @__PURE__ */ A.jsx(mA, { lang: u });
+    return /* @__PURE__ */ A.jsx(mA, { lang: f });
   const m = async (M) => {
     M.preventDefault(), r(!0), k("");
     try {
-      const T = await f("/forgot-password", { email: I });
+      const T = await F("/forgot-password", { email: I });
       if (T.success)
         v(!0), i && i({ ...T, email: I });
       else {
@@ -1543,7 +1543,7 @@ function rC({
     ] })
   ] });
 }
-function jA({ message: C }) {
+function DA({ message: C }) {
   return C ? /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-gap-2 cil-p-3 cil-text-sm cil-text-green-700 cil-bg-green-50 cil-border cil-border-green-100 cil-rounded-md cil-animate-in cil-fade-in cil-slide-in-from-top-1 cil-duration-200", children: [
     /* @__PURE__ */ A.jsx(Tg, { className: "cil-w-4 cil-h-4 cil-flex-shrink-0" }),
     /* @__PURE__ */ A.jsx("p", { children: C })
@@ -1559,28 +1559,28 @@ function tC({
   backgroundColor: i = "#ffffff",
   onSuccess: a,
   onError: l,
-  onNavigate: F,
-  apiToken: u,
+  onNavigate: u,
+  apiToken: f,
   lang: d = "en",
   email: Q = "",
   authToken: w = "",
   // Auth token passed from consumer
   user: c = {},
   initialWaitSeconds: e = 0,
-  texts: f = {}
+  texts: F = {}
 }) {
-  const I = { ...iA[d], ...f }, { isAuthorized: b } = wA(u), B = n, r = i, { post: h } = cA(C, u), v = typeof window < "u" ? new URLSearchParams(window.location.search) : null, W = s || (v == null ? void 0 : v.get("token")) || "", k = o || (v == null ? void 0 : v.get("auth")) || "0", [m, j] = K({
+  const I = { ...iA[d], ...F }, { isAuthorized: b } = wA(f), B = n, r = i, { post: h } = cA(C, f), v = typeof window < "u" ? new URLSearchParams(window.location.search) : null, W = s || (v == null ? void 0 : v.get("token")) || "", k = o || (v == null ? void 0 : v.get("auth")) || "0", [m, j] = K({
     token: W,
     newPassword: "",
     confirmPassword: ""
-  }), [G, P] = K(!1), [M, T] = K(!1), [x, R] = K(!1), [U, p] = K(!1), [O, EA] = K(!1), [IA, gA] = K([]), [eA, z] = K(!1), [y, Y] = K(""), [AA, X] = K(""), [$, rA] = K(w), [tA, dA] = K(e), [DA, YA] = K(I.resetPasswordSubtitle), JA = LA(null);
+  }), [G, P] = K(!1), [M, T] = K(!1), [x, R] = K(!1), [U, p] = K(!1), [O, EA] = K(!1), [IA, gA] = K([]), [eA, z] = K(!1), [y, Y] = K(""), [AA, X] = K(""), [$, rA] = K(w), [tA, dA] = K(e), [WA, YA] = K(I.resetPasswordSubtitle), JA = LA(null);
   if (oA(() => (tA > 0 && (JA.current = setInterval(() => {
     dA((L) => L <= 1 ? (clearInterval(JA.current), 0) : L - 1);
   }, 1e3)), () => clearInterval(JA.current)), [tA]), oA(() => {
     w && rA(w);
   }, [w]), !b)
     return /* @__PURE__ */ A.jsx(mA, { lang: d });
-  const WA = (L) => {
+  const PA = (L) => {
     const S = Math.floor(L / 60), H = L % 60;
     return `${S.toString().padStart(2, "0")}:${H.toString().padStart(2, "0")}`;
   }, xA = async () => {
@@ -1645,7 +1645,7 @@ function tC({
         session_ids: S
       }, { token: $ });
       if (H.success)
-        gA(L ? [] : (CA) => CA.filter((TA) => !S.includes(TA._id))), X(I.logoutSuccess);
+        gA(L ? [] : (CA) => CA.filter((jA) => !S.includes(jA._id))), X(I.logoutSuccess);
       else {
         const CA = H.message || H.error || "Logout failed";
         Y(CA), l && l(CA);
@@ -1662,7 +1662,7 @@ function tC({
     color: "#ffffff"
   }, uA = {
     backgroundColor: r
-  }, PA = {
+  }, SA = {
     color: B
   };
   if (O)
@@ -1672,7 +1672,7 @@ function tC({
         /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: I.resetSuccessTitle }),
         /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: I.resetSuccessSubtitle })
       ] }),
-      /* @__PURE__ */ A.jsx(jA, { message: AA }),
+      /* @__PURE__ */ A.jsx(DA, { message: AA }),
       /* @__PURE__ */ A.jsx(aA, { message: y }),
       IA.length > 0 && /* @__PURE__ */ A.jsxs("div", { className: "cil-mt-8 cil-space-y-4 cil-border-t cil-pt-6", children: [
         /* @__PURE__ */ A.jsxs("div", { className: "cil-text-left", children: [
@@ -1718,21 +1718,21 @@ function tC({
       /* @__PURE__ */ A.jsx("div", { className: "cil-mt-8 cil-pt-6 cil-border-t", children: /* @__PURE__ */ A.jsx(
         "button",
         {
-          onClick: () => F && F("login"),
+          onClick: () => u && u("login"),
           className: "cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors",
           style: kA,
           children: I.goToLogin
         }
       ) })
     ] });
-  const SA = k === "1";
+  const TA = k === "1";
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: uA, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6 cil-text-center", children: [
       /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold", children: I.resetPasswordTitle }),
-      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: SA ? I.socialLoginSubtitle || "Verify your identity" : DA })
+      /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-gray-500", children: TA ? I.socialLoginSubtitle || "Verify your identity" : WA })
     ] }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-4", children: [
-      SA && /* @__PURE__ */ A.jsxs(A.Fragment, { children: [
+      TA && /* @__PURE__ */ A.jsxs(A.Fragment, { children: [
         /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-4", children: [
           /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-text-center cil-text-gray-600", children: I.socialResetMsg || "Verify your identity with social login or use the form below" }),
           /* @__PURE__ */ A.jsx(
@@ -1748,8 +1748,8 @@ function tC({
                 Y(L), l && l(L);
               },
               lang: d,
-              apiToken: u,
-              texts: f
+              apiToken: f,
+              texts: F
             }
           )
         ] }),
@@ -1823,25 +1823,37 @@ function tC({
           }
         ),
         /* @__PURE__ */ A.jsxs("div", { className: "cil-pt-2 cil-text-center cil-space-y-3", children: [
-          tA > 0 ? /* @__PURE__ */ A.jsxs("div", { className: "cil-text-xs cil-text-gray-500 cil-font-mono", children: [
-            I.resendCodeIn,
-            /* @__PURE__ */ A.jsx("span", { className: "cil-font-bold", children: WA(tA) })
-          ] }) : /* @__PURE__ */ A.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: xA,
-              disabled: M || !Q,
-              className: "cil-text-sm cil-font-medium cil-hover:underline",
-              style: PA,
-              children: M ? I.loading : I.resendCode
-            }
-          ),
+          /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-flex-col cil-gap-2", children: [
+            /* @__PURE__ */ A.jsx("span", { className: "cil-text-xs cil-text-gray-500", children: I.dontReceiveEmail || (d === "es" ? "¿No recibiste el correo?" : "Didn't receive the email?") }),
+            Q ? tA > 0 ? /* @__PURE__ */ A.jsxs("div", { className: "cil-text-xs cil-text-gray-500 cil-font-mono", children: [
+              I.resendCodeIn,
+              /* @__PURE__ */ A.jsx("span", { className: "cil-font-bold", children: PA(tA) })
+            ] }) : /* @__PURE__ */ A.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: xA,
+                disabled: M,
+                className: "cil-text-sm cil-font-medium cil-hover:underline",
+                style: SA,
+                children: M ? I.loading : I.resendCode
+              }
+            ) : /* @__PURE__ */ A.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => u && u("forgot-password"),
+                className: "cil-text-sm cil-font-medium cil-hover:underline",
+                style: SA,
+                children: I.sendResetLink || I.resendCode
+              }
+            )
+          ] }),
           /* @__PURE__ */ A.jsx(
             "button",
             {
               type: "button",
-              onClick: () => F && F("login"),
+              onClick: () => u && u("login"),
               className: "cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500",
               children: I.backToLogin
             }
@@ -1859,16 +1871,16 @@ function nC({
   onSuccess: i,
   onError: a,
   onNavigate: l,
-  apiToken: F,
+  apiToken: u,
   // X-API-KEY for headers
-  authToken: u,
+  authToken: f,
   // User session token
   email: d,
   // User email
   lang: Q = "en",
   texts: w = {}
 }) {
-  const c = { ...iA[Q], ...w }, { isAuthorized: e } = wA(F), f = o, I = n, { changePassword: b } = cA(C, F), [B, r] = K({
+  const c = { ...iA[Q], ...w }, { isAuthorized: e } = wA(u), F = o, I = n, { changePassword: b } = cA(C, u), [B, r] = K({
     oldPassword: "",
     newPassword: "",
     confirmPassword: ""
@@ -1887,7 +1899,7 @@ function nC({
         email: d || s.email,
         old_password: B.oldPassword,
         new_password: B.newPassword,
-        token: u
+        token: f
         // Now using user session token, not api key
       });
       if (y.success)
@@ -1906,12 +1918,12 @@ function nC({
   }, EA = (z, y) => {
     r((Y) => ({ ...Y, [z]: y })), m && j("");
   }, IA = {
-    backgroundColor: f,
+    backgroundColor: F,
     color: "#ffffff"
   }, gA = {
     backgroundColor: I
   }, eA = {
-    color: f
+    color: F
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border", style: gA, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6 cil-text-center", children: [
@@ -1920,7 +1932,7 @@ function nC({
     ] }),
     /* @__PURE__ */ A.jsxs("form", { onSubmit: O, className: "cil-space-y-4", children: [
       /* @__PURE__ */ A.jsx(aA, { message: m }),
-      /* @__PURE__ */ A.jsx(jA, { message: G }),
+      /* @__PURE__ */ A.jsx(DA, { message: G }),
       /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-2", children: [
         /* @__PURE__ */ A.jsx("label", { className: "cil-text-sm cil-font-medium", children: c.oldPassword }),
         /* @__PURE__ */ A.jsxs("div", { className: "cil-relative", children: [
@@ -2027,16 +2039,16 @@ function aC({
   backgroundColor: i = "#ffffff",
   onSuccess: a,
   onError: l,
-  onNavigate: F,
-  lang: u = "en",
+  onNavigate: u,
+  lang: f = "en",
   apiToken: d,
   texts: Q = {}
 }) {
-  const w = { ...iA[u], ...Q }, { isAuthorized: c } = wA(d), e = n, f = i, { post: I } = cA(C, d), b = typeof window < "u" ? new URLSearchParams(window.location.search) : null, B = s || (b == null ? void 0 : b.get("token")) || "", [r, h] = K(B ? "verifying" : "idle"), [v, W] = K(""), [k, m] = K("");
+  const w = { ...iA[f], ...Q }, { isAuthorized: c } = wA(d), e = n, F = i, { post: I } = cA(C, d), b = typeof window < "u" ? new URLSearchParams(window.location.search) : null, B = s || (b == null ? void 0 : b.get("token")) || "", [r, h] = K(B ? "verifying" : "idle"), [v, W] = K(""), [k, m] = K("");
   if (oA(() => {
     B && r === "verifying" && j(B);
   }, [s, B]), !c)
-    return /* @__PURE__ */ A.jsx(mA, { lang: u });
+    return /* @__PURE__ */ A.jsx(mA, { lang: f });
   const j = async (M) => {
     m("");
     try {
@@ -2057,7 +2069,7 @@ function aC({
     backgroundColor: e,
     color: "#ffffff"
   }, P = {
-    backgroundColor: f
+    backgroundColor: F
   };
   return B ? /* @__PURE__ */ A.jsxs("div", { className: "cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center", style: P, children: [
     /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-1 cil-mb-6", children: [
@@ -2073,7 +2085,7 @@ function aC({
     r !== "verifying" && /* @__PURE__ */ A.jsx(
       "button",
       {
-        onClick: () => F && F("login"),
+        onClick: () => u && u("login"),
         className: "cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors",
         style: G,
         children: w.backToLogin
@@ -2090,7 +2102,7 @@ function aC({
       /* @__PURE__ */ A.jsx(
         "button",
         {
-          onClick: () => F && F("login"),
+          onClick: () => u && u("login"),
           className: "cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-border cil-border-gray-200 cil-hover:bg-gray-50",
           children: w.backToLogin
         }
@@ -2106,19 +2118,19 @@ function dC({
   onNavigate: i,
   lang: a = "en",
   userEmail: l,
-  initialMessage: F,
-  initialWaitSeconds: u = 0,
+  initialMessage: u,
+  initialWaitSeconds: f = 0,
   onSuccess: d,
   onError: Q,
   apiToken: w,
   texts: c = {}
 }) {
-  const e = { ...iA[a], ...c }, { isAuthorized: f } = wA(w), I = o, b = n, { post: B } = cA(C, w), [r, h] = K(!1), [v, W] = K(!1), [k, m] = K(""), [j, G] = K(F || e.waitingConfirmationMsg), [P, M] = K(u), [T, x] = K(!1), [R, U] = K(!1), [p, O] = K(""), [EA, IA] = K(""), gA = LA(null);
+  const e = { ...iA[a], ...c }, { isAuthorized: F } = wA(w), I = o, b = n, { post: B } = cA(C, w), [r, h] = K(!1), [v, W] = K(!1), [k, m] = K(""), [j, G] = K(u || e.waitingConfirmationMsg), [P, M] = K(f), [T, x] = K(!1), [R, U] = K(!1), [p, O] = K(""), [EA, IA] = K(""), gA = LA(null);
   if (oA(() => (P > 0 && (gA.current = setInterval(() => {
     M((X) => X <= 1 ? (clearInterval(gA.current), 0) : X - 1);
   }, 1e3)), () => clearInterval(gA.current)), [P]), oA(() => {
-    P === 0 && (u > 0 || T) && (G(e.waitingConfirmationMsg), x(!1));
-  }, [P, u, e.waitingConfirmationMsg]), !f)
+    P === 0 && (f > 0 || T) && (G(e.waitingConfirmationMsg), x(!1));
+  }, [P, f, e.waitingConfirmationMsg]), !F)
     return /* @__PURE__ */ A.jsx(mA, { lang: a });
   const eA = (X) => {
     const $ = Math.floor(X / 60), rA = X % 60;
@@ -2172,7 +2184,7 @@ function dC({
     /* @__PURE__ */ A.jsx("h2", { className: "cil-text-2xl cil-font-semibold cil-mb-2", children: e.waitingConfirmation }),
     /* @__PURE__ */ A.jsx("p", { className: "cil-text-sm cil-mb-6 cil-text-gray-500", children: j }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-mb-4", children: [
-      /* @__PURE__ */ A.jsx(jA, { message: EA }),
+      /* @__PURE__ */ A.jsx(DA, { message: EA }),
       /* @__PURE__ */ A.jsx(aA, { message: p })
     ] }),
     /* @__PURE__ */ A.jsxs("div", { className: "cil-border-t cil-pt-6 cil-space-y-3", children: [
@@ -2206,18 +2218,18 @@ function dC({
   ] });
 }
 function gC(C, s, o, n, i = null) {
-  const { getMe: a } = cA(C, s), [l, F] = K({
+  const { getMe: a } = cA(C, s), [l, u] = K({
     user: i,
     isLoading: !i,
     error: null
   });
   return oA(() => {
     if (i && l.user === i && !l.error) {
-      l.isLoading && F((d) => ({ ...d, isLoading: !1 }));
+      l.isLoading && u((d) => ({ ...d, isLoading: !1 }));
       return;
     }
     if (!o || !n || !C) {
-      F({
+      u({
         user: i || null,
         isLoading: !1,
         error: o && n ? null : "Missing authentication credentials"
@@ -2225,24 +2237,24 @@ function gC(C, s, o, n, i = null) {
       return;
     }
     (async () => {
-      F((d) => ({ ...d, isLoading: !0, error: null }));
+      u((d) => ({ ...d, isLoading: !0, error: null }));
       try {
         const d = await a(n, o);
         if (d.success) {
           const Q = d.user ? { ...d.user, ...Object.fromEntries(Object.entries(d).filter(([w]) => w !== "user" && w !== "success")) } : d;
-          F({
+          u({
             user: Q,
             isLoading: !1,
             error: null
           });
         } else
-          F({
+          u({
             user: i || null,
             isLoading: !1,
             error: d.message || "Failed to load profile"
           });
       } catch (d) {
-        console.error("Failed to fetch user profile:", d), F({
+        console.error("Failed to fetch user profile:", d), u({
           user: i || null,
           isLoading: !1,
           error: d.message || "Connection error"
@@ -2274,24 +2286,24 @@ function BC({
   primaryColor: i = "#3b82f6",
   apiBaseUrl: a,
   apiToken: l,
-  onAppClick: F,
-  lang: u = "en",
+  onAppClick: u,
+  lang: f = "en",
   texts: d = {}
 }) {
-  const [Q, w] = K(!1), c = LA(null), e = { ...iA[u], ...d };
+  const [Q, w] = K(!1), c = LA(null), e = { ...iA[f], ...d };
   oA(() => {
     const B = (r) => {
       c.current && !c.current.contains(r.target) && w(!1);
     };
     return Q && document.addEventListener("mousedown", B), () => document.removeEventListener("mousedown", B);
   }, [Q]);
-  const f = (B) => B ? B.charAt(0).toUpperCase() : "?", I = (B) => {
+  const F = (B) => B ? B.charAt(0).toUpperCase() : "?", I = (B) => {
     let r = 0;
     for (let h = 0; h < B.length; h++)
       r = B.charCodeAt(h) + ((r << 5) - r);
     return og[Math.abs(r) % og.length];
   }, b = (B) => {
-    F && F(B), w(!1), B.publicUrl && window.open(B.publicUrl, "_blank");
+    u && u(B), w(!1), B.publicUrl && window.open(B.publicUrl, "_blank");
   };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-relative cil-inline-block cil-text-left", ref: c, children: [
     /* @__PURE__ */ A.jsx(
@@ -2327,7 +2339,7 @@ function BC({
                       filter: "brightness(1.1) grayscale(0.2)"
                       // Adjusted for white icons feeling
                     },
-                    children: /* @__PURE__ */ A.jsx("span", { className: "cil-filter cil-brightness-0 cil-invert", children: f(B.appKey) })
+                    children: /* @__PURE__ */ A.jsx("span", { className: "cil-filter cil-brightness-0 cil-invert", children: F(B.appKey) })
                   }
                 ),
                 /* @__PURE__ */ A.jsx("span", { className: "cil-text-[10px] cil-font-bold cil-text-gray-700 cil-uppercase cil-tracking-wider cil-text-center cil-truncate cil-w-full cil-px-1", children: o[B.appKey] ? o[B.appKey] : B.appKey.replace(/_/g, " ").length > 9 ? `${B.appKey.replace(/_/g, " ").substring(0, 9)}...` : B.appKey.replace(/_/g, " ") }),
@@ -2380,11 +2392,11 @@ function EC({
   // Added onProfileClick
   extraItems: l = [],
   // Array of { icon: ReactNode, label: string, onClick: function }
-  lang: F = "en",
-  texts: u = {}
+  lang: u = "en",
+  texts: f = {}
 }) {
   var W;
-  const [d, Q] = K(!1), [w, c] = K(!1), e = LA(null), f = { ...iA[F], ...u }, I = o, b = s;
+  const [d, Q] = K(!1), [w, c] = K(!1), e = LA(null), F = { ...iA[u], ...f }, I = o, b = s;
   oA(() => {
     const k = (m) => {
       e.current && !e.current.contains(m.target) && Q(!1);
@@ -2452,7 +2464,7 @@ function EC({
               v,
               {
                 icon: cg,
-                label: f.profile,
+                label: F.profile,
                 onClick: a
               }
             ),
@@ -2460,7 +2472,7 @@ function EC({
               v,
               {
                 icon: jg,
-                label: f.changePassword,
+                label: F.changePassword,
                 onClick: i
               }
             ),
@@ -2478,7 +2490,7 @@ function EC({
               v,
               {
                 icon: rg,
-                label: f.logoutThisSession,
+                label: F.logoutThisSession,
                 onClick: n,
                 color: "cil-text-gray-700",
                 hoverColor: "#fff1f2"
@@ -2504,12 +2516,12 @@ function IC({
     };
     return i && document.addEventListener("mousedown", d), () => document.removeEventListener("mousedown", d);
   }, [i]);
-  const F = [
+  const u = [
     { code: "en", label: "English", flag: "US" },
     { code: "es", label: "Español", flag: "ES" }
   ];
-  F.find((d) => d.code === C) || F[0];
-  const u = o === "header" ? { color: "#ffffff" } : { color: n };
+  u.find((d) => d.code === C) || u[0];
+  const f = o === "header" ? { color: "#ffffff" } : { color: n };
   return /* @__PURE__ */ A.jsxs("div", { className: "cil-relative cil-inline-block cil-text-left", ref: l, children: [
     /* @__PURE__ */ A.jsx(
       "button",
@@ -2517,12 +2529,12 @@ function IC({
         type: "button",
         onClick: () => a(!i),
         className: "cil-flex cil-items-center cil-justify-center cil-p-2 cil-rounded-full cil-transition-all cil-duration-200 cil-hover:bg-white/10 cil-focus:outline-none",
-        style: u,
+        style: f,
         "aria-label": "Change Language",
         children: /* @__PURE__ */ A.jsx(Dg, { className: "cil-w-6 cil-h-6" })
       }
     ),
-    i && /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-right-0 cil-mt-2 cil-w-48 cil-origin-top-right cil-rounded-xl cil-bg-white cil-shadow-lg cil-border cil-border-gray-200 cil-z-[100] cil-overflow-hidden", children: /* @__PURE__ */ A.jsx("div", { className: "cil-py-1", children: F.map((d) => /* @__PURE__ */ A.jsxs(
+    i && /* @__PURE__ */ A.jsx("div", { className: "cil-absolute cil-right-0 cil-mt-2 cil-w-48 cil-origin-top-right cil-rounded-xl cil-bg-white cil-shadow-lg cil-border cil-border-gray-200 cil-z-[100] cil-overflow-hidden", children: /* @__PURE__ */ A.jsx("div", { className: "cil-py-1", children: u.map((d) => /* @__PURE__ */ A.jsxs(
       "button",
       {
         onClick: () => {
@@ -2548,14 +2560,14 @@ function uC({
   onSearch: i,
   theme: a = "light",
   onTheme: l,
-  notificationsEnabled: F = !1,
-  onNotification: u,
+  notificationsEnabled: u = !1,
+  onNotification: f,
   notificationData: d = [],
   onSettings: Q,
   user: w,
   onProfileClick: c,
   onChangePassword: e,
-  onLogout: f,
+  onLogout: F,
   apps: I,
   primaryColor: b = "#10b981",
   // Por defecto el verde de la imagen
@@ -2662,10 +2674,10 @@ function uC({
               apiToken: m
             }
           ),
-          F && /* @__PURE__ */ A.jsxs(
+          u && /* @__PURE__ */ A.jsxs(
             "button",
             {
-              onClick: () => u && u(),
+              onClick: () => f && f(),
               className: "cil-p-2 cil-rounded-full cil-hover:bg-white/10 cil-transition-colors cil-relative",
               children: [
                 /* @__PURE__ */ A.jsx(Mg, { className: "cil-w-6 cil-h-6" }),
@@ -2707,7 +2719,7 @@ function uC({
               lang: B,
               onProfileClick: c,
               onChangePassword: e,
-              onLogout: f,
+              onLogout: F,
               extraItems: W,
               apiBaseUrl: k,
               apiToken: m
@@ -2742,17 +2754,17 @@ function fC({
   primaryColor: i = "#3b82f6",
   backgroundColor: a = "#ffffff",
   onClose: l,
-  onNavigate: F,
-  onError: u,
+  onNavigate: u,
+  onError: f,
   onSuccess: d,
   lang: Q = "en",
   user: w,
   texts: c = {}
 }) {
-  const e = { ...iA[Q], ...c }, { user: f, isLoading: I, error: b } = gC(C, s, o, n, w), B = i, r = a, { post: h } = cA(C, s), [v, W] = K([]), [k, m] = K(!1), [j, G] = K(""), [P, M] = K(""), [T, x] = K(!1);
+  const e = { ...iA[Q], ...c }, { user: F, isLoading: I, error: b } = gC(C, s, o, n, w), B = i, r = a, { post: h } = cA(C, s), [v, W] = K([]), [k, m] = K(!1), [j, G] = K(""), [P, M] = K(""), [T, x] = K(!1);
   oA(() => {
-    f != null && f.active_sessions ? W(f.active_sessions) : f != null && f.sessions && W(f.sessions);
-  }, [f]);
+    F != null && F.active_sessions ? W(F.active_sessions) : F != null && F.sessions && W(F.sessions);
+  }, [F]);
   const R = (y) => y ? y.includes("Mozilla/") ? y.includes("iPhone") ? "iPhone" : y.includes("Android") ? "Android Device" : y.includes("Windows") ? "Windows PC" : y.includes("Macintosh") ? "Mac" : y.includes("iPad") ? "iPad" : "Web Browser" : y : e.deviceName, U = (y) => {
     if (!y) return /* @__PURE__ */ A.jsx(Ig, { className: "w-5 h-5" });
     const Y = y.toLowerCase();
@@ -2795,7 +2807,7 @@ function fC({
         ] })
       ] }) })
     ] });
-  if (b || !f)
+  if (b || !F)
     return /* @__PURE__ */ A.jsx("div", { className: "cil-w-full cil-max-w-4xl cil-mx-auto cil-p-8", children: /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-flex-col cil-items-center cil-justify-center cil-py-20 cil-space-y-4", children: [
       /* @__PURE__ */ A.jsx(sg, { className: "cil-w-16 cil-h-16 cil-text-red-500" }),
       /* @__PURE__ */ A.jsx("p", { className: "cil-text-lg cil-font-semibold cil-text-red-600", children: b || e.failedLoadProfile }),
@@ -2809,7 +2821,7 @@ function fC({
         }
       )
     ] }) });
-  const p = f["Full Name"] || f.fullName || f.full_name || `${f.firstName || ""} ${f.lastName || ""}`.trim() || "User", O = f.Roles || [], EA = f.permissions || [], IA = f.biography || f.bio || "", gA = dg(f), eA = () => p.charAt(0).toUpperCase(), z = async (y = !1, Y = []) => {
+  const p = F["Full Name"] || F.fullName || F.full_name || `${F.firstName || ""} ${F.lastName || ""}`.trim() || "User", O = F.Roles || [], EA = F.permissions || [], IA = F.biography || F.bio || "", gA = dg(F), eA = () => p.charAt(0).toUpperCase(), z = async (y = !1, Y = []) => {
     if (!o) {
       const AA = e.noSessions;
       G(AA);
@@ -2818,7 +2830,7 @@ function fC({
     m(!0), G(""), M("");
     try {
       const AA = await h("/logout_sessions", {
-        email: f.email || n || "",
+        email: F.email || n || "",
         all_sessions: y,
         session_ids: Y
       }, { token: o });
@@ -2826,7 +2838,7 @@ function fC({
         W(y ? [] : (X) => X.filter(($) => !Y.includes($._id))), M(e.logoutSuccess), d && d(AA);
       else {
         const X = AA.message || AA.error || "Logout failed";
-        G(X), u && u(X);
+        G(X), f && f(X);
       }
     } catch (AA) {
       console.error("⚠️ Logout Sessions Error:", AA), G(e.connectionError);
@@ -2893,7 +2905,7 @@ function fC({
               /* @__PURE__ */ A.jsx("h1", { className: "cil-text-4xl md:cil-text-5xl cil-font-black cil-text-gray-900 cil-tracking-tight", children: p }),
               /* @__PURE__ */ A.jsxs("div", { className: "cil-flex cil-items-center cil-justify-center md:cil-justify-start cil-gap-2 cil-text-gray-600", children: [
                 /* @__PURE__ */ A.jsx(Og, { className: "cil-w-5 cil-h-5" }),
-                /* @__PURE__ */ A.jsx("span", { className: "cil-text-lg cil-font-medium", children: f.email || n })
+                /* @__PURE__ */ A.jsx("span", { className: "cil-text-lg cil-font-medium", children: F.email || n })
               ] }),
               IA && /* @__PURE__ */ A.jsxs("p", { className: "cil-text-gray-600 cil-max-w-2xl cil-leading-relaxed cil-italic", children: [
                 '"',
@@ -2925,7 +2937,7 @@ function fC({
         style: { backgroundColor: r },
         children: [
           /* @__PURE__ */ A.jsx(aA, { message: j }),
-          /* @__PURE__ */ A.jsx(jA, { message: P }),
+          /* @__PURE__ */ A.jsx(DA, { message: P }),
           /* @__PURE__ */ A.jsxs("div", { className: "cil-grid cil-grid-cols-1 lg:cil-grid-cols-2 cil-gap-10", children: [
             /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-8", children: [
               /* @__PURE__ */ A.jsxs("div", { className: "cil-space-y-4", children: [
@@ -2940,7 +2952,7 @@ function fC({
                   ] }),
                   /* @__PURE__ */ A.jsxs("div", { className: "cil-group", children: [
                     /* @__PURE__ */ A.jsx("p", { className: "cil-text-xs cil-uppercase cil-font-bold cil-text-gray-400 cil-tracking-widest cil-mb-1.5", children: e.email }),
-                    /* @__PURE__ */ A.jsx("p", { className: "cil-text-base cil-font-semibold cil-text-gray-700 cil-group-hover:text-gray-900 cil-transition-colors", children: f.email || n })
+                    /* @__PURE__ */ A.jsx("p", { className: "cil-text-base cil-font-semibold cil-text-gray-700 cil-group-hover:text-gray-900 cil-transition-colors", children: F.email || n })
                   ] })
                 ] })
               ] }),
@@ -3053,7 +3065,7 @@ function fC({
             /* @__PURE__ */ A.jsx(
               "button",
               {
-                onClick: () => F && F("change-password"),
+                onClick: () => u && u("change-password"),
                 className: "cil-px-10 cil-py-4 cil-rounded-2xl cil-font-bold cil-text-base cil-text-white cil-shadow-lg cil-transition-all cil-active:scale-95 cil-hover:brightness-110 cil-hover:shadow-xl",
                 style: { backgroundColor: B },
                 children: e.changePassword

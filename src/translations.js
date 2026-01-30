@@ -83,8 +83,8 @@ export const translations = {
         enterRecoveryCode: "Enter recovery code",
         enterCodeAndPassword: "Enter code and password",
         min8Chars: "At least 8 characters",
-        resendCode: "Resend Code",
-        resendCodeIn: "Resend code in: ",
+        resendCode: "Resend Link",
+        resendCodeIn: "Resend link in: ",
         close: "Close"
     },
     es: {
@@ -166,8 +166,8 @@ export const translations = {
         enterRecoveryCode: "Ingresa el código de recuperación",
         enterCodeAndPassword: "Ingresar código y contraseña",
         min8Chars: "Mínimo 8 caracteres",
-        resendCode: "Reenviar Código",
-        resendCodeIn: "Reenviar código en: ",
+        resendCode: "Reenviar Enlace",
+        resendCodeIn: "Reenviar enlace en: ",
         close: "Cerrar"
     }
 };

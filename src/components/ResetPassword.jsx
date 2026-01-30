@@ -432,22 +432,38 @@ export default function ResetPassword({
 
 
                     <div className="cil-pt-2 cil-text-center cil-space-y-3">
-                        {countdown > 0 ? (
-                            <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
-                                {t.resendCodeIn}
-                                <span className="cil-font-bold">{formatTime(countdown)}</span>
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={handleResendCode}
-                                disabled={isResending || !userEmail}
-                                className="cil-text-sm cil-font-medium cil-hover:underline"
-                                style={primaryTextStyle}
-                            >
-                                {isResending ? t.loading : t.resendCode}
-                            </button>
-                        )}
+                        <div className="cil-flex cil-flex-col cil-gap-2">
+                            <span className="cil-text-xs cil-text-gray-500">
+                                {t.dontReceiveEmail || (lang === 'es' ? '¿No recibiste el correo?' : "Didn't receive the email?") }
+                            </span>
+                            {userEmail ? (
+                                countdown > 0 ? (
+                                    <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
+                                        {t.resendCodeIn}
+                                        <span className="cil-font-bold">{formatTime(countdown)}</span>
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleResendCode}
+                                        disabled={isResending}
+                                        className="cil-text-sm cil-font-medium cil-hover:underline"
+                                        style={primaryTextStyle}
+                                    >
+                                        {isResending ? t.loading : t.resendCode}
+                                    </button>
+                                )
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => onNavigate && onNavigate('forgot-password')}
+                                    className="cil-text-sm cil-font-medium cil-hover:underline"
+                                    style={primaryTextStyle}
+                                >
+                                    {t.sendResetLink || t.resendCode}
+                                </button>
+                            )}
+                        </div>
 
                         <button
                             type="button"
