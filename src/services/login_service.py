@@ -870,7 +870,7 @@ def send_manual_confirmation_email(email, auth_row_id=None):
         # Determine the frontend URL (Dynamic resolution via Identity Service)
         from src.services.identity_service import identity_service
         frontend_url = identity_service.get_frontend_url()
-        verification_link = f"{frontend_url}/verify-email?token={token}&view=email-verification"
+        verification_link = f"{frontend_url}/verify-email?token={token}&view=email-verification&auth=1"
 
         # HTML Body
         body_html = f"""\
@@ -1240,7 +1240,7 @@ def send_password_reset_email(email):
         # Determine the frontend URL (Dynamic resolution via Identity Service)
         from src.services.identity_service import identity_service
         frontend_url = identity_service.get_frontend_url()
-        reset_link = f"{frontend_url}/reset-password?token={reset_token}&view=reset-password"
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}&view=reset-password&auth=1"
 
         body_html = f"""\
         <html>
@@ -1740,7 +1740,7 @@ def process_welcome_email_flow(table_name, subject_template, body_html_template)
                 rendered_body = body_html_template.replace("{{Application}}", pv["app_name"])
                 rendered_body = rendered_body.replace("{{FirstName}}", pv["first_name"])
                 rendered_body = rendered_body.replace("{{Email}}", pv["email"])
-                rendered_body = rendered_body.replace("{{Token}}", pv["token"])
+                rendered_body = rendered_body.replace("{{Token}}", f"{pv['token']}&auth=1")
                 rendered_body = rendered_body.replace("{{Public URL}}", pv["public_url"])
                 rendered_body = rendered_body.replace("{{Notifications Email}}", notifications_email)
                 
