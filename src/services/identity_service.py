@@ -299,7 +299,12 @@ class IdentityService:
         logger.info(f"🔍 DEBUG - Is local URL? {is_local} (URL: '{current_url}')")
         
         if is_local:
-            override_url = "https://insights.prismgrp.com"
+            # Fallback específico por puerto
+            if ":5175" in current_url:
+                override_url = "https://eprcrm.prismgrp.com"
+            else:
+                override_url = "https://insights.prismgrp.com"
+
             logger.warning(f"⚠️ Localhost Match Failure (URL: {current_url}): Defaulting to {override_url} for dev")
             return self.get_app_key_by_url(override_url)
 
