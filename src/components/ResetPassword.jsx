@@ -40,6 +40,7 @@ export default function ResetPassword({
     const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
     const effectiveToken = initialToken || urlParams?.get('token') || '';
     const effectiveAuthMode = authMode || urlParams?.get('auth') || '0';
+    const effectiveEmail = userEmail || urlParams?.get('email') || '';
 
     const [formData, setFormData] = useState({
         token: effectiveToken,
@@ -92,12 +93,12 @@ export default function ResetPassword({
     };
 
     const handleResendCode = async () => {
-        if (!userEmail || countdown > 0) return;
+        if (!effectiveEmail || countdown > 0) return;
         setIsResending(true);
         setLocalError('');
 
         try {
-            const data = await post('/forgot-password', { email: userEmail });
+            const data = await post('/forgot-password', { email: effectiveEmail });
 
             if (data.success) {
                 if (data.wait_seconds) setCountdown(data.wait_seconds);
@@ -200,7 +201,7 @@ export default function ResetPassword({
         setLocalSuccess('');
         try {
             const data = await post('/logout_sessions', {
-                email: userEmail || '',
+                email: effectiveEmail || '',
                 all_sessions: all,
                 session_ids: sessionIds
             }, { token: currentAuthToken });
@@ -436,22 +437,22 @@ export default function ResetPassword({
                             <span className="cil-text-xs cil-text-gray-500">
                                 {t.dontReceiveEmail || (lang === 'es' ? '¿No recibiste el correo?' : "Didn't receive the email?") }
                             </span>
-                            {userEmail ? (
+                            {effectiveEmail ? (
                                 countdown > 0 ? (
                                     <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
                                         {t.resendCodeIn}
                                         <span className="cil-font-bold">{formatTime(countdown)}</span>
                                     </div>
                                 ) : (
-                                    <button
-                                        type="button"
-                                        onClick={handleResendCode}
-                                        disabled={isResending}
-                                        className="cil-text-sm cil-font-medium cil-hover:underline"
-                                        style={primaryTextStyle}
-                                    >
-                                        {isResending ? t.loading : t.resendCode}
-                                    </button>
+                                <button
+                                    type="button"
+                                    onClick={handleResendCode}
+                                    disabled={isResending}
+                                    className="cil-text-sm cil-font-medium cil-hover:underline"
+                                    style={primaryTextStyle}
+                                >
+                                    {isResending ? t.loading : t.resendCode}
+                                </button>
                                 )
                             ) : (
                                 <button

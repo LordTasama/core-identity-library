@@ -3,7 +3,7 @@
  * Objetivo: Permitir a los usuarios solicitar un restablecimiento de contraseña mediante su correo electrónico.
  * Descripción: Renderiza un formulario para recolectar el correo y gestiona el envío del enlace de recuperación a través de la API.
  */
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { translations } from '../translations';
 import { useSecurity } from '../hooks/useSecurity';
 import { useAuthApi } from '../hooks/useAuthApi';
@@ -32,13 +32,37 @@ export default function ForgotPassword({
     const [isLoading, setIsLoading] = useState(false);
     const [sent, setSent] = useState(false);
     const [localError, setLocalError] = useState('');
+    const [countdown, setCountdown] = useState(0);
+    const timerRef = useRef(null);
+
+    // Countdown logic
+    useEffect(() => {
+        if (countdown > 0) {
+            timerRef.current = setInterval(() => {
+                setCountdown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timerRef.current);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(timerRef.current);
+    }, [countdown]);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         setIsLoading(true);
         setLocalError('');
 
@@ -47,10 +71,12 @@ export default function ForgotPassword({
 
             if (data.success) {
                 setSent(true);
+                if (data.wait_seconds) setCountdown(data.wait_seconds);
                 if (onSuccess) onSuccess({ ...data, email });
             } else {
                 const errorMsg = data.message || data.error || t.unknownError;
                 setLocalError(errorMsg);
+                if (data.wait_seconds) setCountdown(data.wait_seconds);
                 if (onError) onError(errorMsg);
                 setIsLoading(false);
             }
@@ -109,13 +135,35 @@ export default function ForgotPassword({
                             {t.verifyEmailMessage}
                         </p>
                     </div>
-                    <div className="cil-pt-4">
-                        <button
-                            onClick={() => onNavigate && onNavigate('login')}
-                            className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-border cil-border-gray-200 cil-hover:bg-gray-50"
-                        >
-                            {t.backToLogin}
-                        </button>
+                    <div className="cil-space-y-4">
+                        <div className="cil-flex cil-flex-col cil-gap-2">
+                            <span className="cil-text-xs cil-text-gray-500">
+                                {t.dontReceiveEmail || (lang === 'es' ? '¿No recibiste el correo?' : "Didn't receive the email?") }
+                            </span>
+                            {countdown > 0 ? (
+                                <div className="cil-text-xs cil-text-gray-500 cil-font-mono">
+                                    {t.resendCodeIn}
+                                    <span className="cil-font-bold">{formatTime(countdown)}</span>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={isLoading}
+                                    className="cil-text-sm cil-font-medium cil-hover:underline"
+                                    style={primaryTextStyle}
+                                >
+                                    {isLoading ? t.sending : t.resendCode}
+                                </button>
+                            )}
+                        </div>
+                        <div className="cil-pt-2">
+                            <button
+                                onClick={() => onNavigate && onNavigate('login')}
+                                className="cil-w-full cil-h-10 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-colors cil-border cil-border-gray-200 cil-hover:bg-gray-50"
+                            >
+                                {t.backToLogin}
+                            </button>
+                        </div>
                     </div>
                 </div>
             ) : (
