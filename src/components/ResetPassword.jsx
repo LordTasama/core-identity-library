@@ -37,8 +37,12 @@ export default function ResetPassword({
     const backgroundColor = propBackgroundColor;
     const { post } = useAuthApi(apiBaseUrl, apiToken);
 
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const effectiveToken = initialToken || urlParams?.get('token') || '';
+    const effectiveAuthMode = authMode || urlParams?.get('auth') || '0';
+
     const [formData, setFormData] = useState({
-        token: initialToken,
+        token: effectiveToken,
         newPassword: '',
         confirmPassword: ''
     });
@@ -320,7 +324,7 @@ export default function ResetPassword({
         );
     }
 
-    const isSocialReset = authMode === '1';
+    const isSocialReset = effectiveAuthMode === '1';
 
     return (
         <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border" style={cardStyle}>
@@ -423,7 +427,7 @@ export default function ResetPassword({
                         type="submit"
                         className="cil-w-full cil-h-11 cil-inline-flex cil-items-center cil-justify-center cil-rounded-md cil-text-sm cil-font-medium cil-transition-all cil-duration-200 cil-focus:outline-none cil-focus:ring-2 cil-focus:ring-offset-2 cil-disabled:opacity-70 cil-disabled:cursor-not-allowed"
                         style={primaryButtonStyle}
-                        disabled={isLoading || (!formData.token && !initialToken)}
+                        disabled={isLoading || (!formData.token && !effectiveToken)}
                     >
                         {isLoading ? (
                             <div className="cil-flex cil-items-center cil-gap-2">

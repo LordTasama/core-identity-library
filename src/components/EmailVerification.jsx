@@ -29,24 +29,27 @@ export default function EmailVerification({
     const primaryColor = propPrimaryColor;
     const backgroundColor = propBackgroundColor;
     const { post } = useAuthApi(apiBaseUrl, apiToken);
-    const [status, setStatus] = useState(token ? 'verifying' : 'idle'); // idle, verifying, success, error
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const effectiveToken = token || urlParams?.get('token') || '';
+
+    const [status, setStatus] = useState(effectiveToken ? 'verifying' : 'idle'); // idle, verifying, success, error
     const [message, setMessage] = useState('');
     const [localError, setLocalError] = useState('');
 
     useEffect(() => {
-        if (token && status === 'verifying') {
-            verifyAccount();
+        if (effectiveToken && status === 'verifying') {
+            verifyAccount(effectiveToken);
         }
-    }, [token]);
+    }, [token, effectiveToken]);
 
     if (!isAuthorized) {
         return <AuthError lang={lang} />;
     }
 
-    const verifyAccount = async () => {
+    const verifyAccount = async (tokenToVerify) => {
         setLocalError('');
         try {
-            const data = await post('/verify-email', { token });
+            const data = await post('/verify-email', { token: tokenToVerify });
 
             if (data.success) {
                 setStatus('success');
@@ -79,7 +82,7 @@ export default function EmailVerification({
     };
 
     // UI for when we are verifying or finished verifying
-    if (token) {
+    if (effectiveToken) {
         return (
             <div className="cil-w-full cil-max-w-md cil-mx-auto cil-p-6 cil-rounded-lg cil-shadow-lg cil-border cil-text-center" style={cardStyle}>
                 <div className="cil-space-y-1 cil-mb-6">

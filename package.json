@@ -1,6 +1,6 @@
 {
     "name": "core-identity-library",
-    "version": "1.4.31",
+    "version": "1.4.4",
     "description": "Standalone authentication UI components for React with pre-compiled styles (no Tailwind required)",
     "type": "module",
     "main": "./dist/core-identity-library.umd.cjs",
@@ -22,11 +22,11 @@
         "demo": "vite demo/index.html"
     },
     "peerDependencies": {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "react": "^18.2.0 || ^19.0.0",
+        "react-dom": "^18.2.0 || ^19.0.0",
         "@tanstack/react-query": "^5.17.0",
-        "lucide-react": "^0.294.0",
-        "react-icons": "^4.12.0"
+        "lucide-react": ">=0.294.0",
+        "react-icons": ">=4.12.0"
     },
     "devDependencies": {
         "@types/react": "^18.2.0",
