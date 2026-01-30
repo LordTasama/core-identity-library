@@ -27,7 +27,6 @@ from src.services.login_service import (
     process_microsoft_callback,
     change_password_service,
     prepare_session_data,
-    verify_session,
     resend_confirmation_email_logic,
     get_fallback_session,
     create_session,
@@ -36,7 +35,7 @@ from src.services.login_service import (
     _get_user_context,
     process_welcome_email_flow
 )
-from src.utils import login_required, get_current_user
+from src.utils import login_required
 from src.utils.handshake import generate_handshake_code, validate_handshake_code
 from src.utils.i18n import t
 from src.utils.logger import logger
@@ -382,16 +381,17 @@ def verify_email():
         if not token:
             return jsonify({'success': False, 'message': t('invalid_token', error='required')}), 400
             
-        if confirm_email_manual(token):
+        result = confirm_email_manual(token)
+        if result.get("success"):
             return jsonify({
                 'success': True,
-                'message': 'Email verified successfully. You can now log in.'
+                'message': result.get("message")
             }), 200
         else:
             return jsonify({
                 'success': False,
-                'message': 'Invalid or expired verification code'
-            }), 400
+                'message': result.get("message")
+            }), 200
             
     except Exception as e:
         print(f"❌ Error in verify_email: {e}")

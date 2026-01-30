@@ -867,9 +867,10 @@ def send_manual_confirmation_email(email, auth_row_id=None):
         # Preparar datos del correo
         subject = "[Prism Group] Your Account Verification"
         
-        # Determine the frontend URL (from Config or fallback)
-        frontend_url = getattr(Config, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
-        verification_link = f"{frontend_url}/verify-email?token={token}"
+        # Determine the frontend URL (Dynamic resolution via Identity Service)
+        from src.services.identity_service import identity_service
+        frontend_url = identity_service.get_frontend_url()
+        verification_link = f"{frontend_url}/verify-email?token={token}&view=email-verification"
 
         # HTML Body
         body_html = f"""\
@@ -1004,7 +1005,7 @@ def confirm_email_manual(token):
         rows = seatable.sql_query(f"SELECT * FROM `Auth Methods` WHERE Token = '{escaped_token}'", base_data="core_identity")
         if not rows:
             print("❌ Token not found")
-            return False
+            return {"success": False, "message": "Verification code not found or already used."}
 
         user_data = rows[0]
         row_id = user_data.get("_id")
@@ -1018,7 +1019,7 @@ def confirm_email_manual(token):
                 diff = now - last_sent_dt
                 if diff.total_seconds() > 86400:  # 24 hours
                     print(f"❌ Token expired ({(diff.total_seconds()/3600):.1f} hours elapsed)")
-                    return False
+                    return {"success": False, "message": "Verification code has expired. Please request a new one."}
             except Exception as e:
                 print(f"⚠️ Error checking expiration: {e}")
 
@@ -1026,10 +1027,10 @@ def confirm_email_manual(token):
         print("✏️ Updating record in SeaTable...")
         seatable.perform_table_operation("Auth Methods", row_data={"Verified": True, "Token": None}, type_batch="update_row", row_id=row_id, base_data="core_identity")
         print("✅ Record successfully updated")    
-        return True
+        return {"success": True, "message": "Email verified successfully. You can now log in."}
     except Exception as e:
         print(f"❌ Error confirming email: {e}")
-        return False
+        return {"success": False, "message": str(e)}
 
 
 # ============================================================================
@@ -1236,9 +1237,10 @@ def send_password_reset_email(email):
         # Preparar datos del correo
         subject = "Reset Your Password - Core Identity"
         
-        # Determine the frontend URL
-        frontend_url = getattr(Config, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
-        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+        # Determine the frontend URL (Dynamic resolution via Identity Service)
+        from src.services.identity_service import identity_service
+        frontend_url = identity_service.get_frontend_url()
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}&view=reset-password"
 
         body_html = f"""\
         <html>
@@ -2569,7 +2571,7 @@ def verify_session(email=None, token=None):
         # 1. Search for token in Sessions (Real-time security step but with 1 less query)
         # We bring 'Auth Method' to be able to verify the real status of the account later
         # Optimization: Use SQL query once
-        query = f"SELECT `_id`, `Status`, `Token`, `Auth Method`, `Auth Method.Identity.Status` as `id_status` FROM `Sessions` WHERE `Token` = '{token}'"
+        query = f"SELECT `_id`, `Status`, `Token`, `Auth Method`, `Identity Status` as `id_status` FROM `Sessions` WHERE `Token` = '{token}'"
         session_rows = seatable.sql_query(query, base_data="core_identity")
         
         if not session_rows:

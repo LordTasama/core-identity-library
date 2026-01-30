@@ -43,6 +43,17 @@ def create_app():
         g.lang = lang
 
     @app.before_request
+    def resolve_app_context():
+        """
+        Global detection of App Key and Frontend URL.
+        Stored in 'g' for accessibility across routes and services.
+        """
+        from src.services.identity_service import identity_service
+        # This will populate g.app_key and g.frontend_url via their internal logic
+        identity_service.get_app_key_by_url()
+        identity_service.get_frontend_url()
+
+    @app.before_request
     def check_api_key():
         # Permitir peticiones OPTIONS (CORS preflight) sin validar API Key
         if request.method == 'OPTIONS':

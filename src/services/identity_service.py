@@ -173,11 +173,64 @@ class IdentityService:
 
 
 
+    def get_frontend_url(self, current_url=None):
+        """
+        Resolves the most appropriate base URL for the frontend.
+        Priority: 
+        1. X-REQUEST-URL header
+        2. Public URL of the detected app
+        3. Config.FRONTEND_URL fallback
+        """
+        from flask import g
+        # Per-request cache
+        if hasattr(g, 'frontend_url'):
+            return g.frontend_url
+
+        # 1. Detection via headers (if in request context)
+        detected_url = None
+        try:
+            detected_url = request.headers.get('X-REQUEST-URL') or request.headers.get('X-Request-Url')
+            if not detected_url:
+                referer = request.headers.get('Referer')
+                if referer:
+                    # Clean the referer to get only the origin
+                    from urllib.parse import urlparse
+                    parsed = urlparse(referer)
+                    detected_url = f"{parsed.scheme}://{parsed.netloc}"
+        except Exception:
+            pass
+
+        if detected_url:
+            res = detected_url.rstrip('/')
+            g.frontend_url = res
+            return res
+
+        # 2. Match with App Profile results
+        app_key = self.get_app_key_by_url(current_url)
+        if app_key:
+            apps = self._get_all_apps_cached()
+            app_meta = next((a for a in apps if a.get("App Key") == app_key), {})
+            pub_url = app_meta.get("Public URL")
+            if pub_url:
+                res = pub_url.rstrip('/')
+                g.frontend_url = res
+                return res
+
+        # 3. Final Fallback
+        res = getattr(Config, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+        g.frontend_url = res
+        return res
+
     def get_app_key_by_url(self, current_url=None):
         """
         Searches the Applications table for the application that matches the provided URL.
         Uses prefix match and looks for the most specific one (longest).
         """
+        from flask import g
+        # Per-request cache
+        if hasattr(g, 'app_key') and g.app_key:
+            return g.app_key
+
         source = "argument"
         if not current_url:
             source = "backend_host"
@@ -235,6 +288,7 @@ class IdentityService:
         
         if app_key:
             logger.info(f"✅ APP DETECTED: {app_key} for URL '{current_url}' (Source: {source})")
+            g.app_key = app_key
             return app_key
         
         # DEBUG: Log why match failed
@@ -250,6 +304,7 @@ class IdentityService:
             return self.get_app_key_by_url(override_url)
 
         logger.error(f"❌ {t('app_not_found', url=current_url)}")
+        g.app_key = None
         return None
 
     def get_identity_permissions(self, identity_id, app_key, identity_row=None, user_email=None, bypass_cache=False):
