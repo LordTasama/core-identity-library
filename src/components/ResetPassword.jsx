@@ -335,52 +335,45 @@ export default function ResetPassword({
                 </p>
             </div>
 
-            {isSocialReset ? (
-                <div className="cil-space-y-6">
-                    <p className="cil-text-sm cil-text-center cil-text-gray-600">
-                        {t.socialResetMsg || 'Please use your social account to finish the reset process.'}
-                    </p>
-                    <SocialAuthButtons
-                        apiBaseUrl={apiBaseUrl}
-                        user={user}
-                        primaryColor={primaryColor}
-                        onSuccess={onSuccess}
-                        onError={(err) => {
-                            setLocalError(err);
-                            if (onError) onError(err);
-                        }}
-                        lang={lang}
-                        apiToken={apiToken}
-                        texts={customTexts}
-                    />
-                    <div className="cil-pt-2 cil-text-center">
-                        <button
-                            type="button"
-                            onClick={() => onNavigate && onNavigate('login')}
-                            className="cil-w-full cil-text-sm cil-font-medium cil-hover:underline cil-text-center cil-text-gray-500"
-                        >
-                            {t.backToLogin}
-                        </button>
-                    </div>
-                </div>
-            ) : (
+            <div className="cil-space-y-4">
+                {isSocialReset && (
+                    <>
+                        <div className="cil-space-y-4">
+                            <p className="cil-text-sm cil-text-center cil-text-gray-600">
+                                {t.socialResetMsg || 'Verify your identity with social login or use the form below'}
+                            </p>
+                            <SocialAuthButtons
+                                apiBaseUrl={apiBaseUrl}
+                                user={user}
+                                primaryColor={primaryColor}
+                                onSuccess={(data) => {
+                                    if (onSuccess) onSuccess(data);
+                                }}
+                                onError={(err) => {
+                                    setLocalError(err);
+                                    if (onError) onError(err);
+                                }}
+                                lang={lang}
+                                apiToken={apiToken}
+                                texts={customTexts}
+                            />
+                        </div>
+
+                        <div className="cil-relative cil-py-2">
+                            <div className="cil-absolute cil-inset-0 cil-flex cil-items-center">
+                                <div className="cil-w-full cil-border-t cil-border-gray-200"></div>
+                            </div>
+                            <div className="cil-relative cil-flex cil-justify-center cil-text-xs cil-uppercase">
+                                <span className="cil-px-2 cil-text-gray-500" style={cardStyle}>
+                                    {t.or}
+                                </span>
+                            </div>
+                        </div>
+                    </>
+                )}
+
                 <form onSubmit={handleSubmit} className="cil-space-y-4">
                     <FormError message={localError} />
-
-                    {/* Manual token input commented out as requested */}
-                    {/* 
-                    <div className="cil-space-y-2">
-                        <label className="cil-text-sm cil-font-medium">{t.verificationCode}</label>
-                        <input
-                            type="text"
-                            value={formData.token}
-                            onChange={(e) => setFormData({ ...formData, token: e.target.value })}
-                            required
-                            className="cil-flex cil-h-10 cil-w-full cil-rounded-md cil-border cil-border-gray-200 cil-bg-white cil-px-3 cil-py-2 cil-text-sm cil-focus:outline-none cil-ring-2 cil-focus:ring-offset-2 cil-font-mono cil-tracking-widest cil-text-center"
-                            placeholder="XXXXXX"
-                        />
-                    </div>
-                    */}
 
                     <div className="cil-space-y-2">
                         <label className="cil-text-sm cil-font-medium">{t.newPassword}</label>
@@ -465,7 +458,7 @@ export default function ResetPassword({
                         </button>
                     </div>
                 </form>
-            )}
+            </div>
         </div>
     );
 }
