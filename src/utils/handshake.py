@@ -14,7 +14,7 @@ import jwt
 import datetime
 from config import Config
 
-def generate_handshake_code(user_data, expires_in=300):
+def generate_handshake_code(user_data, expires_in=600):
     """
     Genera un token JWT firmado que contiene el contexto completo del usuario.
     
